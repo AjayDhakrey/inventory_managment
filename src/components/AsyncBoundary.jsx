@@ -1,6 +1,6 @@
 /** Standard loading / error / empty presentation for API-driven screens. */
 function AsyncBoundary({ loading, error, isEmpty, emptyText = 'Nothing here yet.', onRetry, children }) {
-  if (loading) return <div className="async-state">Loading…</div>
+  if (loading) return <div className="async-state async-loading" role="status" aria-live="polite"><span className="loading-spinner" aria-hidden="true" />Loading…</div>
   if (error) {
     return (
       <div className="async-state async-error">

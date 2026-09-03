@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import "./App.css";
 import BusinessSetup from "./components/BusinessSetup.jsx";
 import Products from "./components/Products.jsx";
@@ -28,12 +29,16 @@ import { getToken, setToken } from "./api/client.js";
 import { useResource } from "./hooks/useResource.js";
 
 const LOW_STOCK_LIMIT = 10;
-function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
+function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onToggleTheme }) {
   const [activeNav, setActiveNav] = useState("Overview");
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [overviewMenu, setOverviewMenu] = useState(null);
   const [search, setSearch] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [notif, setNotif] = useState({ items: [], unreadCount: 0 });
+  const userMenuRef = useRef(null);
+  const overviewMenuRef = useRef(null);
 
   const loadProducts = useCallback(() => productApi.list(), []);
   const {
@@ -56,7 +61,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
     Products: "view_inventory", "Bulk Import": ["create_product", "stock_in"], Categories: "view_inventory", Stock: "view_inventory",
     "Stock In": "stock_in", "Stock Out": "stock_out", Adjustments: "edit_product", "Stock History": "view_inventory",
     Suppliers: "view_inventory", "Purchase Orders": "view_inventory", Receiving: "stock_in", "POS / Billing": "process_pos_sale",
-    Orders: "create_order", Customers: "create_order", Returns: "create_order", Payments: "view_reports",
+    Orders: "create_order", Customers: "create_order", Returns: "create_order", Payments: "view_reports", Reports: "view_reports",
   };
   const canOpen = (item) => {
     const required = navPermission[item];
@@ -84,6 +89,24 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [mobileNavOpen]);
+  useEffect(() => {
+    if (!showUserMenu) return undefined;
+    const close = (event) => {
+      if (event.type === "keydown" ? event.key === "Escape" : !userMenuRef.current?.contains(event.target)) setShowUserMenu(false);
+    };
+    document.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", close);
+    return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
+  }, [showUserMenu]);
+  useEffect(() => {
+    if (!overviewMenu) return undefined;
+    const close = (event) => {
+      if (event.type === "keydown" ? event.key === "Escape" : !overviewMenuRef.current?.contains(event.target)) setOverviewMenu(null);
+    };
+    document.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", close);
+    return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
+  }, [overviewMenu]);
   const overviewProducts = (products || []).map((product) => [
     product.name,
     product.sku,
@@ -101,9 +124,18 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
       .toLowerCase()
       .includes(search.toLowerCase()),
   );
+  const inventoryValue = (products || []).reduce((total, product) => total + Number(product.currentStock || 0) * Number(product.costPrice || 0), 0);
+  const unitsInStock = (products || []).reduce((total, product) => total + Number(product.currentStock || 0), 0);
+  const lowStockCount = (products || []).filter((product) => Number(product.currentStock || 0) <= Number(product.minimumStock ?? LOW_STOCK_LIMIT)).length;
+  const overviewNavigation = {
+    Inventory: [["Catalog", ["Products", "Categories", "Bulk Import"]], ["Stock control", ["Stock In", "Stock Out", "Adjustments", "Stock History"]]],
+    Purchasing: [["Supply", ["Suppliers", "Purchase Orders", "Receiving"]]],
+    Sales: [["Sell", ["POS / Billing", "Orders", "Customers"]], ["After sales", ["Returns", "Payments"]]],
+    Business: [["Workspace", ["Business Profile", "Settings"]], ["Team & insights", ["Users", "Roles", "Permissions", "Reports"]]],
+  };
 
   return (
-    <main className={`dashboard-shell${mobileNavOpen ? " nav-open" : ""}`}>
+    <main className={`dashboard-shell industry-${String(business?.industry || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-")}${mobileNavOpen ? " nav-open" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
       <aside className="dashboard-sidebar" id="dashboard-navigation">
         <div className="dashboard-brand brand-mark">
           <span className="mark-icon" aria-hidden="true">
@@ -181,6 +213,15 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
         onClick={() => setMobileNavOpen(false)}
       />
       <section className="dashboard-main">
+        {String(business?.industry || "").toLowerCase() === "clothing" && <div className="clothing-motion" aria-hidden="true"><span /><span /><span /><span /></div>}
+        {sidebarCollapsed ? (
+          <div className="desktop-collapsed-bar">
+            <span className="brand-mark collapsed-brand"><span className="mark-icon" aria-hidden="true"><span /></span><span>stockroom</span></span>
+            <button className="desktop-sidebar-toggle" type="button" aria-label="Open sidebar" aria-expanded="false" onClick={() => setSidebarCollapsed(false)}><span aria-hidden="true">☰</span></button>
+          </div>
+        ) : (
+          <button className="desktop-sidebar-toggle" type="button" aria-label="Close sidebar" aria-expanded="true" onClick={() => setSidebarCollapsed(true)}><span aria-hidden="true">‹</span></button>
+        )}
         <div className="mobile-dashboard-bar">
           <button
             className="mobile-menu-button"
@@ -220,12 +261,15 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
             </h1>
           </div>
           <div className="header-actions">
+            <button className="icon-button theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
+              <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span>
+            </button>
             <NotificationCenter
               onNavigate={openNotification}
               onOpen={() => setShowUserMenu(false)}
               onChange={setNotif}
             />
-            <div className="header-popover-wrap">
+            <div className="header-popover-wrap" ref={userMenuRef}>
               <button
                 className="user-chip"
                 type="button"
@@ -274,6 +318,23 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
         </header>
         {activeNav === "Overview" ? (
           <>
+            <div className="overview-quick-nav" ref={overviewMenuRef}>
+              <nav aria-label="Overview shortcuts">
+                {Object.keys(overviewNavigation).map((group) => {
+                  const available = overviewNavigation[group].some(([, items]) => items.some(canOpen));
+                  if (!available) return null;
+                  return <button type="button" key={group} className={overviewMenu === group ? "active" : ""} aria-expanded={overviewMenu === group} onClick={() => setOverviewMenu((current) => current === group ? null : group)}>{group}<span aria-hidden="true">⌄</span></button>;
+                })}
+              </nav>
+              <AnimatePresence>
+                {overviewMenu && <motion.div className="overview-mega-menu" initial={{ opacity: 0, y: -10, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: .98 }} transition={{ duration: .18 }}>
+                  {overviewNavigation[overviewMenu].map(([heading, items]) => {
+                    const visible = items.filter(canOpen);
+                    return visible.length > 0 && <section key={heading}><p>{heading}</p>{visible.map((item) => <button type="button" key={item} onClick={() => { navigateTo(item); setOverviewMenu(null); }}>{item}<span aria-hidden="true">→</span></button>)}</section>;
+                  })}
+                </motion.div>}
+              </AnimatePresence>
+            </div>
             <PosDashboardStats
               business={business}
               onOpen={() => navigateTo("POS / Billing")}
@@ -281,24 +342,18 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
             <div className="summary-row">
               <article className="summary-card dark-card">
                 <span className="summary-label">Inventory value</span>
-                <strong>$24,680</strong>
-                <span className="trend positive">
-                  ↗ 12.4% <small>vs last month</small>
-                </span>
+                <strong>{business.currency} {inventoryValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
+                <span className="trend neutral">Live cost value</span>
               </article>
               <article className="summary-card">
                 <span className="summary-label">Items in stock</span>
-                <strong>1,284</strong>
-                <span className="trend positive">
-                  ↗ 8.2% <small>vs last month</small>
-                </span>
+                <strong>{unitsInStock.toLocaleString()}</strong>
+                <span className="trend neutral">Across {(products || []).length} products</span>
               </article>
               <article className="summary-card">
-                <span className="summary-label">Open orders</span>
-                <strong>36</strong>
-                <span className="trend neutral">
-                  → 3.1% <small>vs last month</small>
-                </span>
+                <span className="summary-label">Needs restocking</span>
+                <strong>{lowStockCount}</strong>
+                <span className="trend neutral">At or below minimum stock</span>
               </article>
             </div>
             <div className="dashboard-grid">
@@ -459,6 +514,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
             section={activeNav}
             business={business}
             onBusinessUpdate={onBusinessUpdate}
+            onBusinessDeleted={onLogout}
           />
         ) : activeNav === "Settings" ? (
           <Settings business={business} onBusinessUpdate={onBusinessUpdate} />
@@ -537,6 +593,7 @@ const AUTH_COPY = {
 };
 
 function App() {
+  const [theme, setTheme] = useState(() => localStorage.getItem("stockroom-theme") || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
   const [initialReset] = useState(() => {
     try {
       return new URLSearchParams(window.location.search).get("reset") || "";
@@ -553,6 +610,12 @@ function App() {
   const [session, setSession] = useState(null);
   const [resetToken, setResetToken] = useState(initialReset);
   const copy = AUTH_COPY[mode];
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    localStorage.setItem("stockroom-theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     if (!getToken() || initialReset) return;
@@ -737,45 +800,32 @@ function App() {
         onBusinessUpdate={(business) =>
           setSession((current) => ({ ...current, business }))
         }
+        theme={theme}
+        onToggleTheme={() => setTheme((current) => current === "dark" ? "light" : "dark")}
       />
     );
   }
 
   return (
-    <main className="login-shell">
-      <section className="brand-panel">
-        <header className="brand-mark">
-          <span className="mark-icon" aria-hidden="true">
-            <span />
-          </span>
-          <span>stockroom</span>
-        </header>
-        <div className="brand-copy">
-          <p className="eyebrow">One clear view of your business</p>
-          <h1>
-            Make room
-            <br />
-            <em>to grow.</em>
-          </h1>
-          <p className="intro">
-            Inventory, orders, and every location in sync. Stockroom keeps your
-            team moving and your shelves honest.
-          </p>
-        </div>
-        <div className="panel-footer">
-          <span className="signal-dot" />
-          <span>Trusted by 2,400+ independent businesses</span>
-          <span className="footer-year">2024</span>
+    <main className="auth-motion-stage">
+      <header className="auth-motion-topbar brand-mark"><span className="mark-icon" aria-hidden="true"><span /></span><span>stockroom</span></header>
+      <section className="auth-feature-container" aria-labelledby="auth-features-title">
+        <h2 id="auth-features-title">Everything your business needs</h2>
+        <div className="auth-feature-list">
+          <div className="auth-feature-item">Inventory management</div>
+          <div className="auth-feature-item">Stock tracking</div>
+          <div className="auth-feature-item">POS &amp; billing</div>
+          <div className="auth-feature-item">Sales &amp; purchases</div>
+          <div className="auth-feature-item">Customers &amp; suppliers</div>
+          <div className="auth-feature-item">Reports &amp; alerts</div>
         </div>
       </section>
-      <section className="form-panel">
-        <div className="form-wrap">
-          <div className="mobile-mark brand-mark">
-            <span className="mark-icon" aria-hidden="true">
-              <span />
-            </span>
-            <span>stockroom</span>
-          </div>
+        <button className="public-theme-toggle" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
+          <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span> {theme === "dark" ? "Light" : "Dark"}
+        </button>
+      <MotionConfig transition={{ type: "spring", bounce: 0.24, visualDuration: 0.45 }}>
+        <AnimatePresence mode="wait">
+        <motion.div className="form-wrap auth-motion-card" key={mode} initial={{ opacity: 0, y: 70, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -24, scale: 0.96 }}>
           <div className="form-heading">
             <p className="eyebrow">{copy.eyebrow}</p>
             <h2>{copy.title}</h2>
@@ -940,8 +990,9 @@ function App() {
             By continuing, you agree to our <a href="#terms">Terms</a> and{" "}
             <a href="#privacy">Privacy Policy</a>.
           </p>
-        </div>
-      </section>
+        </motion.div>
+        </AnimatePresence>
+      </MotionConfig>
     </main>
   );
 }

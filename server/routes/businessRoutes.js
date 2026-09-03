@@ -4,6 +4,7 @@ import {
   createBusinessController,
   getMyBusinessController,
   updateMyBusinessController,
+  deleteMyBusinessController,
 } from '../controllers/businessController.js'
 
 export const businessRoutes = Router()
@@ -13,3 +14,4 @@ businessRoutes.post('/', createBusinessController)
 businessRoutes.get('/me', requireBusiness, requirePermission('view_dashboard'), getMyBusinessController)
 businessRoutes.patch('/me', requireBusiness, requirePermission('manage_users'), updateMyBusinessController)
 businessRoutes.put('/me', requireBusiness, requirePermission('manage_users'), updateMyBusinessController)
+businessRoutes.delete('/me', requireBusiness, requirePermission('manage_users'), deleteMyBusinessController)

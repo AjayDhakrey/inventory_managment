@@ -18,6 +18,7 @@ export default function NotificationCenter({ onNavigate, onOpen, onChange }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const previousUnread = useRef(0)
+  const popoverRef = useRef(null)
   const [pulse, setPulse] = useState(false)
 
   const load = useCallback(async () => {
@@ -50,6 +51,16 @@ export default function NotificationCenter({ onNavigate, onOpen, onChange }) {
     return () => { clearInterval(timer); window.removeEventListener('stockroom:data-changed', changed); document.removeEventListener('visibilitychange', visible) }
   }, [load])
 
+  useEffect(() => {
+    if (!open) return undefined
+    const close = (event) => {
+      if (event.type === 'keydown' ? event.key === 'Escape' : !popoverRef.current?.contains(event.target)) setOpen(false)
+    }
+    document.addEventListener('pointerdown', close)
+    window.addEventListener('keydown', close)
+    return () => { document.removeEventListener('pointerdown', close); window.removeEventListener('keydown', close) }
+  }, [open])
+
   const view = async (item) => {
     if (!item.readAt) await notificationApi.markRead(item.notificationId)
     setData((current) => ({ ...current, unreadCount: Math.max(0, current.unreadCount - (item.readAt ? 0 : 1)), items: current.items.map((row) => row.notificationId === item.notificationId ? { ...row, readAt: new Date().toISOString() } : row) }))
@@ -59,9 +70,9 @@ export default function NotificationCenter({ onNavigate, onOpen, onChange }) {
   const readAll = async () => { await notificationApi.markAllRead(); await load() }
   const dismiss = async (event, item) => { event.stopPropagation(); await notificationApi.dismiss(item.notificationId); await load() }
 
-  return <div className="header-popover-wrap">
+  return <div className="header-popover-wrap" ref={popoverRef}>
     <button className={`icon-button${pulse ? ' notif-pulse' : ''}`} type="button" aria-label={`Notifications${data.unreadCount ? `, ${data.unreadCount} unread` : ''}`} aria-expanded={open} onClick={() => { setOpen(!open); onOpen?.(); if (!open) load() }}>♢{data.unreadCount > 0 && <span className="notification-badge">{data.unreadCount > 99 ? '99+' : data.unreadCount}</span>}</button>
-    {open && <div className="header-popover notification-popover">
+    {open && <div className="header-popover notification-popover" role="dialog" aria-label="Notifications">
       <div className="notif-head"><span><strong>Notifications</strong><small>{data.unreadCount} unread</small></span>{data.unreadCount > 0 && <button type="button" onClick={readAll}>Mark all read</button>}</div>
       {loading && !data.items.length ? <p className="notif-status">Loading…</p> : error ? <div className="notif-status notif-status-error"><p>{error}</p><button type="button" onClick={load}>Retry</button></div> : !data.items.length ? <div className="notif-empty"><span aria-hidden="true">✓</span><strong>You're all caught up</strong><p>No important updates right now.</p></div> : <div className="notif-list">{data.items.map((item) => <div className={`notif-row ${item.severity} ${item.readAt ? 'read' : 'unread'}`} key={item.notificationId} role="button" tabIndex="0" onClick={() => view(item)} onKeyDown={(event) => event.key === 'Enter' && view(item)}><span className="notif-glyph" aria-hidden="true">{ICONS[item.category] || 'i'}</span><span className="notif-text"><strong>{item.title}</strong><small>{item.message}</small><em>{item.category} · {relativeTime(item.createdAt)}</em></span><button className="notif-dismiss" type="button" aria-label="Dismiss notification" onClick={(event) => dismiss(event, item)}>×</button></div>)}</div>}
       <button type="button" className="notif-footer" onClick={() => setAll(!all)}>{all ? 'Show recent notifications' : 'View all notifications'} <span>→</span></button>

@@ -4,6 +4,7 @@ import { Member } from '../models/Member.js'
 import { User } from '../models/User.js'
 import { ApiError } from '../utils/ApiError.js'
 import { signToken } from '../middleware/auth.js'
+import mongoose from 'mongoose'
 import { requireFields, assert, isEmail } from '../validators/assert.js'
 
 export async function createBusiness(user, payload = {}) {
@@ -60,6 +61,21 @@ export async function updateBusiness(businessId, payload = {}) {
   }
   await business.save()
   return business.toJSON()
+}
+
+export async function deleteBusiness(businessId, user) {
+  const business = await Business.findById(businessId)
+  if (!business) throw ApiError.notFound('Business not found.')
+  if (String(business.owner) !== String(user._id)) throw ApiError.forbidden('Only the business owner can delete this workspace.')
+
+  const scopedModels = mongoose.modelNames()
+    .filter((name) => !['Business', 'User'].includes(name))
+    .map((name) => mongoose.model(name))
+    .filter((Model) => Model.schema.path('business'))
+  await Promise.all(scopedModels.map((Model) => Model.deleteMany({ business: business._id })))
+  await User.updateMany({ business: business._id }, { $set: { business: null } })
+  await Business.deleteOne({ _id: business._id })
+  return { deleted: true }
 }
 
 export { User }

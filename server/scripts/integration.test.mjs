@@ -247,6 +247,14 @@ try {
   const custAfter = await call('GET', '/customers', { token })
   check('customer persists after reconnect', custAfter.json.data.some((c) => c.customerId === customerId))
   check('business isolation held (businessId stable)', afterRestart.json.data.every((x) => x.businessId === businessId), JSON.stringify(afterRestart.json.data))
+
+  // ---- owner-only business deletion and scoped cleanup ----
+  const teamDelete = await call('DELETE', '/businesses/me', { token: teamToken })
+  check('team member cannot delete business', [403, 404].includes(teamDelete.status))
+  const deleteBusiness = await call('DELETE', '/businesses/me', { token })
+  check('owner can delete business', deleteBusiness.status === 200 && deleteBusiness.json.data.deleted === true, JSON.stringify(deleteBusiness.json))
+  const ownerAfterDelete = await call('GET', '/auth/me', { token })
+  check('deleted business is detached from owner account', ownerAfterDelete.status === 200 && ownerAfterDelete.json.data.business === null, JSON.stringify(ownerAfterDelete.json))
 } catch (error) {
   fail += 1
   console.error('THREW:', error)

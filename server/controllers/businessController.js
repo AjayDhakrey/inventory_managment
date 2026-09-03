@@ -14,3 +14,7 @@ export const getMyBusinessController = asyncHandler(async (req, res) => {
 export const updateMyBusinessController = asyncHandler(async (req, res) => {
   ok(res, await businessService.updateBusiness(req.businessId, req.body), 'Business profile saved.')
 })
+
+export const deleteMyBusinessController = asyncHandler(async (req, res) => {
+  ok(res, await businessService.deleteBusiness(req.businessId, req.user), 'Business workspace deleted.')
+})

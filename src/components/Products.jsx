@@ -82,6 +82,7 @@ function Products({ business, account }) {
   };
 
   const deleteProduct = async (productId) => {
+    if (!window.confirm("Delete this product? This action cannot be undone.")) return;
     try {
       await productApi.remove(productId);
       setData((current) =>

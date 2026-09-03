@@ -320,7 +320,10 @@ export default function POS({ business, account }) {
       ? (beforeBillDiscount * Math.min(100, discountValue)) / 100
       : discountValue,
   );
-  const selectedOffer = (business.settings?.paymentOffers || []).find(
+  const activePaymentOffers = (business.settings?.paymentOffers || []).filter(
+    (offer) => offer.active !== false && offer.code,
+  );
+  const selectedOffer = activePaymentOffers.find(
     (offer) =>
       offer.active !== false &&
       offer.code === offerCode &&
@@ -728,11 +731,11 @@ export default function POS({ business, account }) {
               <select
                 value={offerCode}
                 onChange={(event) => setOfferCode(event.target.value)}
+                disabled={!activePaymentOffers.length}
+                title={activePaymentOffers.length ? "Select a payment offer" : "No payment offers are configured"}
               >
                 <option value="">No offer</option>
-                {(business.settings?.paymentOffers || [])
-                  .filter((offer) => offer.active !== false)
-                  .map((offer) => (
+                {activePaymentOffers.map((offer) => (
                     <option value={offer.code} key={offer.code}>
                       {offer.label || offer.code}
                     </option>
