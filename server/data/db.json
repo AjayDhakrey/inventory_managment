@@ -1,0 +1,16 @@
+{
+  "accounts": [],
+  "businesses": [],
+  "users": [],
+  "roles": [],
+  "products": [],
+  "suppliers": [],
+  "customers": [],
+  "purchaseOrders": [],
+  "receivings": [],
+  "orders": [],
+  "payments": [],
+  "stockTransactions": [],
+  "auditLogs": [],
+  "returns": []
+}

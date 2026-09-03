@@ -1,0 +1,48 @@
+{
+  "name": "imb",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server/server.js",
+    "server:dev": "nodemon server/server.js",
+    "dev:all": "concurrently -k -n api,web -c blue,green \"npm:server:dev\" \"npm:dev\"",
+    "seed": "node server/scripts/seed.js",
+    "seed:sample": "node server/scripts/seed-sample.js",
+    "seed:clothing": "node server/scripts/seed-wholesale-clothing.js",
+    "reset-password": "node server/scripts/reset-password.js",
+    "db:check": "node server/scripts/db-check.js",
+    "test:api": "node server/scripts/integration.test.mjs",
+    "build": "vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.4",
+    "multer": "^2.2.0",
+    "pdfjs-dist": "^5.4.624",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.0",
+    "concurrently": "^10.0.5",
+    "mongodb-memory-server": "^11.2.0",
+    "nodemon": "^3.1.14",
+    "oxlint": "^1.79.0",
+    "vite": "^8.2.2"
+  },
+  "overrides": {
+    "uuid": "11.1.1"
+  }
+}
