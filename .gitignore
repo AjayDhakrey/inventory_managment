@@ -31,3 +31,5 @@ server/data/*.local.json
 *.njsproj
 *.sln
 *.sw?
+
+.vercel
