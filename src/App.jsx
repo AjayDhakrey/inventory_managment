@@ -30,6 +30,7 @@ import { useResource } from "./hooks/useResource.js";
 const LOW_STOCK_LIMIT = 10;
 function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
   const [activeNav, setActiveNav] = useState("Overview");
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [notif, setNotif] = useState({ items: [], unreadCount: 0 });
@@ -64,9 +65,25 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
   const visibleNavigation = navigation
     .map(([section, items]) => [section, items.filter(canOpen)])
     .filter(([section, items]) => section === "Reports" ? can("view_reports") : items.length > 0);
-  const openNotification = (navTo) => {
+  const navigateTo = (navTo) => {
     setActiveNav(navTo);
+    setMobileNavOpen(false);
+    setShowUserMenu(false);
   };
+  const openNotification = navigateTo;
+
+  useEffect(() => {
+    if (!mobileNavOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setMobileNavOpen(false);
+    };
+    document.body.classList.add("mobile-nav-visible");
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.classList.remove("mobile-nav-visible");
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [mobileNavOpen]);
   const overviewProducts = (products || []).map((product) => [
     product.name,
     product.sku,
@@ -86,13 +103,21 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
   );
 
   return (
-    <main className="dashboard-shell">
-      <aside className="dashboard-sidebar">
+    <main className={`dashboard-shell${mobileNavOpen ? " nav-open" : ""}`}>
+      <aside className="dashboard-sidebar" id="dashboard-navigation">
         <div className="dashboard-brand brand-mark">
           <span className="mark-icon" aria-hidden="true">
             <span />
           </span>
           <span>stockroom</span>
+          <button
+            className="mobile-nav-close"
+            type="button"
+            aria-label="Close navigation"
+            onClick={() => setMobileNavOpen(false)}
+          >
+            ×
+          </button>
         </div>
         <div className="workspace-switcher">
           <span className="workspace-avatar">
@@ -108,7 +133,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
           <button
             className={activeNav === "Overview" ? "active" : ""}
             type="button"
-            onClick={() => setActiveNav("Overview")}
+            onClick={() => navigateTo("Overview")}
           >
             <span className="nav-symbol">▦</span>Overview
           </button>
@@ -117,7 +142,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
               <button
                 className={activeNav === section ? "active" : ""}
                 type="button"
-                onClick={() => setActiveNav(section)}
+                onClick={() => navigateTo(section)}
               >
                 <span className="nav-symbol">
                   {["◫", "♧", "▣", "↗", "⌁", "◒", "⚙"][index]}
@@ -132,7 +157,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
                       className={activeNav === item ? "active" : ""}
                       type="button"
                       key={item}
-                      onClick={() => setActiveNav(item)}
+                      onClick={() => navigateTo(item)}
                     >
                       {item}
                     </button>
@@ -148,7 +173,29 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
           </button>
         </div>
       </aside>
+      <button
+        className="mobile-nav-backdrop"
+        type="button"
+        aria-label="Close navigation"
+        tabIndex={mobileNavOpen ? 0 : -1}
+        onClick={() => setMobileNavOpen(false)}
+      />
       <section className="dashboard-main">
+        <div className="mobile-dashboard-bar">
+          <button
+            className="mobile-menu-button"
+            type="button"
+            aria-label="Open navigation"
+            aria-controls="dashboard-navigation"
+            aria-expanded={mobileNavOpen}
+            onClick={() => setMobileNavOpen(true)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <span className="mobile-page-title">{activeNav}</span>
+        </div>
         <div className="business-context">
           <span className="business-context-dot" />{" "}
           {business?.name || "Your business"} <span>/</span>{" "}
@@ -158,11 +205,18 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
           <div>
             <p className="dashboard-kicker">
               {activeNav === "Overview"
-                ? "Monday, August 31, 2026"
+                ? new Intl.DateTimeFormat(undefined, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  }).format(new Date())
                 : `Manage your ${activeNav.toLowerCase()}`}
             </p>
             <h1>
-              {activeNav === "Overview" ? "Good morning, Maison." : activeNav}
+              {activeNav === "Overview"
+                ? `Welcome back, ${account.name || account.email.split("@")[0]}.`
+                : activeNav}
             </h1>
           </div>
           <div className="header-actions">
@@ -222,7 +276,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
           <>
             <PosDashboardStats
               business={business}
-              onOpen={() => setActiveNav("POS / Billing")}
+              onOpen={() => navigateTo("POS / Billing")}
             />
             <div className="summary-row">
               <article className="summary-card dark-card">
@@ -259,7 +313,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
                   <button
                     className="outline-button"
                     type="button"
-                    onClick={() => setActiveNav("Products")}
+                    onClick={() => navigateTo("Products")}
                   >
                     View all <span>→</span>
                   </button>
@@ -356,7 +410,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate }) {
                 <button
                   className="restock-button"
                   type="button"
-                  onClick={() => setActiveNav("Purchase Orders")}
+                  onClick={() => navigateTo("Purchase Orders")}
                 >
                   Create purchase order <span>+</span>
                 </button>
