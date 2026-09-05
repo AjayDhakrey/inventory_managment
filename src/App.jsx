@@ -293,6 +293,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                       : "Retail"}
                   </span>
                 </div>
+                
 
                 <div className="workspace-detail-row">
                   <span className="workspace-detail-label">Access Level</span>
