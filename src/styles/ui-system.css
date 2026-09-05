@@ -1,0 +1,120 @@
+/* ============================================================================
+   STOCKROOM · UI SYSTEM
+   ----------------------------------------------------------------------------
+   Additive readability / contrast / spacing / table / responsive layer.
+   Loaded AFTER App.css so it wins cascade ties.
+
+   This file is purely presentational. It does NOT change markup, backend
+   logic, APIs, industryConfig, permissions, businessId isolation or any
+   workflow. Every value flows from the tokens in section 1 so future tweaks
+   stay reusable instead of becoming per-page patches.
+
+   Sections
+     1  Design tokens (light + dark)
+     2  Base typography & links
+     3  Low-contrast text → AA-compliant tones
+     4  Headings, kickers, section separation
+     5  Form controls (inputs / selects / textareas)
+     6  Buttons & interactive states
+     7  Cards & surfaces
+     8  Tables (shared)
+     9  Bulk Import — data-heavy table (high priority)
+    10  POS density polish
+    11  Modals — reachable scroll on any viewport
+    12  Async / empty / success / error states
+    13  Sidebar & header
+    14  Undefined-class fallbacks & misc
+    15  Dark-mode parity top-ups
+    16  Responsive refinements (1440 · 1366 · 1024 · 768 · 480 · 390)
+   ========================================================================== */
+
+/* ── 1 · Design tokens ───────────────────────────────────────────────────── */
+:root {
+  /* Readable type scale — replaces scattered 7-10px text */
+  --sr-fs-micro: 11px;      /* uppercase mono labels, table headers */
+  --sr-fs-caption: 12px;    /* dense cells, secondary meta */
+  --sr-fs-body: 13.5px;     /* default body / table cell text */
+  --sr-fs-body-lg: 15px;
+  --sr-lh: 1.55;
+
+  /* Spacing scale */
+  --sr-space-1: 4px;
+  --sr-space-2: 8px;
+  --sr-space-3: 12px;
+  --sr-space-4: 16px;
+  --sr-space-5: 20px;
+  --sr-space-6: 28px;
+
+  /* Radius & elevation */
+  --sr-radius-xs: 6px;
+  --sr-radius: 10px;
+  --sr-radius-lg: 16px;
+  --sr-radius-xl: 22px;
+  --sr-shadow-sm: 0 1px 2px rgba(24, 33, 29, .06), 0 1px 3px rgba(24, 33, 29, .10);
+  --sr-shadow-md: 0 6px 18px rgba(24, 33, 29, .12);
+  --sr-shadow-lg: 0 22px 50px rgba(24, 33, 29, .20);
+  --sr-shadow-glow: 0 10px 26px rgba(232, 108, 62, .28);
+
+  /* Gradients — reuse the brand orange + ink already used ad hoc elsewhere,
+     centralised here so the refresh in section 21 stays consistent. */
+  --sr-gradient-primary: linear-gradient(135deg, #f0916a 0%, var(--orange, #e86c3e) 55%, #d6552a 100%);
+  --sr-gradient-surface: linear-gradient(180deg, color-mix(in srgb, var(--sr-surface) 100%, transparent), var(--sr-surface));
+  --sr-ease: cubic-bezier(.22, 1, .36, 1);
+
+  /* Surfaces */
+  --bg: #f6f7f3;
+  --sr-surface: #ffffff;
+  --sr-surface-2: #f6f8f3;
+  --sr-surface-sunken: #eef1ea;
+  --surface-soft: var(--sr-surface-2);
+
+  /* Semantic colours used by onboarding and industry modules */
+  --success: #3f7f50;
+  --danger: #b23a24;
+
+  /* Lines — stronger than the original #e0e4de / #edf0eb */
+  --sr-border: #c6cec5;
+  --sr-border-strong: #a6b0a5;
+  --sr-divider: #dbe1d9;
+
+  /* Text — all AA on #fff and on --sr-surface-2 */
+  --sr-text: #1e2724;
+  --sr-text-soft: #55605a;   /* secondary text ~5.9:1 */
+  --sr-text-mute: #66716a;   /* tertiary / placeholder ~4.6:1, keep ≥12px */
+  --sr-accent-ink: #b5511e;  /* orange used as small text / links on light */
+
+  /* Controls */
+  --sr-control-h: 44px;
+  --sr-control-h-sm: 40px;
+  --sr-focus: 0 0 0 3px rgba(232, 108, 62, .34);
+
+  /* Back-fill a variable pre-existing rules referenced but never defined */
+  --surface: var(--sr-surface);
+}
+
+[data-theme="dark"] {
+  --bg: #111815;
+  --sr-surface: #1b2521;
+  --sr-surface-2: #202d27;
+  --sr-surface-sunken: #161f1b;
+  --surface-soft: var(--sr-surface-2);
+  --sr-border: #435149;
+  --sr-border-strong: #58685f;
+  --sr-divider: #33423b;
+  --sr-text: #e9efea;
+  --sr-text-soft: #b6c2ba;
+  --sr-text-mute: #94a19a;
+  --sr-accent-ink: #f2a074;
+  --success: #7fc18f;
+  --danger: #ff9d86;
+  --sr-shadow-sm: 0 1px 2px rgba(0, 0, 0, .30), 0 1px 3px rgba(0, 0, 0, .34);
+  --sr-shadow-md: 0 8px 22px rgba(0, 0, 0, .40);
+  --sr-shadow-lg: 0 22px 52px rgba(0, 0, 0, .55);
+  --sr-shadow-glow: 0 10px 28px rgba(242, 160, 116, .30);
+  --surface: var(--sr-surface);
+}
+
+/* ── 2 · Base typography & links ─────────────────────────────────────────── */
+.dashboard-main { line-height: var(--sr-lh); }
+
+/* Bare sub-headings used by the clothing / returns / reports modules */

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host",
     "server": "node server/server.js",
     "server:dev": "nodemon server/server.js",
     "dev:all": "concurrently -k -n api,web -c blue,green \"npm:server:dev\" \"npm:dev\"",
@@ -16,7 +16,7 @@
     "test:api": "node server/scripts/integration.test.mjs",
     "build": "vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview --host"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

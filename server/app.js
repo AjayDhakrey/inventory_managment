@@ -15,8 +15,14 @@ export function createApp() {
       origin(origin, callback) {
         // Same-origin / curl (no Origin header) and any allow-listed client.
         if (!origin || allowedOrigins.includes(origin)) return callback(null, true)
-        // In development, also accept any localhost port so Vite fallback ports work.
-        if (!isProduction && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return callback(null, true)
+        // In development, accept localhost and local network / private IP origins.
+        if (
+          !isProduction &&
+          (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin) ||
+            /^https?:\/\/(192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[0-1])\.\d+\.\d+)(:\d+)?$/.test(origin))
+        ) {
+          return callback(null, true)
+        }
         return callback(new Error('Not allowed by CORS'))
       },
       credentials: true,

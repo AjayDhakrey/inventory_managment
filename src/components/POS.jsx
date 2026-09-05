@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import QRCode from "qrcode";
 import { posApi } from "../api/posApi.js";
 import { useResource } from "../hooks/useResource.js";
 import AsyncBoundary from "./AsyncBoundary.jsx";
+import invoiceStyles from "../styles/pos-invoice.css?inline";
 
 const METHODS = [
   "Cash",
@@ -11,50 +13,110 @@ const METHODS = [
   "Debit Card",
   "Credit Card",
   "Bank transfer",
+  "Store Credit",
+  "Gift Card",
   "Pay Later",
 ];
 const money = (currency, value) =>
   `${currency} ${Number(value || 0).toFixed(2)}`;
 
 function Invoice({ invoice, onClose }) {
+  const sheetRef = useRef(null);
+  const dialogRef = useRef(null);
+
+  useEffect(() => {
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    const previousTitle = document.title;
+    const beforePrint = () => document.body.classList.add("pos-printing");
+    const afterPrint = () => document.body.classList.remove("pos-printing");
+    document.body.style.overflow = "hidden";
+    document.title = `Bill ${invoice.invoiceNumber}`;
+    dialogRef.current?.focus();
+    window.addEventListener("beforeprint", beforePrint);
+    window.addEventListener("afterprint", afterPrint);
+    return () => {
+      window.removeEventListener("beforeprint", beforePrint);
+      window.removeEventListener("afterprint", afterPrint);
+      afterPrint();
+      document.body.style.overflow = previousOverflow;
+      document.title = previousTitle;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [invoice.invoiceNumber]);
+
+  const handleKeyDown = (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+    }
+    if (event.key === "Tab") {
+      const buttons = dialogRef.current.querySelectorAll("button:not(:disabled)");
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (event.shiftKey && [first, dialogRef.current].includes(document.activeElement)) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+  };
+
   const download = () => {
-    const content = document.querySelector(".invoice-sheet")?.outerHTML || "";
-    const blob = new Blob(
-      [
-        `<!doctype html><meta charset="utf-8"><title>${invoice.invoiceNumber}</title><style>body{font:14px Arial;padding:30px;color:#25312c}.invoice-sheet{max-width:820px;margin:auto}.invoice-brand,.invoice-meta,.invoice-total-row{display:flex;justify-content:space-between}.invoice-table{width:100%;border-collapse:collapse;margin:22px 0}.invoice-table th,.invoice-table td{padding:9px;border-bottom:1px solid #ddd;text-align:left}.invoice-totals{margin-left:auto;max-width:330px}.invoice-total-row{padding:5px 0}.grand{font-size:18px;font-weight:bold;border-top:2px solid #222;margin-top:7px;padding-top:10px}</style>${content}`,
-      ],
-      { type: "text/html" },
-    );
+    if (!sheetRef.current) return;
+    const copy = document.implementation.createHTMLDocument(`Bill ${invoice.invoiceNumber}`);
+    const charset = copy.createElement("meta");
+    charset.setAttribute("charset", "utf-8");
+    const viewport = copy.createElement("meta");
+    viewport.name = "viewport";
+    viewport.content = "width=device-width, initial-scale=1";
+    const style = copy.createElement("style");
+    style.textContent = invoiceStyles;
+    copy.head.prepend(charset, viewport, style);
+    copy.body.append(copy.importNode(sheetRef.current, true));
+    const blob = new Blob([`<!doctype html>${copy.documentElement.outerHTML}`], { type: "text/html;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `${invoice.invoiceNumber}.html`;
+    link.download = `${invoice.invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, "_")}.html`;
+    document.body.append(link);
     link.click();
-    URL.revokeObjectURL(link.href);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
   };
   const print = () => {
     document.body.classList.add("pos-printing");
     window.print();
-    setTimeout(() => document.body.classList.remove("pos-printing"), 500);
   };
-  return (
+  return createPortal(
     <div
-      className="invoice-overlay"
+      ref={dialogRef}
+      className="invoice-overlay pos-bill-preview"
       role="dialog"
       aria-modal="true"
-      aria-label={`Invoice ${invoice.invoiceNumber}`}
+      aria-label={`Bill ${invoice.invoiceNumber}`}
+      tabIndex={-1}
+      onKeyDown={handleKeyDown}
     >
+      <style>{invoiceStyles}</style>
       <div className="invoice-actions">
+        <div className="invoice-ready">
+          <strong>Bill ready</strong>
+          <span>{invoice.invoiceNumber} · {invoice.paymentStatus}</span>
+        </div>
         <button type="button" onClick={print}>
-          Print bill
+          Print / Save PDF
         </button>
         <button type="button" onClick={download}>
-          Download
+          Download bill
         </button>
         <button type="button" onClick={onClose}>
           Close
         </button>
       </div>
-      <article className="invoice-sheet">
+      <article className="invoice-sheet invoice-document" ref={sheetRef}>
         <div className="invoice-brand">
           <div>
             <h2>{invoice.business.name}</h2>
@@ -67,7 +129,7 @@ function Invoice({ invoice, onClose }) {
             </p>
           </div>
           <div>
-            <strong>TAX INVOICE</strong>
+            <strong>BILL / INVOICE</strong>
             <p>
               {invoice.invoiceNumber}
               <br />
@@ -107,11 +169,14 @@ function Invoice({ invoice, onClose }) {
             </tr>
           </thead>
           <tbody>
-            {invoice.items.map((item) => (
-              <tr key={String(item.productId)}>
+            {invoice.items.map((item, index) => (
+              <tr key={`${item.productId}:${item.variantId || ""}:${index}`}>
                 <td>
                   {item.productName}
                   <small>{item.hsnCode ? ` / ${item.hsnCode}` : ""}</small>
+                  <small className="invoice-item-variant">
+                    {[item.variantSku, item.variantSize, item.variantColor].filter(Boolean).join(" · ")}
+                  </small>
                 </td>
                 <td>{item.quantity}</td>
                 <td>{money(invoice.business.currency, item.sellingPrice)}</td>
@@ -133,7 +198,7 @@ function Invoice({ invoice, onClose }) {
               -{" "}
               {money(
                 invoice.business.currency,
-                invoice.discount + invoice.offerDiscount,
+                Number(invoice.discount || 0) + Number(invoice.offerDiscount || 0),
               )}
             </span>
           </div>
@@ -174,17 +239,19 @@ function Invoice({ invoice, onClose }) {
         </div>
         <div className="invoice-payments">
           <strong>Payments</strong>
-          {invoice.paymentSummary.map((payment, index) => (
+          {(invoice.paymentSummary || []).map((payment, index) => (
             <span key={`${payment.method}-${index}`}>
               {payment.method}:{" "}
               {money(invoice.business.currency, payment.amount)}{" "}
+              {["Credit", "Pay Later"].includes(payment.method) && "(not collected) "}
               {payment.reference && `(${payment.reference})`}
             </span>
           ))}
         </div>
         <footer>Thank you for your business.</footer>
       </article>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -205,6 +272,7 @@ export default function POS({ business, account }) {
   );
   const [products, customers, invoices] = data;
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [billingType, setBillingType] = useState(
     business.businessType === "wholesale" ? "wholesale" : "retail",
   );
@@ -214,6 +282,8 @@ export default function POS({ business, account }) {
   const [discountType, setDiscountType] = useState("fixed");
   const [discountValue, setDiscountValue] = useState(0);
   const [offerCode, setOfferCode] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [loyaltyPointsRedeemed, setLoyaltyPointsRedeemed] = useState(0);
   const [payments, setPayments] = useState([
     {
       method: business.settings?.defaultPaymentMethod || "Cash",
@@ -231,22 +301,29 @@ export default function POS({ business, account }) {
   const [message, setMessage] = useState(null);
   const [saving, setSaving] = useState(false);
   const [invoice, setInvoice] = useState(null);
+  const [lastInvoice, setLastInvoice] = useState(null);
+  const [openingInvoice, setOpeningInvoice] = useState(null);
   const [qr, setQr] = useState("");
   const searchRef = useRef(null);
+  const checkoutPendingRef = useRef(false);
   const canOverride =
     account.role === "owner" ||
     account.permissions?.includes("override_pos_price");
 
+  const categories = useMemo(
+    () => [...new Set(products.map((product) => product.category).filter(Boolean))],
+    [products],
+  );
   const visible = useMemo(
     () =>
       products
         .filter((product) =>
-          `${product.name} ${product.sku} ${product.barcode || ""}`
+          `${product.name} ${product.sku} ${product.barcode || ""} ${product.size || ""} ${product.color || ""}`
             .toLowerCase()
             .includes(search.toLowerCase()),
         )
-        .slice(0, 24),
-    [products, search],
+        .filter((product) => categoryFilter === "all" || product.category === categoryFilter),
+    [products, search, categoryFilter],
   );
   const priceFor = (product, quantity) =>
     billingType === "wholesale" &&
@@ -257,11 +334,11 @@ export default function POS({ business, account }) {
   const add = (product) =>
     setCart((current) => {
       const existing = current.find(
-        (item) => item.productId === product.productId,
+        (item) => item.cartKey === `${product.productId}:${product.variantId || ''}`,
       );
       if (existing)
         return current.map((item) =>
-          item.productId === product.productId
+          item.cartKey === `${product.productId}:${product.variantId || ''}`
             ? {
                 ...item,
                 quantity: Math.min(product.currentStock, item.quantity + 1),
@@ -277,6 +354,8 @@ export default function POS({ business, account }) {
         ...current,
         {
           productId: product.productId,
+          variantId: product.variantId || '',
+          cartKey: `${product.productId}:${product.variantId || ''}`,
           name: product.name,
           sku: product.sku,
           stock: product.currentStock,
@@ -290,21 +369,27 @@ export default function POS({ business, account }) {
   const update = (id, field, value) =>
     setCart((current) =>
       current.map((item) => {
-        if (item.productId !== id) return item;
+        if (item.cartKey !== id) return item;
         const next = { ...item, [field]: Number(value) };
-        const product = products.find((row) => row.productId === id);
+        const product = products.find(
+          (row) =>
+            String(row.productId) === String(item.productId) &&
+            String(row.variantId || "") === String(item.variantId || ""),
+        );
         if (field === "quantity") {
+          const availableStock = Number(product?.currentStock ?? item.stock ?? 1);
           next.quantity = Math.max(
             1,
-            Math.min(product.currentStock, Math.floor(next.quantity || 1)),
+            Math.min(availableStock, Math.floor(next.quantity || 1)),
           );
-          if (!canOverride) next.unitPrice = priceFor(product, next.quantity);
+          if (!canOverride && product)
+            next.unitPrice = priceFor(product, next.quantity);
         }
         return next;
       }),
     );
   const remove = (id) =>
-    setCart((current) => current.filter((item) => item.productId !== id));
+    setCart((current) => current.filter((item) => item.cartKey !== id));
   const subtotal = cart.reduce(
     (sum, item) => sum + item.quantity * item.unitPrice,
     0,
@@ -418,7 +503,8 @@ export default function POS({ business, account }) {
       ),
     );
   const checkout = async () => {
-    if (!cart.length || saving) return;
+    if (!cart.length || checkoutPendingRef.current) return;
+    checkoutPendingRef.current = true;
     setSaving(true);
     setMessage(null);
     try {
@@ -428,18 +514,35 @@ export default function POS({ business, account }) {
         newCustomer: customerMode === "new" ? newCustomer : null,
         items: cart.map((item) => ({
           productId: item.productId,
+          variantId: item.variantId || undefined,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
           discount: item.discount,
         })),
         discount: { type: discountType, value: Number(discountValue) || 0 },
         offerCode,
+        couponCode,
+        loyaltyPointsRedeemed,
         payments,
         notes: "",
       });
       setInvoice(result.invoice);
+      setLastInvoice(result.invoice);
+      setData((current) => [
+        current[0],
+        current[1],
+        [result.invoice, ...current[2].filter((row) => row.orderId !== result.invoice.orderId)],
+      ]);
       setCart([]);
       setDiscountValue(0);
+      setOfferCode("");
+      setCouponCode("");
+      setLoyaltyPointsRedeemed(0);
+      setSearch("");
+      if (customerMode === "new" && result.invoice.customerId) {
+        setCustomerMode("existing");
+        setCustomerId(result.invoice.customerId);
+      }
       setPayments([
         {
           method: business.settings?.defaultPaymentMethod || "Cash",
@@ -449,18 +552,32 @@ export default function POS({ business, account }) {
       ]);
       setMessage({
         type: "success",
-        text: `${result.invoice.invoiceNumber} completed successfully.`,
+        text: `Sale saved. Bill ${result.invoice.invoiceNumber} is ready to print or save.`,
       });
-      const fresh = await Promise.all([
-        posApi.catalog(),
-        posApi.customers(),
-        posApi.invoices(),
-      ]);
-      setData(fresh);
+      try {
+        setData(await load());
+      } catch {
+        setMessage({
+          type: "warning",
+          text: `Bill ${result.invoice.invoiceNumber} was saved, but the catalog could not refresh. Refresh the page before the next sale.`,
+        });
+      }
     } catch (caught) {
       setMessage({ type: "error", text: caught.message || "Checkout failed." });
     } finally {
+      checkoutPendingRef.current = false;
       setSaving(false);
+    }
+  };
+
+  const openSavedInvoice = async (orderId) => {
+    setOpeningInvoice(orderId);
+    try {
+      setInvoice(await posApi.invoice(orderId));
+    } catch (caught) {
+      setMessage({ type: "error", text: caught.message || "Could not open this bill. Please try again." });
+    } finally {
+      setOpeningInvoice(null);
     }
   };
 
@@ -492,7 +609,22 @@ export default function POS({ business, account }) {
         </div>
       </div>
       {message && (
-        <p className={`form-status ${message.type}`}>{message.text}</p>
+        <p className={`form-status ${message.type}`} role="status">{message.text}</p>
+      )}
+      {lastInvoice && (
+        <section className="pos-bill-success" aria-label="Last generated bill">
+          <div>
+            <strong>Bill {lastInvoice.invoiceNumber}</strong>
+            <p>{lastInvoice.customerName} · {lastInvoice.paymentStatus}</p>
+            <span>
+              Paid {money(lastInvoice.business.currency, lastInvoice.amountPaid)}
+              {lastInvoice.balanceDue > 0 && ` · Balance due ${money(lastInvoice.business.currency, lastInvoice.balanceDue)}`}
+            </span>
+          </div>
+          <button className="outline-button" type="button" onClick={() => setInvoice(lastInvoice)}>
+            View / Print bill
+          </button>
+        </section>
       )}
       <div className="pos-layout">
         <section className="pos-catalog">
@@ -508,6 +640,18 @@ export default function POS({ business, account }) {
             />
             <small>Scanner ready</small>
           </div>
+          {categories.length > 1 && (
+            <div className="pos-category-pills" role="tablist" aria-label="Filter by category">
+              <button type="button" className={categoryFilter === "all" ? "active" : ""} aria-pressed={categoryFilter === "all"} onClick={() => setCategoryFilter("all")}>
+                All items
+              </button>
+              {categories.map((value) => (
+                <button key={value} type="button" className={categoryFilter === value ? "active" : ""} aria-pressed={categoryFilter === value} onClick={() => setCategoryFilter(value)}>
+                  {value}
+                </button>
+              ))}
+            </div>
+          )}
           <AsyncBoundary
             loading={loading}
             error={error}
@@ -520,31 +664,41 @@ export default function POS({ business, account }) {
                 <button
                   type="button"
                   className="pos-product"
-                  key={product.productId}
+                  key={`${product.productId}:${product.variantId || ''}`}
                   onClick={() => add(product)}
                   disabled={product.currentStock <= 0}
                 >
+                  <em
+                    className={
+                      product.currentStock <= 0
+                        ? "out"
+                        : product.currentStock <= product.minimumStock
+                          ? "low"
+                          : ""
+                    }
+                  >
+                    {product.currentStock <= 0
+                      ? "Out of stock"
+                      : product.currentStock <= product.minimumStock
+                        ? `Low stock (${product.currentStock} left)`
+                        : `${product.currentStock} in stock`}
+                  </em>
                   <span className="product-thumb">{product.name[0]}</span>
                   <strong>{product.name}</strong>
                   <small>
                     {product.sku}
                     {product.barcode ? ` · ${product.barcode}` : ""}
                   </small>
-                  <span>
+                  <span className="pos-product-price">
+                    <b>PRICE</b>
                     {money(
                       business.currency,
                       billingType === "wholesale" && product.wholesalePrice
                         ? product.wholesalePrice
                         : product.sellingPrice,
                     )}
+                    <i aria-hidden="true">+</i>
                   </span>
-                  <em
-                    className={
-                      product.currentStock <= product.minimumStock ? "low" : ""
-                    }
-                  >
-                    {product.currentStock} in stock
-                  </em>
                 </button>
               ))}
             </div>
@@ -560,12 +714,11 @@ export default function POS({ business, account }) {
               <button
                 type="button"
                 key={row.orderId}
-                onClick={async () =>
-                  setInvoice(await posApi.invoice(row.orderId))
-                }
+                disabled={Boolean(openingInvoice) || saving}
+                onClick={() => openSavedInvoice(row.orderId)}
               >
                 <span>
-                  <strong>{row.invoiceNumber}</strong>
+                  <strong>{openingInvoice === row.orderId ? "Opening bill…" : row.invoiceNumber}</strong>
                   <small>
                     {row.customerName} ·{" "}
                     {new Date(row.createdAt).toLocaleString()}
@@ -638,10 +791,15 @@ export default function POS({ business, account }) {
             )}
           </div>
           <div className="pos-cart-head">
-            <strong>Cart</strong>
+            <strong>Current cart</strong>
             <span>
-              {cart.reduce((sum, item) => sum + item.quantity, 0)} items
+              {cart.length} items · {cart.reduce((sum, item) => sum + item.quantity, 0)} units
             </span>
+            {cart.length > 0 && (
+              <button type="button" className="pos-clear-cart" onClick={() => setCart([])}>
+                Clear cart
+              </button>
+            )}
           </div>
           <div className="pos-cart">
             {!cart.length ? (
@@ -650,14 +808,14 @@ export default function POS({ business, account }) {
               </div>
             ) : (
               cart.map((item) => (
-                <div className="pos-cart-row" key={item.productId}>
+                <div className="pos-cart-row" key={item.cartKey}>
                   <div>
                     <strong>{item.name}</strong>
                     <small>
                       {item.sku} · GST {item.gstRate}%
                     </small>
                   </div>
-                  <button type="button" onClick={() => remove(item.productId)}>
+                  <button type="button" onClick={() => remove(item.cartKey)}>
                     ×
                   </button>
                   <label>
@@ -668,7 +826,7 @@ export default function POS({ business, account }) {
                       max={item.stock}
                       value={item.quantity}
                       onChange={(event) =>
-                        update(item.productId, "quantity", event.target.value)
+                        update(item.cartKey, "quantity", event.target.value)
                       }
                     />
                   </label>
@@ -681,7 +839,7 @@ export default function POS({ business, account }) {
                       value={item.unitPrice}
                       disabled={!canOverride}
                       onChange={(event) =>
-                        update(item.productId, "unitPrice", event.target.value)
+                        update(item.cartKey, "unitPrice", event.target.value)
                       }
                     />
                   </label>
@@ -693,7 +851,7 @@ export default function POS({ business, account }) {
                       step="0.01"
                       value={item.discount}
                       onChange={(event) =>
-                        update(item.productId, "discount", event.target.value)
+                        update(item.cartKey, "discount", event.target.value)
                       }
                     />
                   </label>
@@ -742,6 +900,16 @@ export default function POS({ business, account }) {
                   ))}
               </select>
             </label>
+            <label>
+              Coupon code
+              <input value={couponCode} onChange={(event) => setCouponCode(event.target.value.toUpperCase())} placeholder="FASHION10" />
+              {couponCode && <small>Validated when the sale completes</small>}
+            </label>
+            {customerMode === "existing" && customerId && <label>
+              Loyalty points
+              <input type="number" min="0" max={customers.find((item) => item.customerId === customerId)?.loyaltyPoints || 0} value={loyaltyPointsRedeemed} onChange={(event) => setLoyaltyPointsRedeemed(Number(event.target.value))} />
+              <small>Available: {customers.find((item) => item.customerId === customerId)?.loyaltyPoints || 0} points · Store credit: {money(business.currency, customers.find((item) => item.customerId === customerId)?.creditBalance || 0)}</small>
+            </label>}
           </div>
           <div className="pos-totals">
             <span>
@@ -779,6 +947,27 @@ export default function POS({ business, account }) {
                 + Split
               </button>
             </div>
+            {payments.length === 1 && (
+              <div className="pos-quick-methods">
+                {[["Cash", "F8"], ["UPI", "F9"], ["Debit Card", "F10"]].map(([method, hint]) => (
+                  <button
+                    key={method}
+                    type="button"
+                    className={payments[0].method === method ? "active" : ""}
+                    onClick={() => setPayment(0, "method", method)}
+                  >
+                    {method === "Debit Card" ? "Card" : method}
+                    <small>{hint}</small>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setPayments([...payments, { method: "UPI", amount: 0, reference: "" }])}
+                >
+                  Split
+                </button>
+              </div>
+            )}
             {payments.map((payment, index) => (
               <div className="pos-payment-row" key={index}>
                 <select
@@ -851,8 +1040,8 @@ export default function POS({ business, account }) {
             onClick={checkout}
           >
             {saving
-              ? "Processing…"
-              : `Complete sale · ${money(business.currency, estimatedTotal)}`}{" "}
+              ? "Saving sale & generating bill…"
+              : `Complete sale & generate bill · ${money(business.currency, estimatedTotal)}`}{" "}
             <span>→</span>
           </button>
         </aside>

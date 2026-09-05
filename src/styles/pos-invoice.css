@@ -1,0 +1,97 @@
+/* Shared by the bill preview, printed bill, and standalone download. */
+.pos-bill-preview {
+  z-index: 2000;
+  padding: 18px clamp(10px, 3vw, 30px) 30px;
+  overscroll-behavior: contain;
+  outline: none;
+}
+.pos-bill-preview .invoice-actions {
+  position: sticky;
+  top: 0;
+  left: auto;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  max-width: 850px;
+  margin: 0 auto 16px;
+  padding: 12px;
+  border: 1px solid var(--sr-border, #c6cec5);
+  border-radius: var(--sr-radius, 8px);
+  color: var(--sr-text, #1e2724);
+  background: var(--sr-surface, #fff);
+  transform: none;
+}
+.invoice-ready { flex: 1 1 180px; min-width: 0; }
+.invoice-ready strong, .invoice-ready span { display: block; overflow-wrap: anywhere; }
+.invoice-ready strong { font-size: 16px; }
+.invoice-ready span { color: var(--sr-text-soft, #55605a); font-size: 13px; }
+.pos-bill-preview .invoice-actions button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.pos-bill-preview .invoice-actions button:focus-visible { outline: 2px solid var(--orange, #e86c3e); outline-offset: 3px; }
+article.invoice-sheet.invoice-document {
+  box-sizing: border-box;
+  max-width: 850px;
+  margin: auto;
+  padding: clamp(18px, 4vw, 38px);
+  color: #25312c;
+  background: #fff;
+  font: 14px/1.6 Arial, sans-serif;
+  overflow-wrap: anywhere;
+}
+.invoice-document .invoice-brand, .invoice-document .invoice-meta, .invoice-document .invoice-total-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+.invoice-document .invoice-brand h2 { margin: 0 0 8px; color: #25312c; font-size: 24px; }
+.invoice-document .invoice-brand p, .invoice-document .invoice-meta p { color: #536159; font-size: 14px; line-height: 1.6; }
+.invoice-document .invoice-brand > div:last-child, .invoice-document .invoice-meta > p:last-child { text-align: right; }
+.invoice-document .invoice-table { display: table; width: 100%; margin: 22px 0; border-collapse: collapse; font-size: 13px; }
+.invoice-document .invoice-table th, .invoice-document .invoice-table td { padding: 10px 7px; border-bottom: 1px solid #dce2dc; text-align: left; }
+.invoice-document .invoice-table th { color: #536159; font: 12px Arial, sans-serif; text-transform: uppercase; }
+.invoice-document .invoice-table small { color: #536159; font-size: 12px; }
+.invoice-item-variant { display: block; }
+.invoice-document .invoice-totals { width: min(100%, 340px); margin-left: auto; }
+.invoice-document .invoice-total-row { padding: 5px 0; font-size: 14px; }
+.invoice-document .invoice-total-row.grand { margin-top: 6px; padding-top: 12px; border-top: 2px solid #34423c; font-size: 18px; font-weight: bold; }
+.invoice-document .invoice-total-row.due { color: #973b23; }
+.invoice-document .invoice-payments { display: grid; gap: 6px; margin-top: 24px; padding-top: 14px; border-top: 1px solid #dce2dc; font-size: 14px; }
+.invoice-document footer { margin-top: 28px; color: #536159; text-align: center; font-size: 13px; }
+@media screen and (max-width: 600px) {
+  .invoice-ready { flex-basis: 100%; }
+  .pos-bill-preview .invoice-actions button { flex: 1 1 auto; }
+  .invoice-document .invoice-brand, .invoice-document .invoice-meta { display: block; }
+  .invoice-document .invoice-brand > div:last-child, .invoice-document .invoice-meta > p:last-child { text-align: left; }
+  .invoice-document .invoice-table { display: block; overflow-x: auto; }
+  .invoice-document .invoice-table th, .invoice-document .invoice-table td { min-width: 60px; }
+}
+@media print {
+  body.pos-printing { height: auto !important; overflow: visible !important; background: #fff !important; }
+  body.pos-printing > :not(.pos-bill-preview) { display: none !important; }
+  body.pos-printing .pos-bill-preview {
+    display: block !important;
+    position: static !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+  .pos-bill-preview .invoice-actions { display: none !important; }
+  body.pos-printing .invoice-document, article.invoice-sheet.invoice-document {
+    position: static !important;
+    width: 100%;
+    max-width: none;
+    padding: 8mm;
+    color: #000 !important;
+    background: #fff !important;
+    box-shadow: none;
+  }
+  .invoice-document .invoice-table { display: table !important; overflow: visible; }
+  .invoice-document thead { display: table-header-group; }
+  .invoice-document tr, .invoice-document .invoice-totals, .invoice-document .invoice-payments { break-inside: avoid; }
+}

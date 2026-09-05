@@ -5,6 +5,8 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { User } from '../models/User.js'
 import { Member } from '../models/Member.js'
 import { Role, DEFAULT_PERMISSIONS } from '../models/Role.js'
+import { Business } from '../models/Business.js'
+import { hasModule, resolveBusinessCapabilities } from '../../shared/industryConfig.js'
 
 export function signToken(user) {
   return jwt.sign(
@@ -44,6 +46,8 @@ export const authenticate = asyncHandler(async (req, _res, next) => {
   req.member = member
   req.permissions = permissions
   req.auth = { userId: String(user._id), businessId: user.business ? String(user.business) : null, roleId: member?.roleId || null, permissions }
+  req.business = user.business ? await Business.findById(user.business) : null
+  req.capabilities = req.business ? resolveBusinessCapabilities(req.business.toJSON()) : null
   next()
 })
 
@@ -54,9 +58,23 @@ export function requireBusiness(req, _res, next) {
   next()
 }
 
+export function requireModule(module) {
+  return (req, _res, next) => {
+    if (!req.business || !hasModule(req.business.toJSON(), module)) throw ApiError.forbidden(`The ${module} module is not enabled for this business.`)
+    next()
+  }
+}
+
 export function requirePermission(permission) {
   return (req, _res, next) => {
     if (!req.permissions?.includes(permission)) throw ApiError.forbidden(`Missing required permission: ${permission}.`)
+    next()
+  }
+}
+
+export function requireAnyPermission(...permissions) {
+  return (req, _res, next) => {
+    if (!permissions.some((permission) => req.permissions?.includes(permission))) throw ApiError.forbidden(`Missing required permission: ${permissions.join(' or ')}.`)
     next()
   }
 }

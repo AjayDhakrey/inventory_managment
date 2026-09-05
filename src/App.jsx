@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import "./App.css";
+import "./styles/ui-system.css";
+import "./styles/overview-dashboard.css";
 import BusinessSetup from "./components/BusinessSetup.jsx";
 import Products from "./components/Products.jsx";
 import InventoryOperations from "./components/InventoryOperations.jsx";
@@ -14,6 +16,10 @@ import Payments from "./components/Payments.jsx";
 import POS from "./components/POS.jsx";
 import PosDashboardStats from "./components/PosDashboardStats.jsx";
 import ProductImport from "./components/ProductImport.jsx";
+import IndustryModule from "./components/IndustryModule.jsx";
+import BulkPricing from "./components/BulkPricing.jsx";
+import ColorManagement from "./components/ColorManagement.jsx";
+import ClothingModule from "./components/ClothingModule.jsx";
 import {
   BusinessSettings,
   Settings,
@@ -22,58 +28,67 @@ import {
 } from "./components/RemainingModules.jsx";
 import AsyncBoundary from "./components/AsyncBoundary.jsx";
 import NotificationCenter from "./components/NotificationCenter.jsx";
-import { navigation } from "./constants/navigation.js";
+import { getNavigation } from "./constants/navigation.js";
+import { resolveBusinessCapabilities } from "../shared/industryConfig.js";
 import { authApi } from "./api/authApi.js";
 import { productApi } from "./api/productApi.js";
+import { supplierApi } from "./api/supplierApi.js";
+import { userApi } from "./api/userApi.js";
+import { salesOrderApi } from "./api/salesOrderApi.js";
+import { reportApi } from "./api/reportApi.js";
 import { getToken, setToken } from "./api/client.js";
 import { useResource } from "./hooks/useResource.js";
 
 const LOW_STOCK_LIMIT = 10;
-function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onToggleTheme }) {
-  const [activeNav, setActiveNav] = useState("Overview");
+function Dashboard({ account, business, initialNav = "Overview", onLogout, onBusinessUpdate, theme, onToggleTheme }) {
+  const [activeNav, setActiveNav] = useState(initialNav);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [overviewMenu, setOverviewMenu] = useState(null);
   const [search, setSearch] = useState("");
+  const [overviewCategory, setOverviewCategory] = useState("all");
+  const [overviewSort, setOverviewSort] = useState("default");
+  const [overviewPage, setOverviewPage] = useState(1);
+  const [inventoryTableOpen, setInventoryTableOpen] = useState(true);
+  const [expandedInventoryGroups, setExpandedInventoryGroups] = useState([]);
+  const [stockAlertsOpen, setStockAlertsOpen] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showWorkspacePopover, setShowWorkspacePopover] = useState(false);
   const [notif, setNotif] = useState({ items: [], unreadCount: 0 });
+  const [dashboardNow] = useState(() => Date.now());
+  const [gettingStarted, setGettingStarted] = useState(null);
+  const [checklistDismissed, setChecklistDismissed] = useState(() => localStorage.getItem(`stockroom-getting-started:${business.businessId}`) === 'dismissed');
   const userMenuRef = useRef(null);
   const overviewMenuRef = useRef(null);
+  const workspaceRef = useRef(null);
 
-  const loadProducts = useCallback(() => productApi.list(), []);
+  const permissions = account.permissions || [];
+  const canViewInventory = account.role === "owner" || permissions.includes('view_inventory');
+  const can = (permission) => account.role === "owner" || permissions.includes(permission);
+  const loadProducts = useCallback(() => canViewInventory ? productApi.list() : Promise.resolve([]), [canViewInventory]);
+  const loadReport = useCallback(() => reportApi.summary().catch(() => null), []);
   const {
     data: products,
     loading,
     error,
     refetch,
   } = useResource(loadProducts, [], []);
+  const { data: reportData, refetch: refetchReport } = useResource(loadReport, [], null);
 
   const notifItems = (notif?.items || [])
     .filter((item) =>
       ["inventory", "purchases", "payments"].includes(item.category),
     )
     .slice(0, 6);
-  const permissions = account.permissions || [];
-  const can = (permission) =>
-    account.role === "owner" || permissions.includes(permission);
-  const navPermission = {
-    "Business Profile": "manage_users", Settings: "manage_users", Users: "manage_users", Roles: "manage_users", Permissions: "manage_users",
-    Products: "view_inventory", "Bulk Import": ["create_product", "stock_in"], Categories: "view_inventory", Stock: "view_inventory",
-    "Stock In": "stock_in", "Stock Out": "stock_out", Adjustments: "edit_product", "Stock History": "view_inventory",
-    Suppliers: "view_inventory", "Purchase Orders": "view_inventory", Receiving: "stock_in", "POS / Billing": "process_pos_sale",
-    Orders: "create_order", Customers: "create_order", Returns: "create_order", Payments: "view_reports", Reports: "view_reports",
-  };
-  const canOpen = (item) => {
-    const required = navPermission[item];
-    return !required || (Array.isArray(required) ? required.every(can) : can(required));
-  };
-  const visibleNavigation = navigation
-    .map(([section, items]) => [section, items.filter(canOpen)])
-    .filter(([section, items]) => section === "Reports" ? can("view_reports") : items.length > 0);
+  const capabilities = business.capabilities || resolveBusinessCapabilities(business);
+  const visibleNavigation = getNavigation(business, can);
+  const visiblePages = new Set(['Overview', ...visibleNavigation.flatMap(([, items]) => items)]);
+  const canOpen = (item) => visiblePages.has(item === 'Products' ? capabilities.productLabel : item);
   const navigateTo = (navTo) => {
     setActiveNav(navTo);
     setMobileNavOpen(false);
     setShowUserMenu(false);
+    setShowWorkspacePopover(false);
   };
   const openNotification = navigateTo;
 
@@ -99,6 +114,15 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
     return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
   }, [showUserMenu]);
   useEffect(() => {
+    if (!showWorkspacePopover) return undefined;
+    const close = (event) => {
+      if (event.type === "keydown" ? event.key === "Escape" : !workspaceRef.current?.contains(event.target)) setShowWorkspacePopover(false);
+    };
+    document.addEventListener("pointerdown", close);
+    window.addEventListener("keydown", close);
+    return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
+  }, [showWorkspacePopover]);
+  useEffect(() => {
     if (!overviewMenu) return undefined;
     const close = (event) => {
       if (event.type === "keydown" ? event.key === "Escape" : !overviewMenuRef.current?.contains(event.target)) setOverviewMenu(null);
@@ -107,35 +131,93 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
     window.addEventListener("keydown", close);
     return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
   }, [overviewMenu]);
-  const overviewProducts = (products || []).map((product) => [
-    product.name,
-    product.sku,
-    product.category,
-    product.currentStock,
-    `${business.currency} ${Number(product.sellingPrice).toFixed(2)}`,
-    product.currentStock === 0
-      ? "Out of stock"
-      : product.currentStock <= (product.minimumStock || LOW_STOCK_LIMIT)
-        ? "Low stock"
-        : "In stock",
-  ]);
-  const filteredItems = overviewProducts.filter((item) =>
-    `${item[0]} ${item[1]} ${item[2]}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
+  useEffect(() => {
+    if (!canViewInventory) return undefined;
+    const refreshDashboardProducts = () => {
+      refetch();
+      if (typeof refetchReport === 'function') refetchReport();
+    };
+    window.addEventListener('stockroom:data-changed', refreshDashboardProducts);
+    return () => window.removeEventListener('stockroom:data-changed', refreshDashboardProducts);
+  }, [canViewInventory, refetch, refetchReport]);
+  useEffect(() => {
+    if (account.role !== 'owner' || checklistDismissed) return;
+    Promise.all([supplierApi.list({ status: 'all' }), userApi.listMembers(), salesOrderApi.list()]).then(([suppliers, members, orders]) => setGettingStarted({ suppliers: suppliers.length, members: members.length, sales: orders.some((order) => order.status === 'Completed') })).catch(() => {});
+  }, [account.role, checklistDismissed]);
+  const overviewProducts = (products || []).map((product) => ({
+    key: product.productId || product.sku,
+    name: product.name,
+    sku: product.sku,
+    category: product.category,
+    brand: product.brand || "",
+    size: product.size || "",
+    color: product.color || "",
+    stock: Number(product.currentStock || 0),
+    minimumStock: Number(product.minimumStock || LOW_STOCK_LIMIT),
+    price: Number(product.sellingPrice || 0),
+  }));
+  const inventoryGroups = Array.from(
+    overviewProducts.reduce((groups, item) => {
+      const key = `${item.name.trim().toLowerCase()}::${item.category.trim().toLowerCase()}::${item.brand.trim().toLowerCase()}`;
+      const group = groups.get(key) || { key, name: item.name, category: item.category, items: [] };
+      group.items.push(item);
+      groups.set(key, group);
+      return groups;
+    }, new Map()).values(),
+  ).map((group) => {
+    const prices = group.items.map((item) => item.price);
+    const minimumPrice = Math.min(...prices);
+    const maximumPrice = Math.max(...prices);
+    return {
+      ...group,
+      stock: group.items.reduce((total, item) => total + item.stock, 0),
+      price: minimumPrice === maximumPrice
+        ? `${business.currency} ${minimumPrice.toFixed(2)}`
+        : `${business.currency} ${minimumPrice.toFixed(2)}–${maximumPrice.toFixed(2)}`,
+    };
+  });
+  const normalizedInventorySearch = search.trim().toLowerCase();
+  const filteredInventoryGroups = inventoryGroups.filter((group) =>
+    !normalizedInventorySearch || group.items.some((item) =>
+      `${item.name} ${item.sku} ${item.category} ${item.brand} ${item.size} ${item.color}`
+        .toLowerCase()
+        .includes(normalizedInventorySearch),
+    ),
   );
-  const inventoryValue = (products || []).reduce((total, product) => total + Number(product.currentStock || 0) * Number(product.costPrice || 0), 0);
+  const overviewRows = filteredInventoryGroups.filter((group) => overviewCategory === "all" || group.category === overviewCategory).sort((a, b) => overviewSort === "high" ? b.stock - a.stock : overviewSort === "low" ? a.stock - b.stock : 0);
+  const overviewPages = Math.max(1, Math.ceil(overviewRows.length / 8));
+  const currentOverviewPage = Math.min(overviewPage, overviewPages);
+  const toggleInventoryGroup = (groupKey) => {
+    setExpandedInventoryGroups((current) =>
+      current.includes(groupKey)
+        ? current.filter((key) => key !== groupKey)
+        : [...current, groupKey],
+    );
+  };
+  const inventoryValue = (products || []).reduce((total, product) => total + Number(product.currentStock || 0) * Number(product.purchasePrice || 0), 0);
   const unitsInStock = (products || []).reduce((total, product) => total + Number(product.currentStock || 0), 0);
   const lowStockCount = (products || []).filter((product) => Number(product.currentStock || 0) <= Number(product.minimumStock ?? LOW_STOCK_LIMIT)).length;
+  const clothingVariants = (products || []).flatMap((product) => product.variants || []);
+  const lowStockVariantCount = clothingVariants.filter((variant) => variant.active !== false && Number(variant.currentStock || 0) <= Number(variant.reorderPoint || variant.minimumStock || 0)).length;
+  const reorderSuggestionCount = clothingVariants.filter((variant) => variant.active !== false && variant.replenishmentEnabled && Number(variant.currentStock || 0) <= Number(variant.reorderPoint || 0)).length;
+  const now = dashboardNow;
+  const expiringCount = (products || []).filter((product) => product.expiryDate && new Date(product.expiryDate).getTime() >= now && new Date(product.expiryDate).getTime() <= now + 30 * 86400000).length;
+  const expiredCount = (products || []).filter((product) => product.expiryDate && new Date(product.expiryDate).getTime() < now).length;
+  const hasWidget = (widget) => capabilities.dashboardWidgets.includes(widget);
+  const topValue = (field) => {
+    const counts = new Map();
+    for (const product of products || []) if (product[field]) counts.set(product[field], (counts.get(product[field]) || 0) + Number(product.currentStock || 0));
+    return [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] || 'No data';
+  };
   const overviewNavigation = {
-    Inventory: [["Catalog", ["Products", "Categories", "Bulk Import"]], ["Stock control", ["Stock In", "Stock Out", "Adjustments", "Stock History"]]],
+    Inventory: [["Catalog", [capabilities.productLabel, "Categories", "Bulk Import"]], ["Stock control", ["Stock In", "Stock Out", "Adjustments", "Stock History"]]],
     Purchasing: [["Supply", ["Suppliers", "Purchase Orders", "Receiving"]]],
     Sales: [["Sell", ["POS / Billing", "Orders", "Customers"]], ["After sales", ["Returns", "Payments"]]],
     Business: [["Workspace", ["Business Profile", "Settings"]], ["Team & insights", ["Users", "Roles", "Permissions", "Reports"]]],
   };
 
   return (
-    <main className={`dashboard-shell industry-${String(business?.industry || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-")}${mobileNavOpen ? " nav-open" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
+    <main className={`dashboard-shell ${activeNav === "Overview" ? "overview-dashboard" : ""} industry-${String(business?.industry || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-")}${mobileNavOpen ? " nav-open" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
       <aside className="dashboard-sidebar" id="dashboard-navigation">
         <div className="dashboard-brand brand-mark">
           <span className="mark-icon" aria-hidden="true">
@@ -151,15 +233,125 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
             ×
           </button>
         </div>
-        <div className="workspace-switcher">
-          <span className="workspace-avatar">
-            {(business?.name || "Your business")[0].toUpperCase()}
-          </span>
-          <span>
-            <small>Workspace</small>
-            <strong>{business?.name || "Your business"}</strong>
-          </span>
-          <span className="chevron">⌄</span>
+        <div
+          className="workspace-switcher-wrap"
+          ref={workspaceRef}
+          onMouseEnter={() => setShowWorkspacePopover(true)}
+          onMouseLeave={() => setShowWorkspacePopover(false)}
+        >
+          <button
+            className={`workspace-switcher ${showWorkspacePopover ? "active" : ""}`}
+            type="button"
+            aria-expanded={showWorkspacePopover}
+            aria-haspopup="dialog"
+            aria-label="Workspace details"
+            onClick={() => setShowWorkspacePopover(!showWorkspacePopover)}
+          >
+            <span className="workspace-avatar">
+              {(business?.name || "Your business")[0].toUpperCase()}
+            </span>
+            <span className="workspace-copy">
+              <small>Workspace</small>
+              <strong>{business?.name || "Your business"}</strong>
+            </span>
+            <span className={`chevron workspace-chevron ${showWorkspacePopover ? "open" : ""}`} aria-hidden="true">
+              <svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4" /></svg>
+            </span>
+          </button>
+
+          {showWorkspacePopover && (
+            <div className="workspace-popover" role="dialog" aria-label="Workspace Details">
+              <div className="workspace-popover-header">
+                <span className="workspace-popover-avatar">
+                  {(business?.name || "Your business")[0].toUpperCase()}
+                </span>
+                <div className="workspace-popover-title">
+                  <strong>{business?.name || "Your business"}</strong>
+                  <span className="workspace-role-badge">
+                    {account?.role === "owner" ? "Admin / Owner" : (account?.role ? account.role.charAt(0).toUpperCase() + account.role.slice(1) : "Team member")}
+                  </span>
+                </div>
+              </div>
+
+              <div className="workspace-popover-divider" />
+
+              <div className="workspace-popover-details">
+                <div className="workspace-detail-row">
+                  <span className="workspace-detail-label">Industry</span>
+                  <span className="workspace-detail-val">
+                    {business?.industry
+                      ? business.industry.charAt(0).toUpperCase() + business.industry.slice(1)
+                      : "General"}
+                  </span>
+                </div>
+
+                <div className="workspace-detail-row">
+                  <span className="workspace-detail-label">Business Type</span>
+                  <span className="workspace-detail-val">
+                    {business?.businessType
+                      ? business.businessType.charAt(0).toUpperCase() + business.businessType.slice(1)
+                      : "Retail"}
+                  </span>
+                </div>
+
+                <div className="workspace-detail-row">
+                  <span className="workspace-detail-label">Access Level</span>
+                  <span className="workspace-detail-val highlight">
+                    {account?.role === "owner"
+                      ? "Admin (Full Access)"
+                      : account?.role === "admin"
+                      ? "Administrator"
+                      : "Team Member"}
+                  </span>
+                </div>
+
+                {business?.currency && (
+                  <div className="workspace-detail-row">
+                    <span className="workspace-detail-label">Currency</span>
+                    <span className="workspace-detail-val">{business.currency}</span>
+                  </div>
+                )}
+
+                {(business?.city || business?.country) && (
+                  <div className="workspace-detail-row">
+                    <span className="workspace-detail-label">Location</span>
+                    <span className="workspace-detail-val">
+                      {[business.city, business.country].filter(Boolean).join(", ")}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="workspace-popover-actions">
+                {canOpen("Business Profile") && (
+                  <button
+                    type="button"
+                    className="workspace-popover-action"
+                    onClick={() => {
+                      navigateTo("Business Profile");
+                      setShowWorkspacePopover(false);
+                    }}
+                  >
+                    <span>⚙ Business Profile</span>
+                    <span>→</span>
+                  </button>
+                )}
+                {canOpen("Users") && (
+                  <button
+                    type="button"
+                    className="workspace-popover-action"
+                    onClick={() => {
+                      navigateTo("Users");
+                      setShowWorkspacePopover(false);
+                    }}
+                  >
+                    <span>👥 Team & Users</span>
+                    <span>→</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         <nav className="module-nav" aria-label="Main navigation">
           <button
@@ -261,55 +453,114 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
             </h1>
           </div>
           <div className="header-actions">
-            <button className="icon-button theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
-              <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span>
+            <button className="icon-button theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} data-tooltip={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
+              <svg className="header-action-icon" viewBox="0 0 24 24" aria-hidden="true">
+                {theme === "dark" ? <><circle cx="12" cy="12" r="3.5" /><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" /></> : <path d="M20.5 14.1A8 8 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z" />}
+              </svg>
             </button>
             <NotificationCenter
               onNavigate={openNotification}
               onOpen={() => setShowUserMenu(false)}
               onChange={setNotif}
             />
-            <div className="header-popover-wrap" ref={userMenuRef}>
+            <div
+              className="header-popover-wrap user-menu-wrap"
+              ref={userMenuRef}
+              onMouseEnter={() => setShowUserMenu(true)}
+              onMouseLeave={() => setShowUserMenu(false)}
+            >
               <button
-                className="user-chip"
+                className={`user-chip ${showUserMenu ? "active" : ""}`}
                 type="button"
                 aria-expanded={showUserMenu}
+                aria-haspopup="dialog"
+                aria-label="User account settings"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <span className="user-avatar">
-                  {account.email[0].toUpperCase()}
+                  {(account.name || account.email)[0].toUpperCase()}
                 </span>
-                <span>{account.email.split("@")[0]}</span>
-                <span className="chevron">⌄</span>
+                <span className="user-chip-copy">
+                  <strong>{account.name || account.email.split("@")[0]}</strong>
+                  <small>{account.role === "owner" ? "Administrator" : account.role || "Team member"}</small>
+                </span>
+                <span className={`chevron user-chevron ${showUserMenu ? "open" : ""}`} aria-hidden="true">
+                  <svg viewBox="0 0 20 20"><path d="m6 8 4 4 4-4" /></svg>
+                </span>
               </button>
               {showUserMenu && (
-                <div className="header-popover user-popover">
+                <div className="header-popover user-popover" role="dialog" aria-label="User profile">
                   <div className="popover-user">
-                    <span className="user-avatar">
-                      {account.email[0].toUpperCase()}
+                    <span className="user-avatar popover-user-avatar">
+                      {(account.name || account.email)[0].toUpperCase()}
                     </span>
-                    <span>
-                      <strong>{account.email.split("@")[0]}</strong>
+                    <div className="popover-user-info">
+                      <strong>{account.name || account.email.split("@")[0]}</strong>
                       <small>{account.email}</small>
-                    </span>
+                      <span className="user-role-badge">
+                        {account.role === "owner" ? "Administrator / Owner" : account.role || "Team member"}
+                      </span>
+                    </div>
                   </div>
+
+                  <div className="popover-divider" />
+
                   <div className="popover-detail">
-                    <span>Business</span>
-                    <strong>{business.name}</strong>
-                    <span>Role</span>
-                    <strong>
-                      {account.roleId === "ROLE-ADMIN" ||
-                      account.role === "owner"
-                        ? "Admin"
-                        : account.role || "Team member"}
+                    <span className="detail-label">Workspace</span>
+                    <strong className="detail-value">{business?.name || "Your business"}</strong>
+
+                    <span className="detail-label">Industry</span>
+                    <strong className="detail-value">
+                      {business?.industry ? business.industry.charAt(0).toUpperCase() + business.industry.slice(1) : "General"}
+                    </strong>
+
+                    <span className="detail-label">Business Type</span>
+                    <strong className="detail-value">
+                      {business?.businessType ? business.businessType.charAt(0).toUpperCase() + business.businessType.slice(1) : "Retail"}
+                    </strong>
+
+                    <span className="detail-label">Access</span>
+                    <strong className="detail-value highlight">
+                      {account.role === "owner" ? "Admin (Full Access)" : account.role || "Team member"}
                     </strong>
                   </div>
+
+                  <div className="popover-actions">
+                    {canOpen("Business Profile") && (
+                      <button
+                        type="button"
+                        className="popover-action-btn"
+                        onClick={() => {
+                          navigateTo("Business Profile");
+                          setShowUserMenu(false);
+                        }}
+                      >
+                        <span>⚙ Business Profile</span>
+                        <span>→</span>
+                      </button>
+                    )}
+                    {canOpen("Users") && (
+                      <button
+                        type="button"
+                        className="popover-action-btn"
+                        onClick={() => {
+                          navigateTo("Users");
+                          setShowUserMenu(false);
+                        }}
+                      >
+                        <span>👥 Team & Users</span>
+                        <span>→</span>
+                      </button>
+                    )}
+                  </div>
+
                   <button
                     className="popover-logout"
                     type="button"
                     onClick={onLogout}
                   >
-                    Log out <span>↪</span>
+                    <span>Log out</span>
+                    <span>↪</span>
                   </button>
                 </div>
               )}
@@ -318,43 +569,155 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
         </header>
         {activeNav === "Overview" ? (
           <>
-            <div className="overview-quick-nav" ref={overviewMenuRef}>
+            <div
+              className="overview-quick-nav"
+              ref={overviewMenuRef}
+              onMouseLeave={() => setOverviewMenu(null)}
+            >
               <nav aria-label="Overview shortcuts">
                 {Object.keys(overviewNavigation).map((group) => {
                   const available = overviewNavigation[group].some(([, items]) => items.some(canOpen));
                   if (!available) return null;
-                  return <button type="button" key={group} className={overviewMenu === group ? "active" : ""} aria-expanded={overviewMenu === group} onClick={() => setOverviewMenu((current) => current === group ? null : group)}>{group}<span aria-hidden="true">⌄</span></button>;
+                  return (
+                    <button
+                      type="button"
+                      key={group}
+                      className={overviewMenu === group ? "active" : ""}
+                      aria-expanded={overviewMenu === group}
+                      onMouseEnter={() => setOverviewMenu(group)}
+                      onClick={() => setOverviewMenu((current) => (current === group ? null : group))}
+                    >
+                      {group}
+                    </button>
+                  );
                 })}
               </nav>
               <AnimatePresence>
-                {overviewMenu && <motion.div className="overview-mega-menu" initial={{ opacity: 0, y: -10, scale: .98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: .98 }} transition={{ duration: .18 }}>
-                  {overviewNavigation[overviewMenu].map(([heading, items]) => {
-                    const visible = items.filter(canOpen);
-                    return visible.length > 0 && <section key={heading}><p>{heading}</p>{visible.map((item) => <button type="button" key={item} onClick={() => { navigateTo(item); setOverviewMenu(null); }}>{item}<span aria-hidden="true">→</span></button>)}</section>;
-                  })}
-                </motion.div>}
+                {overviewMenu && (
+                  <motion.div
+                    className="overview-mega-menu"
+                    initial={{ opacity: 0, y: -6, scale: 0.99 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -4, scale: 0.99 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    {overviewNavigation[overviewMenu].map(([heading, items]) => {
+                      const visible = items.filter(canOpen);
+                      return (
+                        visible.length > 0 && (
+                          <section key={heading}>
+                            <p>{heading}</p>
+                            {visible.map((item) => (
+                              <button
+                                type="button"
+                                key={item}
+                                onClick={() => {
+                                  navigateTo(item);
+                                  setOverviewMenu(null);
+                                }}
+                              >
+                                {item}
+                                <span aria-hidden="true">→</span>
+                              </button>
+                            ))}
+                          </section>
+                        )
+                      );
+                    })}
+                  </motion.div>
+                )}
               </AnimatePresence>
             </div>
-            <PosDashboardStats
+            {account.role === 'owner' && !checklistDismissed && gettingStarted && <section className="getting-started"><header><div><p className="dashboard-kicker">Getting started</p><h2>Finish setting up at your pace</h2></div><button type="button" className="close-button" aria-label="Dismiss getting started" onClick={() => { localStorage.setItem(`stockroom-getting-started:${business.businessId}`, 'dismissed'); setChecklistDismissed(true); }}>×</button></header><div>{[[products.length > 0, 'Add first product', capabilities.productLabel], [gettingStarted.suppliers > 0, 'Add supplier', 'Suppliers'], [products.some((product) => Number(product.minimumStock) > 0 || product.variants?.some((variant) => variant.reorderPoint > 0)), 'Configure stock/reorder settings', capabilities.productLabel], [gettingStarted.sales, 'Make first sale', 'POS / Billing'], [gettingStarted.members > 1, 'Invite team member', 'Users']].map(([done, label, destination]) => <button type="button" key={label} onClick={() => navigateTo(destination)}><span className={done ? 'done' : ''}>{done ? '✓' : '○'}</span>{label}</button>)}</div></section>}
+            {(hasWidget('todaySales') || hasWidget('sales')) && <PosDashboardStats
               business={business}
               onOpen={() => navigateTo("POS / Billing")}
-            />
+            />}
             <div className="summary-row">
-              <article className="summary-card dark-card">
-                <span className="summary-label">Inventory value</span>
-                <strong>{business.currency} {inventoryValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
-                <span className="trend neutral">Live cost value</span>
-              </article>
-              <article className="summary-card">
-                <span className="summary-label">Items in stock</span>
-                <strong>{unitsInStock.toLocaleString()}</strong>
-                <span className="trend neutral">Across {(products || []).length} products</span>
-              </article>
-              <article className="summary-card">
-                <span className="summary-label">Needs restocking</span>
-                <strong>{lowStockCount}</strong>
-                <span className="trend neutral">At or below minimum stock</span>
-              </article>
+              {hasWidget('inventoryValue') && (
+                <article className="summary-card dark-card" title="Total inventory valuation based on purchase prices">
+                  <span className="summary-label">Inventory value</span>
+                  <strong>{business.currency} {(reportData?.inventorySummary?.totalValuation ?? inventoryValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <span className="trend neutral">Live cost valuation</span>
+                </article>
+              )}
+              {hasWidget('todaySales') && (
+                <article className="summary-card" title="Total sales revenue generated today">
+                  <span className="summary-label">Today's Sales</span>
+                  <strong>{business.currency} {Number(reportData?.salesSummary?.todaySales || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <span className="trend positive">Today's billing</span>
+                </article>
+              )}
+              {hasWidget('grossProfit') && (
+                <article className="summary-card" title="Total profit margin (Revenue minus Cost of Goods Sold)">
+                  <span className="summary-label">Gross Profit</span>
+                  <strong>{business.currency} {Number(reportData?.salesSummary?.grossProfit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <span className="trend positive">Revenue − COGS</span>
+                </article>
+              )}
+              {hasWidget('receivables') && (
+                <article className="summary-card" title="Total pending credit/receivable balances due from customers">
+                  <span className="summary-label">Receivables</span>
+                  <strong>{business.currency} {Number(reportData?.financialSummary?.outstandingReceivables || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <span className="trend neutral">Customer credit due</span>
+                </article>
+              )}
+              {(hasWidget('lowStock') || hasWidget('lowStockVariants')) && (
+                <article className="summary-card" title="Products that have reached or fallen below minimum reorder levels">
+                  <span className="summary-label">Needs restocking</span>
+                  <strong>{reportData?.inventorySummary?.lowStockCount ?? (hasWidget('lowStockVariants') ? lowStockVariantCount : lowStockCount)}</strong>
+                  <span className="trend negative">Low stock / Reorder alert</span>
+                </article>
+              )}
+              {hasWidget('purchaseDue') && (
+                <article className="summary-card" title="Pending payable balances due to suppliers for purchase orders">
+                  <span className="summary-label">Purchase Due</span>
+                  <strong>{business.currency} {Number(reportData?.financialSummary?.purchaseDue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+                  <span className="trend neutral">Supplier payables</span>
+                </article>
+              )}
+              {hasWidget('pendingOrders') && (
+                <article className="summary-card" title="Sales orders placed and awaiting fulfillment or payment">
+                  <span className="summary-label">Pending Orders</span>
+                  <strong>{reportData?.salesSummary?.pendingOrdersCount ?? 0}</strong>
+                  <span className="trend neutral">{business.currency} {Number(reportData?.salesSummary?.pendingOrdersAmount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </article>
+              )}
+              {hasWidget('outOfStock') && (
+                <article className="summary-card" title="Products with zero current stock in warehouse">
+                  <span className="summary-label">Out of Stock</span>
+                  <strong>{reportData?.inventorySummary?.outOfStockCount ?? (products || []).filter((p) => Number(p.currentStock || 0) <= 0).length}</strong>
+                  <span className="trend negative">Zero stock items</span>
+                </article>
+              )}
+              {hasWidget('itemsInStock') && (
+                <article className="summary-card" title="Total units in stock across all products">
+                  <span className="summary-label">Items in stock</span>
+                  <strong>{unitsInStock.toLocaleString()}</strong>
+                  <span className="trend neutral">Across {(products || []).length} products</span>
+                </article>
+              )}
+              {hasWidget('activeSuppliers') && (
+                <article className="summary-card" title="Suppliers currently active and verified for purchasing">
+                  <span className="summary-label">Active Suppliers</span>
+                  <strong>{reportData?.financialSummary?.activeSuppliers ?? 0}</strong>
+                  <span className="trend neutral">Verified vendors</span>
+                </article>
+              )}
+              {hasWidget('activeCustomers') && (
+                <article className="summary-card" title="Registered retail, wholesale, dealer, and contractor accounts">
+                  <span className="summary-label">Active Customers</span>
+                  <strong>{reportData?.financialSummary?.activeCustomers ?? 0}</strong>
+                  <span className="trend neutral">Customer accounts</span>
+                </article>
+              )}
+              {hasWidget('totalVariants') && <article className="summary-card"><span className="summary-label">Active variants</span><strong>{clothingVariants.filter((variant) => variant.active !== false).length}</strong><span className="trend neutral">Size × color combinations</span></article>}
+              {hasWidget('reorderSuggestions') && <article className="summary-card" title="Products flagged for reordering"><span className="summary-label">Reorder suggestions</span><strong>{reportData?.inventorySummary?.reorderRequired ?? reorderSuggestionCount}</strong><span className="trend neutral">Ready for review</span></article>}
+              {hasWidget('expiringStock') && <article className="summary-card"><span className="summary-label">Expiring within 30 days</span><strong>{expiringCount}</strong><span className="trend neutral">Expiry tracking</span></article>}
+              {hasWidget('expiredStock') && <article className="summary-card"><span className="summary-label">Expired stock</span><strong>{expiredCount}</strong><span className="trend neutral">Remove from sale</span></article>}
+              {hasWidget('batchAlerts') && <article className="summary-card"><span className="summary-label">Tracked batches</span><strong>{(products || []).filter((product) => product.batchNumber).length}</strong><span className="trend neutral">Batch records</span></article>}
+              {hasWidget('topSizes') && <article className="summary-card"><span className="summary-label">Top stocked size</span><strong>{topValue('size')}</strong><span className="trend neutral">Across clothing variants</span></article>}
+              {hasWidget('warrantyAlerts') && <article className="summary-card"><span className="summary-label">Warranty-tracked items</span><strong>{(products || []).filter((product) => product.warrantyMonths).length}</strong><span className="trend neutral">Electronics records</span></article>}
             </div>
             <div className="dashboard-grid">
               <section className="inventory-section">
@@ -368,7 +731,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
                   <button
                     className="outline-button"
                     type="button"
-                    onClick={() => navigateTo("Products")}
+                    onClick={() => navigateTo(capabilities.productLabel)}
                   >
                     View all <span>→</span>
                   </button>
@@ -379,16 +742,16 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
                     <input
                       aria-label="Search inventory"
                       value={search}
-                      onChange={(event) => setSearch(event.target.value)}
+                      onChange={(event) => { setSearch(event.target.value); setOverviewPage(1); }}
                       placeholder="Search products or SKU"
                     />
-                  </div>
+                  </div><select className="overview-filter" aria-label="Inventory category" value={overviewCategory} onChange={(event) => { setOverviewCategory(event.target.value); setOverviewPage(1); }}><option value="all">All categories</option>{[...new Set(inventoryGroups.map((group) => group.category))].map((category) => <option key={category}>{category}</option>)}</select><select className="overview-filter" aria-label="Sort inventory stock" value={overviewSort} onChange={(event) => { setOverviewSort(event.target.value); setOverviewPage(1); }}><option value="default">Default order</option><option value="high">Stock: High to low</option><option value="low">Stock: Low to high</option></select>
                 </div>
                 <AsyncBoundary
                   loading={loading}
                   error={error}
                   onRetry={refetch}
-                  isEmpty={!filteredItems.length}
+                  isEmpty={!overviewRows.length}
                   emptyText={
                     overviewProducts.length
                       ? "No products match your search."
@@ -396,33 +759,94 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
                   }
                 >
                   <div className="inventory-table">
-                    <div className="table-row table-head">
+                    <button
+                      className="table-row table-head inventory-table-toggle"
+                      type="button"
+                      aria-expanded={inventoryTableOpen}
+                      aria-label={`${inventoryTableOpen ? "Collapse" : "Expand"} inventory overview`}
+                      onClick={() => setInventoryTableOpen((current) => !current)}
+                    >
                       <span>Product</span>
                       <span>Category</span>
                       <span>Stock</span>
-                      <span>Price</span>
-                    </div>
-                    {filteredItems.map((item) => (
-                      <div className="table-row" key={item[1]}>
-                        <span className="product-cell">
-                          <span className="product-thumb">{item[0][0]}</span>
-                          <span>
-                            <strong>{item[0]}</strong>
-                            <small>{item[1]}</small>
-                          </span>
-                        </span>
-                        <span className="category-cell">{item[2]}</span>
-                        <span
-                          className={`stock-cell ${item[3] === 0 ? "empty" : item[3] < 10 ? "low" : ""}`}
-                        >
-                          {item[3]}
-                          <small>{item[5]}</small>
-                        </span>
-                        <span className="price-cell">{item[4]}</span>
-                      </div>
-                    ))}
+                      <span className="inventory-table-price-heading">
+                        Price
+                        <span className="inventory-table-chevron" aria-hidden="true">⌄</span>
+                      </span>
+                    </button>
+                    {inventoryTableOpen && overviewRows.slice((currentOverviewPage - 1) * 8, currentOverviewPage * 8).map((group) => {
+                      const isGroup = group.items.length > 1;
+                      const expanded = expandedInventoryGroups.includes(group.key);
+                      const firstItem = group.items[0];
+
+                      if (!isGroup) {
+                        return (
+                          <div className="table-row" key={firstItem.key}>
+                            <span className="product-cell">
+                              <span className="product-thumb">{firstItem.name[0]}</span>
+                              <span>
+                                <strong>{firstItem.name}</strong>
+                                <small>{firstItem.sku}</small>
+                              </span>
+                            </span>
+                            <span className="category-cell">{firstItem.category}</span>
+                            <span className={`stock-cell ${firstItem.stock === 0 ? "empty" : firstItem.stock < 10 ? "low" : ""}`}>
+                              {firstItem.stock}
+                              <small>{firstItem.stock === 0 ? "Out of stock" : firstItem.stock <= firstItem.minimumStock ? "Low stock" : "In stock"}</small>
+                            </span>
+                            <span className="price-cell">{business.currency} {firstItem.price.toFixed(2)}</span>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <Fragment key={group.key}>
+                          <div className={`table-row inventory-group-row${expanded ? " expanded" : ""}`}>
+                            <span className="product-cell inventory-group-cell">
+                              <span className="product-thumb">{group.name[0]}</span>
+                              <button
+                                className="inventory-group-toggle"
+                                type="button"
+                                aria-expanded={expanded}
+                                aria-label={`${expanded ? "Hide" : "Show"} ${group.items.length} variants for ${group.name}`}
+                                onClick={() => toggleInventoryGroup(group.key)}
+                              >
+                                <span>
+                                  <strong>{group.name}</strong>
+                                  <small>{group.items.length} variants</small>
+                                </span>
+                                <span className="inventory-group-chevron" aria-hidden="true">⌄</span>
+                              </button>
+                            </span>
+                            <span className="category-cell">{group.category}</span>
+                            <span className={`stock-cell ${group.stock === 0 ? "empty" : ""}`}>
+                              {group.stock}
+                              <small>Across variants</small>
+                            </span>
+                            <span className="price-cell">{group.price}</span>
+                          </div>
+                          {expanded && group.items.map((item) => (
+                            <div className="table-row inventory-variant-row" key={item.key}>
+                              <span className="product-cell inventory-variant-cell">
+                                <span className="inventory-variant-marker" aria-hidden="true" />
+                                <span>
+                                  <strong>{[item.color, item.size].filter(Boolean).join(" · ") || "Standard variant"}</strong>
+                                  <small>{item.sku}</small>
+                                </span>
+                              </span>
+                              <span className="category-cell">{item.category}</span>
+                              <span className={`stock-cell ${item.stock === 0 ? "empty" : item.stock < 10 ? "low" : ""}`}>
+                                {item.stock}
+                                <small>{item.stock === 0 ? "Out of stock" : item.stock <= item.minimumStock ? "Low stock" : "In stock"}</small>
+                              </span>
+                              <span className="price-cell">{business.currency} {item.price.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </Fragment>
+                      );
+                    })}
                   </div>
-                </AsyncBoundary>
+                <footer className="overview-pagination"><span>Showing {(currentOverviewPage - 1) * 8 + 1}–{Math.min(currentOverviewPage * 8, overviewRows.length)} of {overviewRows.length} products</span><div><button type="button" disabled={currentOverviewPage === 1} onClick={() => setOverviewPage(currentOverviewPage - 1)}>Previous</button><span>{currentOverviewPage} / {overviewPages}</span><button type="button" disabled={currentOverviewPage === overviewPages} onClick={() => setOverviewPage(currentOverviewPage + 1)}>Next</button></div></footer></AsyncBoundary>
               </section>
               <aside className="alerts-section">
                 <div className="section-heading">
@@ -430,8 +854,19 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
                     <p className="dashboard-kicker">Needs your attention</p>
                     <h2>Stock alerts</h2>
                   </div>
-                  <span className="alert-count">{notifItems.length}</span>
+                  <button
+                    className="stock-alert-toggle"
+                    type="button"
+                    aria-expanded={stockAlertsOpen}
+                    aria-controls="stock-alert-content"
+                    aria-label={`${stockAlertsOpen ? "Collapse" : "Expand"} stock alerts`}
+                    onClick={() => setStockAlertsOpen((current) => !current)}
+                  >
+                    <span className="alert-count">{notifItems.length}</span>
+                    <span className="stock-alert-chevron" aria-hidden="true">⌄</span>
+                  </button>
                 </div>
+                {stockAlertsOpen && <div className="stock-alert-content" id="stock-alert-content">
                 {notifItems.length === 0 ? (
                   <div className="alert-list">
                     <div className="notif-empty">
@@ -469,10 +904,11 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
                 >
                   Create purchase order <span>+</span>
                 </button>
+                </div>}
               </aside>
             </div>
           </>
-        ) : activeNav === "Products" ? (
+        ) : activeNav === "Products" || activeNav === "Medicines" ? (
           <Products business={business} account={account} />
         ) : activeNav === "Bulk Import" ? (
           <ProductImport business={business} />
@@ -504,7 +940,7 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
         ) : activeNav === "Receiving" ? (
           <Receiving business={business} account={account} />
         ) : activeNav === "Orders" ? (
-          <SalesOrders business={business} account={account} />
+          <SalesOrders business={business} account={account} creditSales={["Credit Sales", "Bulk Orders"].includes(activeNav)} section={activeNav} />
         ) : activeNav === "POS / Billing" ? (
           <POS business={business} account={account} />
         ) : activeNav === "Payments" ? (
@@ -526,6 +962,14 @@ function Dashboard({ account, business, onLogout, onBusinessUpdate, theme, onTog
             account={account}
             purchase={activeNav === "Purchase Returns"}
           />
+        ) : activeNav === "Color Management" ? (
+          <ColorManagement business={business} account={account} />
+        ) : ["Variant Grid", "Replenishment", "Promotions", "Loyalty", "Coupons", "Gift Cards", "Cashier Shifts", "Clothing Reports"].includes(activeNav) ? (
+          <ClothingModule section={activeNav} business={business} account={account} />
+        ) : activeNav === "Bulk Pricing" ? (<BulkPricing business={business} account={account} />) : ["Batch Management", "Expiry Tracking", "Prescription Management", "Size Management", "Product Variants", "Serial Numbers", "Warranty Tracking", "Offers / Discounts", "Bulk Pricing", "Raw Materials", "Bill of Materials", "Production", "Finished Goods", "Production Tracking"].includes(activeNav) ? (
+          <IndustryModule section={activeNav} business={business} />
+        ) : activeNav === "Bulk Orders" || activeNav === "Credit Sales" ? (
+          <SalesOrders business={business} account={account} creditSales={["Credit Sales", "Bulk Orders"].includes(activeNav)} section={activeNav} />
         ) : (
           <div className="empty-dashboard">
             <span className="empty-dashboard-icon">◫</span>
@@ -608,6 +1052,7 @@ function App() {
   const [submitting, setSubmitting] = useState(false);
   const [booting, setBooting] = useState(Boolean(getToken()) && !initialReset);
   const [session, setSession] = useState(null);
+  const [initialNav, setInitialNav] = useState("Overview");
   const [resetToken, setResetToken] = useState(initialReset);
   const copy = AUTH_COPY[mode];
 
@@ -780,11 +1225,21 @@ function App() {
   if (booting)
     return <div className="app-loading">Loading your workspace…</div>;
 
-  if (session && !session.business) {
+  const needsOwnerOnboarding = session?.user?.role === 'owner' && session.user.onboarding && session.user.onboarding.status !== 'completed';
+  if (session && (!session.business || needsOwnerOnboarding)) {
     return (
       <BusinessSetup
+        account={session.user}
+        business={session.business}
+        theme={theme}
+        onToggleTheme={() => setTheme((current) => current === "dark" ? "light" : "dark")}
+        onSession={(result) => {
+          if (result.token) setToken(result.token);
+          setSession({ user: result.user, business: result.business });
+        }}
         onComplete={(result) => {
           setToken(result.token);
+          setInitialNav(result.initialNav || "Overview");
           setSession({ user: result.user, business: result.business });
         }}
       />
@@ -796,6 +1251,7 @@ function App() {
       <Dashboard
         account={session.user}
         business={session.business}
+        initialNav={initialNav}
         onLogout={handleLogout}
         onBusinessUpdate={(business) =>
           setSession((current) => ({ ...current, business }))
@@ -998,3 +1454,6 @@ function App() {
 }
 
 export default App;
+
+
+

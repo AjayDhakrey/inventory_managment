@@ -7,6 +7,7 @@ import { salesOrderApi } from '../api/salesOrderApi.js'
 import { purchaseOrderApi } from '../api/purchaseOrderApi.js'
 import { useResource } from '../hooks/useResource.js'
 import AsyncBoundary from './AsyncBoundary.jsx'
+import SalesReturns from './SalesReturns.jsx'
 
 function BusinessSettings({ business, onBusinessUpdate, onBusinessDeleted }) {
   const [message, setMessage] = useState(null)
@@ -102,7 +103,7 @@ function Reports({ business }) {
   return <section className="reports-page"><div className="products-toolbar"><div><p className="dashboard-kicker">Business intelligence</p><h2>Reports</h2><p className="products-count">Live summary for {business.name}</p></div><button className="outline-button" type="button" onClick={() => window.print()}>Print report <span>↗</span></button></div><AsyncBoundary loading={loading} error={error} onRetry={refetch}><div className="report-cards"><article><small>Completed sales</small><strong>{business.currency} {Number(report?.salesTotal || 0).toFixed(2)}</strong></article><article><small>Purchase value</small><strong>{business.currency} {Number(report?.purchaseTotal || 0).toFixed(2)}</strong></article><article><small>Low-stock products</small><strong>{report?.lowStock || 0}</strong></article><article><small>Out of stock</small><strong>{report?.outOfStock || 0}</strong></article><article><small>Products</small><strong>{report?.productCount || 0}</strong></article><article><small>Stock movements</small><strong>{report?.stockMovements || 0}</strong></article></div><div className="report-panel"><div className="section-heading"><div><p className="dashboard-kicker">Inventory report</p><h2>Current stock</h2></div></div><div className="products-table"><div className="product-table-row product-table-head"><span>Product</span><span>Stock</span><span>Value</span><span>Status</span></div>{products.map((product) => <div className="product-table-row" key={product.productId}><span className="product-cell"><span className="product-thumb">{product.name[0]}</span><span><strong>{product.name}</strong><small>{product.sku}</small></span></span><span>{product.currentStock}</span><span>{business.currency} {(product.currentStock * product.purchasePrice).toFixed(2)}</span><span className={`stock-badge ${product.currentStock === 0 ? 'empty' : product.currentStock <= 10 ? 'low' : ''}`}>{product.currentStock === 0 ? 'Out of stock' : product.currentStock <= 10 ? 'Low stock' : 'In stock'}</span></div>)}</div></div></AsyncBoundary></section>
 }
 
-function Returns({ business, purchase = false }) {
+function LegacyReturns({ business, purchase = false }) {
   const load = useCallback(
     () => Promise.all([returnApi.list({ type: purchase ? 'purchase' : 'sale' }), productApi.list(), purchase ? purchaseOrderApi.list() : salesOrderApi.list()]),
     [purchase],
@@ -143,6 +144,10 @@ function Returns({ business, purchase = false }) {
   }
 
   return <section className="returns-page"><div className="products-toolbar"><div><p className="dashboard-kicker">{purchase ? 'Purchases / Purchase Returns' : 'Orders / Sales / Returns'}</p><h2>{purchase ? 'Purchase Returns' : 'Sales Returns'}</h2><p className="products-count">Complete returns for {business.name}</p></div><span className="business-filter">{returns.length} completed</span></div>{message && <p className={`form-status ${message.type}`}>{message.text}</p>}<form className="return-form" onSubmit={handleSubmit}><div><label htmlFor="return-order">Order *</label><select id="return-order" name="orderId" defaultValue="" required><option value="" disabled>Select order</option>{orders.map((order) => <option key={order.orderId || order.purchaseOrderId} value={order.orderId || order.purchaseOrderId}>{order.orderNumber} · {purchase ? order.supplierName : order.customerName}</option>)}</select></div><div><label htmlFor="return-product">Product *</label><select id="return-product" name="productId" defaultValue="" required><option value="" disabled>Select product</option>{products.map((product) => <option key={product.productId} value={product.productId}>{product.name} ({product.sku})</option>)}</select></div><div><label htmlFor="return-quantity">Quantity *</label><input id="return-quantity" name="quantity" type="number" min="1" required /></div><div><label htmlFor="return-reason">Reason</label><select id="return-reason" name="reason"><option>Damaged product</option><option>Defective product</option><option>Incorrect product</option><option>Other</option></select></div><div><label htmlFor="return-refund">Refund / credit amount</label><input id="return-refund" name="refundAmount" type="number" min="0" step="0.01" defaultValue="0" /></div><button className="submit-button" type="submit" disabled={saving}>{saving ? 'Processing…' : 'Complete return'} <span>→</span></button></form><AsyncBoundary loading={loading} error={error} onRetry={refetch} isEmpty={!returns.length} emptyText="No returns recorded for this business yet."><div className="history-list">{returns.map((item) => <div className="history-row" key={item.returnId}><span className="history-type adjustment">{item.type} return</span><span><strong>{item.returnId} · {item.productName}</strong><small>{item.quantity} units · {item.reason} · {new Date(item.createdAt).toLocaleString()}</small></span><span className="history-quantity">Completed</span></div>)}</div></AsyncBoundary></section>
+}
+
+function Returns(props) {
+  return props.purchase ? <LegacyReturns {...props} /> : <SalesReturns {...props} />
 }
 
 export { BusinessSettings, Settings, Reports, Returns }

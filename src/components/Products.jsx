@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { productApi } from "../api/productApi.js";
 import { useResource } from "../hooks/useResource.js";
 import AsyncBoundary from "./AsyncBoundary.jsx";
+import "../styles/products-catalog.css";
 
 function Products({ business, account }) {
   const loadProducts = useCallback(() => productApi.list(), []);
@@ -12,6 +13,7 @@ function Products({ business, account }) {
     refetch,
     setData,
   } = useResource(loadProducts, [], []);
+  const [category, setCategory] = useState("all"); const [stockFilter, setStockFilter] = useState("all"); const [page, setPage] = useState(1); const [pageSize, setPageSize] = useState(10); const [selected, setSelected] = useState([]);
   const [search, setSearch] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
@@ -23,9 +25,21 @@ function Products({ business, account }) {
   const visibleProducts = products.filter((product) =>
     `${product.name} ${product.sku} ${product.category}`
       .toLowerCase()
-      .includes(search.toLowerCase()),
+      .includes(search.toLowerCase()) && (category === "all" || product.category === category) && (stockFilter === "all" || (stockFilter === "in" ? product.currentStock > 0 : product.currentStock <= product.minimumStock)),
   );
 
+  const pages = Math.max(1, Math.ceil(visibleProducts.length / pageSize));
+  const currentPage = Math.min(page, pages);
+  const pageProducts = visibleProducts.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const money = (value) => `${business.currency === 'INR' ? '₹' : business.currency || ''}${Number(value).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+  const toggleSelected = (id) => setSelected((list) => list.includes(id) ? list.filter((value) => value !== id) : [...list, id]);
+  const exportSheet = (selectionOnly = false) => {
+    const rows = selectionOnly ? visibleProducts.filter((product) => selected.includes(product.productId)) : visibleProducts;
+    const cell = (value) => `"${String(value ?? '').replace(/^[=+@-]/, "'$&").replaceAll('"', '""')}"`;
+    const values = [['Product', 'SKU', 'Category', 'Stock', 'Price', 'Currency'], ...rows.map((product) => [product.name, product.sku, product.category, product.currentStock, product.sellingPrice, business.currency])];
+    const url = URL.createObjectURL(new Blob(['\uFEFF' + values.map((row) => row.map(cell).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8;' }));
+    const link = document.createElement('a'); link.href = url; link.download = 'products.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (saving) return;
@@ -99,7 +113,7 @@ function Products({ business, account }) {
   };
 
   return (
-    <section className="products-page">
+    <section className="products-page products-catalog">
       <div className="products-toolbar">
         <div>
           <p className="dashboard-kicker">Inventory / Products</p>
@@ -108,25 +122,30 @@ function Products({ business, account }) {
             {products.length} products in {business.name}
           </p>
         </div>
-        {canCreate && <button
+        <div className="catalog-toolbar-actions"><button className="outline-button" type="button" disabled={loading || !!error || !visibleProducts.length} onClick={() => exportSheet()}>↥ Export sheet</button>{canCreate && <button
           className="submit-button product-add-button"
           type="button"
           onClick={() => openForm()}
         >
           Add product <span>+</span>
-        </button>}
+        </button>}</div>
       </div>
-      <div className="products-controls">
+      {!loading && !error && <div className="catalog-stats">
+        <article><span>Total Products</span><strong>{products.length.toLocaleString()}</strong><small>Registered inventory products</small><b aria-hidden="true">◇</b></article>
+        <article><span>Low Stock Alert</span><strong>{products.filter((product) => product.currentStock <= product.minimumStock).length} SKUs</strong><small>At or below reorder level</small><b aria-hidden="true">⚠</b></article>
+        <article><span>Total Stock Quantity</span><strong>{products.reduce((total, product) => total + Number(product.currentStock || 0), 0).toLocaleString()} <em>Units</em></strong><small>Across all registered products</small><b aria-hidden="true">#</b></article>
+        <article><span>Inventory Valuation</span><strong>{money(products.reduce((total, product) => total + Number(product.currentStock || 0) * Number(product.purchasePrice || 0), 0))}</strong><small>At purchase cost ({business.currency})</small><b aria-hidden="true">＄</b></article>
+      </div>}      <div className="products-controls">
         <div className="search-box">
           <span>⌕</span>
           <input
             aria-label="Search products"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => { setSearch(event.target.value); setPage(1); }}
             placeholder="Search by name, SKU, or category"
           />
         </div>
-        <span className="business-filter">{business.industry} business</span>
+        <span className="business-filter">{business.industry} business</span><select aria-label="Product category" value={category} onChange={(event) => { setCategory(event.target.value); setPage(1); }}><option value="all">All categories</option>{[...new Set(products.map((product) => product.category))].map((value) => <option key={value}>{value}</option>)}</select><select aria-label="Stock filter" value={stockFilter} onChange={(event) => { setStockFilter(event.target.value); setPage(1); }}><option value="all">All stock</option><option value="in">In stock (&gt;0)</option><option value="low">Low / out of stock</option></select><button className="outline-button" type="button" disabled={!visibleProducts.some((product) => selected.includes(product.productId))} onClick={() => exportSheet(true)}>Export selected</button>
       </div>
       {isFormOpen && (
         <form className="product-form" onSubmit={handleSubmit}>
@@ -351,14 +370,14 @@ function Products({ business, account }) {
       >
         <div className="products-table">
           <div className="product-table-row product-table-head">
-            <span>Product</span>
+            <input className="catalog-check" type="checkbox" aria-label="Select all products on this page" checked={pageProducts.length > 0 && pageProducts.every((product) => selected.includes(product.productId))} onChange={(event) => setSelected((list) => event.target.checked ? [...new Set([...list, ...pageProducts.map((product) => product.productId)])] : list.filter((id) => !pageProducts.some((product) => product.productId === id)))} /><span>Product</span>
             <span>Category</span>
             <span>Stock</span>
             <span>Price</span>
             <span>Actions</span>
           </div>
-          {visibleProducts.map((product) => (
-            <div className="product-table-row" key={product.productId}>
+          {pageProducts.map((product) => (
+            <div className="product-table-row" key={product.productId}><input className="catalog-check" type="checkbox" aria-label={`Select ${product.name} ${product.sku}`} checked={selected.includes(product.productId)} onChange={() => toggleSelected(product.productId)} />
               <span className="product-cell">
                 <span className="product-thumb">{product.name[0]}</span>
                 <span>
@@ -368,7 +387,7 @@ function Products({ business, account }) {
                   </small>
                 </span>
               </span>
-              <span>{product.category}</span>
+              <span><span className="catalog-category">{product.category}</span></span>
               <span
                 className={
                   product.currentStock <= product.minimumStock
@@ -402,9 +421,11 @@ function Products({ business, account }) {
             </div>
           ))}
         </div>
-      </AsyncBoundary>
+<footer className="catalog-pagination"><span>Showing {(currentPage - 1) * pageSize + 1} to {Math.min(currentPage * pageSize, visibleProducts.length)} of {visibleProducts.length} products</span><label>Rows per page <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1); }}>{[10, 25, 50].map((size) => <option key={size}>{size}</option>)}</select></label><div><button type="button" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)}>Previous</button><span aria-current="page">{currentPage}</span><span>of {pages}</span><button type="button" disabled={currentPage === pages} onClick={() => setPage(currentPage + 1)}>Next</button></div></footer>      </AsyncBoundary>
     </section>
   );
 }
 
 export default Products;
+
+

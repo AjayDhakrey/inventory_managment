@@ -1,0 +1,70 @@
+.stock-operation-form > div { min-width: 0; }
+.product-picker { position: relative; width: 100%; min-width: 0; }
+.stock-operation-form .product-picker-input {
+  width: 100%;
+  padding-right: 40px;
+  font-size: 14px;
+  text-overflow: ellipsis;
+}
+.product-picker-toggle {
+  position: absolute;
+  inset: 1px 1px 1px auto;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--sr-radius-xs, 3px);
+  color: var(--sr-text-soft, #55605a);
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+.product-picker-toggle:disabled { cursor: not-allowed; opacity: .5; }
+.product-picker-menu {
+  position: fixed;
+  z-index: 1500;
+  box-sizing: border-box;
+  padding: 5px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sr-border-strong, #a6b0a5) transparent;
+  border: 1px solid var(--sr-border, #c6cec5);
+  border-radius: var(--sr-radius, 8px);
+  color: var(--sr-text, #1e2724);
+  background: var(--sr-surface, #fff);
+  box-shadow: var(--sr-shadow-lg, 0 16px 36px #0002);
+}
+.product-picker-option {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--sr-divider, #dbe1d9);
+  border-radius: 4px;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.product-picker-option strong { font-size: 14px; line-height: 1.4; }
+.product-picker-option small, .product-picker-option > span { font-size: 13px; line-height: 1.4; color: var(--sr-text-soft, #55605a); }
+.product-picker-option small { font-family: 'DM Mono', monospace; }
+.product-picker-option:hover, .product-picker-option.highlighted, .product-picker-option[aria-selected='true'] {
+  background: var(--sr-surface-sunken, #eef1ea);
+  box-shadow: inset 3px 0 var(--orange, #e86c3e);
+}
+.product-picker-empty { margin: 0; padding: 16px 12px; font-size: 14px; color: var(--sr-text-soft, #55605a); }
+@media (min-width: 821px) {
+  .stock-operation-form { grid-template-columns: minmax(0, 1.35fr) minmax(0, .65fr) minmax(0, 1fr) auto; }
+}
+@media (max-width: 600px) {
+  .stock-operation-form .product-picker-input { font-size: 16px; }
+}

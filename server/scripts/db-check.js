@@ -1,9 +1,14 @@
 /* Quick connectivity test for the MONGODB_URI in server/.env */
 import mongoose from 'mongoose'
+import dns from 'node:dns'
 import { env } from '../config/env.js'
 
 const masked = env.mongoUri.replace(/\/\/([^:]+):[^@]+@/, '//$1:****@')
 console.log(`Connecting to: ${masked}`)
+
+// Atlas uses DNS SRV records. Some Windows/router DNS proxies refuse Node's
+// SRV lookup even while ordinary DNS works, so match the runtime fallback.
+if (env.mongoUri.startsWith('mongodb+srv://')) dns.setServers(['1.1.1.1', '8.8.8.8'])
 
 try {
   await mongoose.connect(env.mongoUri, { serverSelectionTimeoutMS: 12000 })

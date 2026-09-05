@@ -1,0 +1,39 @@
+.order-receipt { width: min(720px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 0; border: 1px solid #e2e8f0; border-radius: 18px; color: #111827; background: #fff; box-shadow: 0 28px 80px #0f172a40; font: 13px 'Manrope', sans-serif; overflow-y: auto; }
+.order-receipt::backdrop { background: #11182770; backdrop-filter: blur(5px); }
+.receipt-body { border-top: 5px solid #f97316; }
+.receipt-header { position: relative; padding: 28px 26px 20px; }
+.order-receipt h3, .receipt-eyebrow { margin: 0 0 12px; font-size: 10px; color: #64748b; letter-spacing: .7px; text-transform: uppercase; font-weight: 700; }
+.receipt-eyebrow span { display: inline-block; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 5px; padding: 4px 7px; margin-left: 8px; letter-spacing: 0; text-transform: none; }
+.receipt-title { display: flex; align-items: center; gap: 10px; padding-right: 20px; }
+.order-receipt .receipt-title h2 { margin: 0; font-size: clamp(18px, 3vw, 28px); color: inherit; letter-spacing: -1px; overflow-wrap: anywhere; }
+.order-receipt button { border: 1px solid #e2e8f0; background: #fff; color: #475569; border-radius: 10px; cursor: pointer; padding: 9px 13px; font: inherit; font-size: 12px; }
+.order-receipt button:focus-visible { outline: 2px solid #f97316; outline-offset: 3px; }
+.order-receipt .receipt-close { position: absolute; top: 22px; right: 22px; border-radius: 50%; width: 30px; height: 30px; padding: 0; }
+.receipt-title button { border: 0; padding: 4px; color: #64748b; }
+.receipt-header p, .order-receipt small { display: block; font-size: 11px; color: #64748b; margin: 7px 0 0; line-height: 1.6; }
+.receipt-parties { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; background: #f8fafc; padding: 22px 26px; border-block: 1px solid #f1f5f9; }
+.receipt-customer { display: flex; gap: 10px; align-items: center; }
+.receipt-avatar, .receipt-product-icon { display: grid; place-items: center; flex: 0 0 34px; height: 34px; background: #e8eef5; color: #475569; border-radius: 50%; font-size: 10px; font-weight: 700; }
+.receipt-status { display: inline-block; padding: 6px 9px; border-radius: 20px; color: #a16207; background: #fffbeb; border: 1px solid #fde68a; font-size: 11px; }
+.receipt-status.completed { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+.receipt-status.cancelled { color: #be123c; background: #fff1f2; border-color: #fecdd3; }
+.receipt-items { padding: 22px 26px; }
+.receipt-item { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
+.receipt-item:last-child { border-bottom: 0; }
+.receipt-product-icon { flex-basis: 44px; height: 44px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f1f5f9; }
+.receipt-item-price { margin-left: auto; text-align: right; flex-shrink: 0; }
+.receipt-item-price strong { font-family: 'DM Mono', monospace; font-size: 12px; }
+.receipt-totals { background: #f8fafc; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 26px; }
+.receipt-totals dl { margin: 0; color: #64748b; font-size: 11px; }
+.receipt-totals dl div { display: flex; gap: 14px; margin: 5px 0; }
+.receipt-totals dd { margin: 0; color: #475569; font-family: 'DM Mono', monospace; }
+.receipt-grand-total { text-align: right; }
+.receipt-grand-total h3 { margin-bottom: 6px; }
+.receipt-grand-total > strong { font-size: 28px; letter-spacing: -1px; }
+.receipt-notes { padding: 0 26px; color: #64748b; white-space: pre-wrap; }
+.receipt-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 26px; }
+.receipt-footer p { font-size: 10px; color: #64748b; }
+.receipt-footer > div { display: flex; gap: 8px; }
+.order-receipt .receipt-done { color: white; background: #f6531b; border-color: #f6531b; }
+@media(max-width:520px) { .receipt-parties { grid-template-columns: 1fr; } .receipt-header, .receipt-parties, .receipt-items, .receipt-totals, .receipt-footer { padding: 18px; } .receipt-footer, .receipt-totals { flex-wrap: wrap; } .receipt-item { flex-wrap: wrap; } }
+@media print { body.printing-sales-order > :not(.order-receipt) { display: none !important; } body.printing-sales-order { overflow: visible !important; background: white; } .order-receipt { display: block; position: static; margin: 0; width: 100%; max-height: none; overflow: visible; box-shadow: none; border: 0; } .order-receipt::backdrop { display: none; } .receipt-close, .receipt-title button, .receipt-footer > div { display: none !important; } .receipt-item { break-inside: avoid; } }

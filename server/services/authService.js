@@ -7,6 +7,7 @@ import { ApiError } from '../utils/ApiError.js'
 import { signToken } from '../middleware/auth.js'
 import { env, isProduction } from '../config/env.js'
 import { assert, requireFields, isEmail } from '../validators/assert.js'
+import { resolveBusinessCapabilities } from '../../shared/industryConfig.js'
 
 const RESET_TOKEN_TTL_MS = 30 * 60 * 1000
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex')
@@ -23,7 +24,7 @@ async function buildSession(user) {
     token: signToken(user),
     account,
     user: account,
-    business: business ? business.toJSON() : null,
+    business: business ? { ...business.toJSON(), capabilities: resolveBusinessCapabilities(business.toJSON()) } : null,
   }
 }
 
@@ -49,6 +50,7 @@ export async function register({ email, password, role = 'owner', name } = {}) {
     role,
     name: name?.trim() || normalizedEmail.split('@')[0],
     business: invitation?.business || null,
+    onboarding: role === 'owner' ? { status: 'pending', currentStep: 1, setupVersion: 1, draft: {} } : undefined,
   })
   if (invitation) {
     const claimed = await Member.findOneAndUpdate(
@@ -75,6 +77,23 @@ export async function login({ email, password, role } = {}) {
 }
 
 export async function currentSession(user) {
+  return buildSession(user)
+}
+
+export async function updateOnboarding(user, payload = {}) {
+  assert(user.role === 'owner', 'Team members inherit their business setup and do not use owner onboarding.')
+  const onboarding = user.onboarding?.toObject?.() || user.onboarding || { status: 'pending', currentStep: 1, setupVersion: 1, draft: {} }
+  if (payload.currentStep !== undefined) onboarding.currentStep = Math.min(7, Math.max(1, Number(payload.currentStep) || 1))
+  if (payload.draft && typeof payload.draft === 'object') onboarding.draft = { ...(onboarding.draft || {}), ...payload.draft }
+  if (payload.ownerName !== undefined) user.name = String(payload.ownerName).trim()
+  onboarding.status = payload.complete ? 'completed' : 'in_progress'
+  if (payload.complete) {
+    assert(user.business, 'Create the business before completing onboarding.')
+    onboarding.currentStep = 7
+    onboarding.completedAt = new Date()
+  }
+  user.onboarding = onboarding
+  await user.save()
   return buildSession(user)
 }
 

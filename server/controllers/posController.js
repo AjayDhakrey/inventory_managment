@@ -5,7 +5,12 @@ import { notificationEvents } from '../services/notificationEvents.js'
 
 export const checkout = asyncHandler(async (req, res) => {
   const result = await posService.checkout(req.businessId, req.body, { id: req.auth.userId, name: req.user.name || req.user.email }, req.permissions)
-  await notificationEvents.salesStatus(req.businessId, result.invoice)
+  // Checkout has committed. A notification failure must not hide the saved bill.
+  try {
+    await notificationEvents.salesStatus(req.businessId, result.invoice)
+  } catch (error) {
+    console.warn('Could not send the notification for POS invoice', result.invoice.invoiceNumber, error.message)
+  }
   created(res, result, 'Sale completed and invoice generated.')
 })
 export const list = asyncHandler(async (req, res) => ok(res, await posService.listInvoices(req.businessId, req.query)))

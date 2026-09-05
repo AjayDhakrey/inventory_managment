@@ -5,6 +5,10 @@ const itemSchema = new mongoose.Schema(
   {
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
     productName: { type: String, default: '' },
+    variantId: { type: mongoose.Schema.Types.ObjectId, default: null },
+    variantSku: { type: String, default: '' },
+    variantSize: { type: String, default: '' },
+    variantColor: { type: String, default: '' },
     quantity: { type: Number, required: true, min: 1 },
     purchasePrice: { type: Number, required: true, min: 0 },
     discount: { type: Number, min: 0, default: 0 },

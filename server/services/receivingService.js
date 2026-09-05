@@ -1,5 +1,7 @@
 import { Receiving } from '../models/Receiving.js'
 import { PurchaseOrder } from '../models/PurchaseOrder.js'
+import { Product } from '../models/Product.js'
+import { StockTransaction } from '../models/StockTransaction.js'
 import { withTransaction } from '../config/db.js'
 import { applyStockChange } from './inventoryService.js'
 import { toObjectId, toNumber, assert } from '../validators/assert.js'
@@ -8,9 +10,9 @@ function scoped(businessId, extra = {}) {
   return { business: toObjectId(businessId, 'business'), ...extra }
 }
 
-function receivedForItem(receivings, productId) {
+function receivedForItem(receivings, productId, variantId = null) {
   return receivings.reduce(
-    (sum, receiving) => sum + (receiving.items.find((item) => String(item.productId) === String(productId))?.receivedQuantity || 0),
+    (sum, receiving) => sum + (receiving.items.find((item) => String(item.productId) === String(productId) && String(item.variantId || '') === String(variantId || ''))?.receivedQuantity || 0),
     0,
   )
 }
@@ -35,9 +37,10 @@ export async function pendingOrders(businessId) {
       ...order.toJSON(),
       lines: order.items.map((item) => ({
         productId: String(item.productId),
+        variantId: item.variantId ? String(item.variantId) : '', variantSku: item.variantSku, variantSize: item.variantSize, variantColor: item.variantColor,
         productName: item.productName,
         orderedQuantity: item.quantity,
-        alreadyReceived: receivedForItem(forOrder, item.productId),
+        alreadyReceived: receivedForItem(forOrder, item.productId, item.variantId),
       })),
     }
   })
@@ -50,13 +53,13 @@ export async function createReceiving(businessId, payload, receivedBy) {
     assert(!['Received', 'Cancelled'].includes(order.status), 'This purchase order is already closed.')
 
     const priorReceivings = await Receiving.find(scoped(businessId, { purchaseOrderId: order._id })).session(session)
-    const requestedProductIds = (payload.items || []).map((line) => String(line.productId))
+    const requestedProductIds = (payload.items || []).map((line) => `${line.productId}:${line.variantId || ''}`)
     assert(new Set(requestedProductIds).size === requestedProductIds.length, 'Each product can appear only once per receiving.')
 
     const items = (payload.items || []).map((line) => {
-      const orderedItem = order.items.find((item) => String(item.productId) === String(line.productId))
+      const orderedItem = order.items.find((item) => String(item.productId) === String(line.productId) && String(item.variantId || '') === String(line.variantId || ''))
       assert(orderedItem, 'Only ordered products can be received.')
-      const alreadyReceived = receivedForItem(priorReceivings, line.productId)
+      const alreadyReceived = receivedForItem(priorReceivings, line.productId, line.variantId)
       const remaining = orderedItem.quantity - alreadyReceived
       const receivedQuantity = toNumber(line.receivedQuantity ?? 0, 'Received quantity', { min: 0, integer: true })
       const damagedQuantity = toNumber(line.damagedQuantity ?? 0, 'Damaged quantity', { min: 0, integer: true })
@@ -65,6 +68,7 @@ export async function createReceiving(businessId, payload, receivedBy) {
       assert(damagedQuantity + rejectedQuantity <= receivedQuantity, 'Damaged + rejected cannot exceed received quantity.')
       return {
         productId: orderedItem.productId,
+        variantId: orderedItem.variantId || null,
         orderedQuantity: orderedItem.quantity,
         receivedQuantity,
         damagedQuantity,
@@ -93,7 +97,7 @@ export async function createReceiving(businessId, payload, receivedBy) {
 
     for (const item of items) {
       if (item.acceptedQuantity > 0) {
-        await applyStockChange(
+        if (!item.variantId) await applyStockChange(
           {
             businessId,
             productId: item.productId,
@@ -106,11 +110,14 @@ export async function createReceiving(businessId, payload, receivedBy) {
           },
           session,
         )
+        else {
+          const product = await Product.findOne(scoped(businessId, { _id: item.productId, 'variants._id': item.variantId })).session(session); assert(product, 'Ordered variant no longer exists.'); const variant = product.variants.id(item.variantId); const previousStock = variant.currentStock; variant.currentStock += item.acceptedQuantity; product.currentStock = product.variants.reduce((sum, v) => sum + v.currentStock, 0); await product.save({ session }); await StockTransaction.create([{ business: product.business, productId: product._id, variantId: variant._id, variantSku: variant.sku, variantSize: variant.size, variantColor: variant.color, type: 'stock_in', quantity: item.acceptedQuantity, previousStock, newStock: variant.currentStock, reason: 'Purchase Receiving', referenceId: String(receiving._id), createdBy: receivedBy }], { session })
+        }
       }
     }
 
     const allReceivings = [...priorReceivings, receiving]
-    const fullyReceived = order.items.every((item) => receivedForItem(allReceivings, item.productId) >= item.quantity)
+    const fullyReceived = order.items.every((item) => receivedForItem(allReceivings, item.productId, item.variantId) >= item.quantity)
     order.status = fullyReceived ? 'Received' : 'Partially Received'
     await order.save({ session })
 

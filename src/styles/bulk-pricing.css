@@ -1,0 +1,100 @@
+.bulk-pricing { --cs-line: #e2e8f0; --cs-muted: #64748b; }
+.bulk-pricing .credit-breadcrumb { color: #ef4b16; }
+.bulk-pricing .credit-summary article { border-radius: 20px; box-shadow: 0 2px 3px #0f172a05; }
+.bulk-pricing .credit-stat-label { color: var(--cs-muted); font-weight: 500; }
+.bulk-pricing .credit-stat-label span { display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 10px; background: #eff6ff; color: #2563eb; font-size: 20px; }
+.bulk-pricing .credit-summary article:nth-child(2) .credit-stat-label span { color: #ea580c; background: #fff7ed; }
+.bulk-pricing .credit-summary article:nth-child(3) .credit-stat-label span { color: #059669; background: #ecfdf5; }
+.bulk-pricing .credit-summary article:nth-child(4) .credit-stat-label span { color: #9333ea; background: #faf5ff; }
+.bulk-tag { border: 1px solid var(--cs-line); background: #64748b08; border-radius: 20px; padding: 5px 12px; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
+.bulk-description { color: var(--cs-muted); font-size: 14px; max-width: 670px; line-height: 1.7; margin-bottom: 0; }
+.bulk-pricing .credit-summary .bulk-range { font-size: clamp(18px, 1.5vw, 27px); }
+
+/* Compact KPI row */
+.bulk-kpis { gap: 14px; margin-bottom: 22px; }
+.bulk-kpis article { padding: 15px 17px; }
+.bulk-kpis .credit-stat-label { font-size: 11px; }
+.bulk-kpis .credit-stat-label span { width: 30px; height: 30px; font-size: 15px; }
+.bulk-kpis article > strong { margin-top: 10px; font-size: clamp(18px, 1.6vw, 24px); }
+.bulk-kpis article > p { margin-top: 4px; }
+
+/* Remove the ambient clothing decoration behind this page only */
+.dashboard-main:has(.bulk-pricing) > .clothing-motion { display: none; }
+
+.bulk-filter-card { position: relative; z-index: 1; border: 1px solid var(--cs-line); border-radius: 20px; background: var(--cs-bg); padding: 18px 20px; margin: 0 0 28px; }
+.bulk-filter-card .credit-controls { margin-bottom: 0; gap: 10px; }
+.bulk-filter-card .credit-search { flex: 1; width: auto; min-width: 200px; }
+.bulk-filters-toggle { display: none; align-items: center; gap: 8px; }
+.bulk-filter-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--cs-line); }
+
+/* Filter menu (multi-select popover) */
+.bulk-filter-menu { position: relative; }
+.bulk-filter-trigger { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.bulk-filter-trigger.active { border-color: #f75b20; color: #e44917; }
+.bulk-filter-trigger i { font-style: normal; font-size: 10px; opacity: .7; }
+.bulk-filter-count { display: inline-grid; place-items: center; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: #f6531b; color: #fff; font-size: 10px; font-weight: 700; }
+.bulk-filter-panel { position: absolute; z-index: 30; top: calc(100% + 8px); left: 0; display: grid; gap: 2px; width: max(200px, 100%); max-height: 260px; overflow-y: auto; padding: 8px; border: 1px solid var(--cs-line); border-radius: 12px; background: var(--cs-bg); box-shadow: 0 14px 30px #0f172a1f; }
+.bulk-filter-option { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 8px; color: var(--cs-text); font-size: 12px; cursor: pointer; }
+.bulk-filter-option:hover { background: #64748b0d; }
+.bulk-filter-option input { width: auto; height: auto; margin: 0; }
+.bulk-filter-option small { margin-left: auto; color: var(--cs-muted); font-size: 10px; }
+.bulk-filter-empty { margin: 4px 6px; color: var(--cs-muted); font-size: 12px; }
+.bulk-filter-reset { width: 100%; margin-top: 4px; padding: 7px; border: 0; border-top: 1px solid var(--cs-line); border-radius: 0; background: transparent; color: #e44917; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+.bulk-price-range { display: flex; align-items: center; gap: 6px; padding: 0 4px; }
+.bulk-price-range-label { color: var(--cs-muted); font-size: 12px; margin-right: 2px; }
+.bulk-price-range input { width: 76px; height: 38px; margin: 0; padding: 0 9px; border: 1px solid var(--cs-line); border-radius: 8px; background: var(--cs-bg); color: var(--cs-text); font-size: 12px; }
+.bulk-price-range span { color: var(--cs-muted); }
+
+/* Active filter chips */
+.bulk-active-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--cs-line); }
+.bulk-chip { display: inline-flex; align-items: center; gap: 7px; padding: 6px 8px 6px 12px; border: 1px solid var(--cs-line); border-radius: 999px; background: #64748b09; color: var(--cs-text); font-size: 12px; }
+.bulk-chip button { display: grid; place-items: center; width: 16px; height: 16px; padding: 0; border: 0; border-radius: 50%; background: #64748b1f; color: inherit; font-size: 11px; line-height: 1; }
+.bulk-chip button:hover { background: #e44917; color: #fff; }
+.bulk-clear-all { border: 0; background: transparent; color: #e44917; font-size: 12px; font-weight: 700; padding: 6px 4px; }
+
+.bulk-product-icon { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid var(--cs-line); border-radius: 12px; background: #64748b09; font: 600 13px 'DM Mono',monospace; }
+.bulk-category, .bulk-sku { display: inline-block; border-radius: 6px; padding: 7px 10px; background: #64748b09; font-size: 11px; }
+.bulk-sku { white-space: nowrap; border: 1px solid var(--cs-line); font-family: 'DM Mono',monospace; }
+.bulk-discount { border: 1px solid #a7f3d0; border-radius: 4px; padding: 4px 7px; color: #00865a; background: #ecfdf5; font-size: 11px; white-space: nowrap; }
+.bulk-status { padding: 4px 9px; border-radius: 20px; font-size: 11px; }
+.bulk-status-active { color: #00865a; background: #ecfdf5; border: 1px solid #a7f3d0; }
+.bulk-status-below_moq { color: #a16207; background: #fffbeb; border: 1px solid #fde68a; }
+.bulk-status-out_of_stock { color: #e11d48; background: #fff1f2; border: 1px solid #fecdd3; }
+.bulk-row-actions { flex-wrap: nowrap; }
+.bulk-pricing .bulk-edit { padding: 6px 13px; border-color: #fdbaaa; color: #e44917; }
+.bulk-pricing .bulk-remove { padding: 6px 13px; border-color: #fecdd3; color: #e11d48; }
+.bulk-readonly { color: var(--cs-muted); font-size: 12px; }
+.bulk-table th, .bulk-table td { white-space: nowrap; }
+.bulk-table td:first-child { white-space: normal; }
+
+.bulk-page-size { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--cs-muted); }
+.bulk-page-size select, .bulk-rule-form select { border: 1px solid var(--cs-line); padding: 8px; border-radius: 8px; color: var(--cs-text); background: var(--cs-bg); }
+.bulk-page-numbers { display: flex; align-items: center; gap: 6px; }
+.bulk-page-ellipsis { padding: 0 4px; color: var(--cs-muted); }
+.bulk-pricing .bulk-rule-form { width: min(100%, 520px); background: var(--cs-bg); }
+.bulk-rule-form > select { width: 100%; margin-bottom: 20px; }
+.bulk-rule-form .credit-buttons { justify-content: flex-end; }
+
+.bulk-view-panel { width: min(100%, 480px); background: var(--cs-bg); }
+.bulk-view-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 20px; margin: 4px 0 22px; padding: 0; }
+.bulk-view-grid div { min-width: 0; }
+.bulk-view-grid dt { margin: 0 0 4px; color: var(--cs-muted); font-size: 11px; text-transform: uppercase; letter-spacing: .3px; }
+.bulk-view-grid dd { margin: 0; color: var(--cs-text); font-size: 13px; font-weight: 600; overflow-wrap: anywhere; }
+
+@media (max-width: 900px) {
+  .bulk-filters-toggle { display: inline-flex; }
+  .bulk-filter-row { display: none; }
+  .bulk-filter-row.is-open { display: flex; }
+  .bulk-filter-panel { left: auto; right: 0; }
+}
+@media(max-width:600px) {
+  .bulk-filter-card { padding: 14px; }
+  .bulk-pricing .credit-summary, .bulk-kpis { grid-template-columns: 1fr 1fr; }
+  .bulk-pricing .credit-stat-label { flex-direction: row; align-items: center; }
+  .bulk-filter-row { flex-direction: column; align-items: stretch; }
+  .bulk-filter-menu, .bulk-price-range { width: 100%; }
+  .bulk-filter-trigger { width: 100%; justify-content: space-between; }
+  .bulk-filter-panel { width: 100%; }
+  .bulk-view-grid { grid-template-columns: 1fr; }
+  .bulk-page-numbers { flex-wrap: wrap; }
+}

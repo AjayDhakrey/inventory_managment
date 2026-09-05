@@ -3,7 +3,7 @@ import { userApi } from '../api/userApi.js'
 import { useResource } from '../hooks/useResource.js'
 import AsyncBoundary from './AsyncBoundary.jsx'
 
-const PERMISSION_CATALOG = ['view_dashboard', 'view_inventory', 'create_product', 'edit_product', 'delete_product', 'stock_in', 'stock_out', 'create_order', 'process_pos_sale', 'override_pos_price', 'view_reports', 'manage_users']
+const PERMISSION_CATALOG = ['view_dashboard', 'view_inventory', 'create_product', 'edit_product', 'delete_product', 'stock_in', 'stock_out', 'create_order', 'process_pos_sale', 'override_pos_price', 'view_reports', 'view_returns', 'create_returns', 'complete_returns', 'process_refunds', 'adjust_refunds', 'cancel_returns', 'view_variants', 'manage_variants', 'view_replenishment', 'manage_replenishment', 'manage_promotions', 'manage_loyalty', 'manage_coupons', 'manage_gift_cards', 'view_clothing_reports', 'manage_cashier_shift', 'manage_users']
 
 function UserManagement({ section, business, account }) {
   const load = useCallback(() => Promise.all([userApi.listMembers(), userApi.listRoles()]), [])

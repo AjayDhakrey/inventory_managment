@@ -10,7 +10,7 @@ const paymentSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 0.01 },
     paymentMethod: {
       type: String,
-      enum: ['Cash', 'UPI', 'QR', 'Card', 'Debit Card', 'Credit Card', 'Bank transfer', 'Credit', 'Pay Later', 'Other'],
+      enum: ['Cash', 'UPI', 'QR', 'Card', 'Debit Card', 'Credit Card', 'Bank transfer', 'Credit', 'Pay Later', 'Store Credit', 'Gift Card', 'Other'],
       default: 'Cash',
     },
     paymentDate: { type: String, default: '' },

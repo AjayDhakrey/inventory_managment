@@ -4,6 +4,7 @@ import { serialize } from './plugins/serialize.js'
 const receivingItemSchema = new mongoose.Schema(
   {
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
+    variantId: { type: mongoose.Schema.Types.ObjectId, default: null },
     orderedQuantity: { type: Number, default: 0 },
     receivedQuantity: { type: Number, min: 0, default: 0 },
     damagedQuantity: { type: Number, min: 0, default: 0 },

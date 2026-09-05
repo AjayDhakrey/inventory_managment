@@ -12,6 +12,7 @@ const productImportSchema = new mongoose.Schema(
     fileName: { type: String, required: true, trim: true },
     fileType: { type: String, enum: ['pdf', 'csv', 'xlsx'], required: true },
     purchaseReference: { type: String, trim: true, default: '' },
+    variantMode: { type: Boolean, default: false },
     supplier: { type: mongoose.Schema.Types.ObjectId, ref: 'Supplier', default: null },
     supplierName: { type: String, trim: true, default: '' },
     importedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

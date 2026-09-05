@@ -5,6 +5,7 @@ const supplierSchema = new mongoose.Schema(
   {
     business: { type: mongoose.Schema.Types.ObjectId, ref: 'Business', required: true, index: true },
     supplierName: { type: String, required: true, trim: true },
+    normalizedName: { type: String, required: true, trim: true, select: false },
     contactPerson: { type: String, trim: true, default: '' },
     phone: { type: String, trim: true, default: '' },
     email: { type: String, lowercase: true, trim: true, default: '' },
@@ -23,6 +24,14 @@ const supplierSchema = new mongoose.Schema(
   { timestamps: true },
 )
 
+supplierSchema.pre('validate', function normalizeName() {
+  this.supplierName = String(this.supplierName || '').trim().replace(/\s+/g, ' ')
+  this.normalizedName = this.supplierName.toLocaleLowerCase('en-US')
+})
+supplierSchema.index(
+  { business: 1, normalizedName: 1 },
+  { unique: true, partialFilterExpression: { normalizedName: { $type: 'string', $gt: '' } } },
+)
 supplierSchema.plugin(serialize('supplierId'))
 
 export const Supplier = mongoose.model('Supplier', supplierSchema)

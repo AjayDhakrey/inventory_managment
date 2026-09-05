@@ -1,5 +1,12 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const getApiBaseUrl = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== "undefined" && window.location.hostname) {
+    return `${window.location.protocol}//${window.location.hostname}:4000/api`;
+  }
+  return "http://localhost:4000/api";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 const TOKEN_KEY = "stockroom-token";
 
 export class ApiError extends Error {

@@ -17,6 +17,10 @@ export const meController = asyncHandler(async (req, res) => {
   ok(res, session)
 })
 
+export const onboardingController = asyncHandler(async (req, res) => {
+  ok(res, await authService.updateOnboarding(req.user, req.body), req.body.complete ? 'Onboarding completed.' : 'Onboarding progress saved.')
+})
+
 export const forgotPasswordController = asyncHandler(async (req, res) => {
   const result = await authService.requestPasswordReset(req.body)
   ok(res, result, result.message)

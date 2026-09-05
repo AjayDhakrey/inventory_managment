@@ -6,6 +6,7 @@ import {
   meController,
   forgotPasswordController,
   resetPasswordController,
+  onboardingController,
 } from '../controllers/authController.js'
 import { authenticate } from '../middleware/auth.js'
 
@@ -24,3 +25,4 @@ authRoutes.post('/login', authLimiter, loginController)
 authRoutes.post('/forgot-password', authLimiter, forgotPasswordController)
 authRoutes.post('/reset-password', authLimiter, resetPasswordController)
 authRoutes.get('/me', authenticate, meController)
+authRoutes.patch('/onboarding', authenticate, onboardingController)

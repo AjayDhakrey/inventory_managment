@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import mongoose from 'mongoose'
-import { authenticate, requireBusiness, requirePermission } from '../middleware/auth.js'
+import { authenticate, requireBusiness, requireModule, requirePermission } from '../middleware/auth.js'
 import { requireDatabase } from '../middleware/database.js'
 import { authRoutes } from './authRoutes.js'
 import { businessRoutes } from './businessRoutes.js'
@@ -18,6 +18,8 @@ import { reportController } from '../controllers/reportController.js'
 import { notificationRoutes } from './notificationRoutes.js'
 import { posRoutes } from './posRoutes.js'
 import { productImportRoutes } from './productImportRoutes.js'
+import { colorRoutes } from './colorRoutes.js'
+import { clothingRoutes } from './clothingRoutes.js'
 
 export const api = Router()
 
@@ -35,17 +37,19 @@ api.use('/businesses', requireDatabase, businessRoutes)
 
 // Business-scoped resources: DB up + authenticated user + completed business workspace.
 const guard = [requireDatabase, authenticate, requireBusiness]
-api.use('/products', guard, productRoutes)
-api.use('/suppliers', guard, supplierRoutes)
-api.use('/customers', guard, customerRoutes)
-api.use('/purchase-orders', guard, purchaseOrderRoutes)
-api.use('/sales-orders', guard, salesOrderRoutes)
-api.use('/receiving', guard, receivingRoutes)
-api.use('/payments', guard, paymentRoutes)
-api.use('/inventory', guard, inventoryRoutes)
-api.use('/returns', guard, returnRoutes)
-api.use('/users', guard, userRoutes)
-api.get('/reports/summary', guard, requirePermission('view_reports'), reportController)
+api.use('/products', guard, requireModule('products'), productRoutes)
+api.use('/suppliers', guard, requireModule('suppliers'), supplierRoutes)
+api.use('/customers', guard, requireModule('customers'), customerRoutes)
+api.use('/purchase-orders', guard, requireModule('purchases'), purchaseOrderRoutes)
+api.use('/sales-orders', guard, requireModule('sales'), salesOrderRoutes)
+api.use('/receiving', guard, requireModule('purchases'), receivingRoutes)
+api.use('/payments', guard, requireModule('payments'), paymentRoutes)
+api.use('/inventory', guard, requireModule('inventory'), inventoryRoutes)
+api.use('/returns', guard, requireModule('sales'), returnRoutes)
+api.use('/users', guard, requireModule('team'), userRoutes)
+api.get('/reports/summary', guard, requireModule('reports'), requirePermission('view_reports'), reportController)
 api.use('/notifications', guard, notificationRoutes)
-api.use('/pos', guard, posRoutes)
-api.use('/product-imports', guard, productImportRoutes)
+api.use('/pos', guard, requireModule('pos'), posRoutes)
+api.use('/product-imports', guard, requireModule('products'), productImportRoutes)
+api.use('/colors', guard, requireModule('colors'), colorRoutes)
+api.use('/clothing', guard, clothingRoutes)
