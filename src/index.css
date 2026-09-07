@@ -1,4 +1,4 @@
-:root { font-family: 'Trebuchet MS', 'Segoe UI', sans-serif; color: #202625; background: #f3f0e9; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+:root { font-family: 'Manrope', 'Segoe UI', sans-serif; color: #172033; background: #f4f7fb; font-synthesis: none; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; }
 button, input, select, textarea { font: inherit; }

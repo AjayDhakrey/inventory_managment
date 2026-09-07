@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import AsyncBoundary from './AsyncBoundary.jsx'
 import '../styles/credit-sales.css'
+import '../styles/cs-dark.css'
 
 export default function CreditSalesList({ section = "Credit Sales", orders, business, loading, error, refetch, onCreate, onView, onEdit, onComplete, onCancel }) {
   const [search, setSearch] = useState('')

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { returnApi } from '../api/returnApi.js'
 import { useResource } from '../hooks/useResource.js'
 import AsyncBoundary from './AsyncBoundary.jsx'
+import '../styles/returns.css'
 
 const reasons = ['Damaged product', 'Defective product', 'Incorrect product', 'Customer changed mind', 'Size/Fit issue', 'Other']
 const conditions = ['Sellable', 'Damaged', 'Defective', 'Opened / Used', 'Other']
@@ -113,9 +114,60 @@ export default function SalesReturns({ business, account }) {
     } catch (caught) { setMessage({ type: 'error', text: caught.message || 'Could not record the refund.' }) }
     finally { setSaving(false) }
   }
-  return <section className="returns-page sales-returns-page">
-    <div className="products-toolbar"><div><p className="dashboard-kicker">Orders / Sales / Returns</p><h2>Return & Refund Management</h2><p className="products-count">Guided returns with inventory and payment adjustments for {business.name}</p></div><span className="business-filter">{returns.length} returns</span></div>
-    {message && <p className={`form-status ${message.type}`} role="status">{message.text}</p>}
+  const today = new Date(); today.setHours(0, 0, 0, 0)
+  const returnsToday = returns.filter((record) => new Date(record.createdAt) >= today)
+  const pendingInspection = returns.filter((record) => record.status === 'Pending').length
+  const restockedItems = returns.filter((record) => record.status === 'Completed' && (record.condition === 'Sellable' || record.inventoryAction === 'sellable')).reduce((sum, record) => sum + Number(record.quantity || 0), 0)
+  const refundedCount = returns.filter((record) => record.refundStatus === 'Refunded').length
+  const creditCount = returns.filter((record) => /credit|balance/i.test(record.refundMethod || '')).length
+  const upiShare = refundedCount + creditCount > 0 ? Math.round((refundedCount / (refundedCount + creditCount)) * 100) : 0
+  const currentStep = !orderId ? 1 : !item || invalidQuantity ? 2 : 3
+  const STEPS = [['Select sales order', orderId ? 'completed' : 'active'], ['Choose item & reason', !orderId ? 'todo' : currentStep === 2 ? 'active' : 'completed'], ['Refund method & restock', currentStep === 3 ? 'active' : 'todo']]
+
+  return <section className="returns-page sales-returns-page ret-page">
+    <header className="ret-heading">
+      <div>
+        <p className="ret-kicker">Manage your returns <span>•</span> QA &amp; refund control</p>
+        <div className="ret-title-line"><h1>Returns &amp; Refund Management</h1><span className="ret-live">Live terminal</span></div>
+        <p>Guided customer returns processing, QA inspection, inventory restocking, and refund payout for {business.name}.</p>
+      </div>
+      <div className="ret-heading-actions">
+        <button type="button" className="primary" onClick={() => document.getElementById('return-order-search')?.focus()}>＋ Create walk-in return</button>
+      </div>
+    </header>
+    {message && <p className={`form-status ret-message ${message.type}`} role="status">{message.text}</p>}
+
+    <div className="ret-kpis">
+      <article className="ret-kpi">
+        <span>Total returns today</span>
+        <strong>{returnsToday.length} <small>returns</small></strong>
+        <p>{money(business.currency, returnsToday.reduce((sum, record) => sum + Number(record.returnValue || record.refundAmount || 0), 0))} return value</p>
+      </article>
+      <article className={`ret-kpi${pendingInspection ? ' ret-kpi-alert' : ''}`}>
+        <span>Pending inspection</span>
+        <strong>{pendingInspection} <small>items</small></strong>
+        <p>Awaiting QA check before refund release</p>
+      </article>
+      <article className="ret-kpi">
+        <span>Approved &amp; restocked</span>
+        <strong className="ret-good">{restockedItems} <small>units</small></strong>
+        <p>Sellable stock returned to the warehouse ledger</p>
+      </article>
+      <article className="ret-kpi">
+        <span>Refund method split <i>This month</i></span>
+        <strong className="ret-good">{upiShare}% <small>refunded</small></strong>
+        <p>{100 - upiShare}% settled as store credit / balance</p>
+        <div className="ret-meter"><i style={{ width: `${upiShare}%` }} /></div>
+      </article>
+    </div>
+
+    <div className="ret-progress">
+      {STEPS.map(([label, state], index) => <div className={`ret-step-chip ${state}`} key={label}>
+        <span>{state === 'completed' ? '✓' : index + 1}</span>
+        <div><small>Step {index + 1} · {state === 'completed' ? 'completed' : state === 'active' ? 'in progress' : 'next'}</small><strong>{label}</strong></div>
+      </div>)}
+    </div>
+
     {canCreate && <form className="return-workflow" onSubmit={askConfirmation}>
       <section className="return-step"><header><b>1</b><div><small>Select order</small><h3>Original sales order</h3></div></header><label htmlFor="return-order-search">Search orders</label><input id="return-order-search" value={orderSearch} onChange={(event) => setOrderSearch(event.target.value)} placeholder="Order number, invoice or customer" /><label htmlFor="return-order">Completed order *</label><select id="return-order" value={orderId} onChange={(event) => selectOrder(event.target.value)} required><option value="">Select order</option>{visibleOrders.map((entry) => <option key={entry.orderId} value={entry.orderId}>{entry.orderNumber} · {entry.customerName}</option>)}</select>{order && <div className="return-info-grid"><span><small>Order</small><strong>{order.orderNumber}</strong></span><span><small>Customer</small><strong>{order.customerName}</strong></span><span><small>Date</small><strong>{new Date(order.createdAt).toLocaleDateString()}</strong></span><span><small>Total</small><strong>{money(business.currency, order.totalAmount)}</strong></span><span><small>Payment</small><strong>{order.paymentStatus}</strong></span><span><small>Paid</small><strong>{money(business.currency, order.amountPaidActual)}</strong></span><span><small>Outstanding</small><strong>{money(business.currency, order.outstandingActual)}</strong></span><span><small>Method</small><strong>{order.originalPaymentMethods.join(', ') || 'None'}</strong></span></div>}</section>
       <section className={`return-step ${!order ? 'disabled-step' : ''}`}><header><b>2</b><div><small>Select product</small><h3>Sold item</h3></div></header><label htmlFor="return-product">Product *</label><select id="return-product" value={productId} onChange={(event) => { setProductId(event.target.value); setQuantity(1); setRefundAmount('') }} disabled={!order} required><option value="">Select sold product</option>{order?.items.filter((line) => line.returnableQuantity > 0).map((line) => <option key={line.productId} value={line.productId}>{line.productName} ({line.sku})</option>)}</select>{item && <div className="return-selected-product"><strong>{item.productName}</strong><small>{item.sku}{item.size ? ` · Size ${item.size}` : ''}{item.color ? ` · ${item.color}` : ''}</small><p>Sold: {item.quantity} | Already returned: {item.alreadyReturned} | Returnable: {item.returnableQuantity}</p><p>Unit {money(business.currency, item.sellingPrice)} · Discount {money(business.currency, item.discount)} · Tax {money(business.currency, item.tax)}</p></div>}</section>

@@ -5,6 +5,7 @@ import { posApi } from "../api/posApi.js";
 import { useResource } from "../hooks/useResource.js";
 import AsyncBoundary from "./AsyncBoundary.jsx";
 import invoiceStyles from "../styles/pos-invoice.css?inline";
+import "../styles/pos-terminal.css";
 
 const METHODS = [
   "Cash",
@@ -638,7 +639,7 @@ export default function POS({ business, account }) {
               placeholder="Scan barcode or search name / SKU, then press Enter"
               autoFocus
             />
-            <small>Scanner ready</small>
+            <small>Scanner ready · Camera / USB</small>
           </div>
           {categories.length > 1 && (
             <div className="pos-category-pills" role="tablist" aria-label="Filter by category">
@@ -1046,6 +1047,12 @@ export default function POS({ business, account }) {
           </button>
         </aside>
       </div>
+      <footer className="pos-statusbar">
+        <span><i />Stockroom · POS terminal</span>
+        <span>Register #02 · {billingType === "wholesale" ? "Wholesale" : "Retail"} mode</span>
+        <span>{business.currency === "INR" ? "Node ap-south-1 · Mumbai" : "Workspace region"}</span>
+        <span className="pos-statusbar-suite">Enterprise Retail OS</span>
+      </footer>
       {invoice && (
         <Invoice invoice={invoice} onClose={() => setInvoice(null)} />
       )}

@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import { productImportApi } from "../api/productImportApi.js";
 import { supplierApi } from "../api/supplierApi.js";
 import { useResource } from "../hooks/useResource.js";
+import "../styles/product-import.css";
 
 const COLUMNS = [
   ["name", "Product name"],

@@ -5,6 +5,7 @@ import { customerApi } from '../api/customerApi.js'
 import { supplierApi } from '../api/supplierApi.js'
 import AsyncBoundary from './AsyncBoundary.jsx'
 import { buildProductFamilies } from '../utils/productFamilies.js'
+import '../styles/clothing-modules.css'
 
 const blankVariant = { size: '', color: '', sku: '', barcode: '', currentStock: 0, reorderPoint: 0, targetStock: 0, replenishmentEnabled: false, active: true }
 const money = (business, n) => `${business.currency} ${Number(n || 0).toFixed(2)}`

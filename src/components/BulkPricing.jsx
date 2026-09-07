@@ -4,6 +4,7 @@ import { useResource } from '../hooks/useResource.js'
 import AsyncBoundary from './AsyncBoundary.jsx'
 import '../styles/credit-sales.css'
 import '../styles/bulk-pricing.css'
+import '../styles/cs-dark.css'
 
 const STOCK_OPTIONS = [
   ['in', 'In stock'],
@@ -105,7 +106,7 @@ export default function BulkPricing({ business, account }) {
   )
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const currentPage = Math.min(page, pages)
-  const money = (value) => `${business.currency === 'INR' ? '₹' : business.currency || '₹'}${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  const money = useCallback((value) => `${business.currency === 'INR' ? '₹' : business.currency || '₹'}${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, [business.currency])
   const prices = rows.map((product) => Number(product.wholesalePrice))
   const quantities = rows.map((product) => Number(product.wholesaleMinQuantity || 1))
   const range = (values, format = String) => !values.length ? '—' : Math.min(...values) === Math.max(...values) ? format(values[0]) : `${format(Math.min(...values))} – ${format(Math.max(...values))}`
@@ -118,7 +119,7 @@ export default function BulkPricing({ business, account }) {
     statusFilter.forEach((value) => chips.push({ key: `status:${value}`, label: STATUS_LABEL[value], onRemove: () => setStatusFilter((current) => current.filter((entry) => entry !== value)) }))
     if (priceMin !== '' || priceMax !== '') chips.push({ key: 'price', label: `${priceMin !== '' ? money(priceMin) : 'Any'} – ${priceMax !== '' ? money(priceMax) : 'Any'}`, onRemove: () => { setPriceMin(''); setPriceMax('') } })
     return chips
-  }, [categoryFilter, colorFilter, sizeFilter, stockFilter, statusFilter, priceMin, priceMax])
+  }, [categoryFilter, colorFilter, sizeFilter, stockFilter, statusFilter, priceMin, priceMax, money])
   const hasActiveFilters = activeChips.length > 0 || search.trim().length > 0
   const clear = () => { setSearch(''); setCategoryFilter([]); setColorFilter([]); setSizeFilter([]); setStockFilter([]); setStatusFilter([]); setPriceMin(''); setPriceMax(''); setPage(1) }
   const exportSheet = () => {

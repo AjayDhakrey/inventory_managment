@@ -1,0 +1,121 @@
+/* Clothing suite (Variant Grid, Replenishment, Promotions, Loyalty, Coupons,
+   Gift Cards, Cashier Shifts, Clothing Reports) — committed dark on stock-ledger-shell. */
+.cloth-shell.stock-ledger-shell {
+  --cl-bg: var(--bg);
+  --cl-panel: var(--surface);
+  --cl-panel-2: var(--surface-soft);
+  --cl-line: var(--line);
+  --cl-text: var(--text);
+  --cl-muted: var(--text-soft);
+  --cl-dim: var(--muted);
+  --cl-orange: var(--orange);
+  --cl-green: var(--success);
+  --cl-rose: var(--danger);
+  --cl-amber: var(--warning);
+  --cl-blue: var(--info);
+  color: var(--cl-text);
+  background: var(--cl-bg);
+}
+.cloth-shell.stock-ledger-shell .dashboard-main { padding: 0 32px 40px; background: var(--cl-bg); }
+.cloth-shell.stock-ledger-shell .dashboard-header { right: 32px; }
+.cloth-shell.stock-ledger-shell .business-context { min-height: 74px; margin: 0 -32px 24px; padding: 0 300px 0 34px; border-bottom: 1px solid var(--cl-line); color: var(--cl-muted); background: #080d14; font-size: 11px; }
+.cloth-shell .business-context .cloth-breadcrumb { color: var(--cl-orange); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+.cloth-shell .business-context .cloth-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--cl-green); background: rgba(47, 214, 168, .08); font: 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .7px; }
+.cloth-shell .business-context .cloth-tag-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.cloth-shell .business-context .cloth-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--cl-line); border-radius: 6px; color: var(--cl-text); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
+.cloth-shell .clothing-motion { display: none; }
+
+.cloth-shell .clothing-page { width: min(100%, 1360px); margin: 0 auto; color: var(--cl-text); background: var(--cl-bg); animation: cl-fade .28s ease-out both; }
+.cloth-shell .clothing-page *, .cloth-shell .clothing-page *::before, .cloth-shell .clothing-page *::after { box-sizing: border-box; }
+.cloth-shell .clothing-page button, .cloth-shell .clothing-page input, .cloth-shell .clothing-page select { font: inherit; }
+.cloth-shell .clothing-page button { cursor: pointer; }
+.cloth-shell .clothing-page :is(button, input, select, [tabindex]):focus-visible { outline: 2px solid var(--cl-orange); outline-offset: 2px; }
+@keyframes cl-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.cloth-shell .clothing-page .products-toolbar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 18px; margin-bottom: 22px; padding: 0; border: 0; }
+.cloth-shell .clothing-page .products-toolbar .dashboard-kicker { color: var(--cl-muted); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .9px; }
+.cloth-shell .clothing-page .products-toolbar h2 { margin: 9px 0 0; color: var(--cl-text); font: 800 clamp(26px, 3vw, 38px)/1.08 'Manrope', sans-serif; letter-spacing: -1.5px; }
+.cloth-shell .clothing-page .products-toolbar .products-count { margin: 10px 0 0; color: var(--cl-muted); font-size: 13px; }
+
+.cloth-shell .clothing-page .form-status { margin: 14px 0; padding: 11px 15px; border-radius: 9px; font-size: 12px; }
+.cloth-shell .clothing-page .form-status.success { color: var(--cl-green); background: rgba(47, 214, 168, .09); }
+.cloth-shell .clothing-page .form-status.error { color: var(--danger); background: rgba(255, 93, 124, .1); }
+
+/* Forms */
+.cloth-shell .clothing-page .clothing-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin-bottom: 18px; padding: 18px; border: 1px solid var(--cl-line); border-radius: 14px; background: var(--cl-panel); }
+.cloth-shell .clothing-page .clothing-form > label { display: grid; gap: 7px; color: var(--cl-muted); font: 600 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; }
+.cloth-shell .clothing-page .clothing-form :is(input, select) { min-height: 42px; margin: 0; padding: 0 12px; border: 1px solid var(--cl-line); border-radius: 9px; color: var(--cl-text); background: var(--cl-panel-2); box-shadow: none; font-size: 12px; }
+.cloth-shell .clothing-page .clothing-form select option { background: var(--cl-panel); }
+.cloth-shell .clothing-page .clothing-form button { min-height: 42px; padding: 0 16px; border: 1px solid var(--cl-line); border-radius: 9px; color: var(--cl-text); background: var(--cl-panel-2); font-size: 12px; font-weight: 600; }
+.cloth-shell .clothing-page .clothing-form .submit-button, .cloth-shell .clothing-page .clothing-form .outline-button { border-color: var(--cl-line); }
+.cloth-shell .clothing-page .clothing-form .submit-button { color: #fff; border-color: var(--cl-orange); background: var(--cl-orange); }
+.cloth-shell .clothing-page .clothing-search { display: block; width: min(420px, 100%); min-height: 42px; margin: 0 0 16px; padding: 0 14px; border: 1px solid var(--cl-line); border-radius: 9px; color: var(--cl-text); background: var(--cl-panel-2); box-shadow: none; font-size: 12px; }
+
+.cloth-shell .clothing-page .variant-form { display: block; }
+.cloth-shell .clothing-page .variant-product-field { display: block; margin-bottom: 14px; }
+.cloth-shell .clothing-page .variant-product-combobox { position: relative; margin-top: 7px; }
+.cloth-shell .clothing-page .variant-product-options { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; right: 0; display: grid; gap: 2px; max-height: 260px; overflow-y: auto; padding: 6px; border: 1px solid var(--cl-line); border-radius: 11px; background: var(--cl-panel); box-shadow: 0 16px 34px rgba(0, 0, 0, .5); }
+.cloth-shell .clothing-page .variant-product-options button { display: grid; gap: 3px; padding: 9px 11px; border: 0; border-radius: 7px; color: var(--cl-text); background: transparent; text-align: left; }
+.cloth-shell .clothing-page .variant-product-options button.highlighted, .cloth-shell .clothing-page .variant-product-options button:hover { background: var(--cl-panel-2); }
+.cloth-shell .clothing-page .variant-product-options small { color: var(--cl-dim); font: 10px 'DM Mono', monospace; }
+.cloth-shell .clothing-page .variant-entry { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 12px 0; padding: 16px; border: 1px solid var(--cl-line); border-radius: 11px; background: var(--cl-panel-2); }
+.cloth-shell .clothing-page .variant-entry legend { grid-column: 1 / -1; padding: 0; color: var(--cl-muted); font: 600 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.cloth-shell .clothing-page .variant-entry label { display: grid; gap: 6px; color: var(--cl-muted); font: 600 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .3px; }
+.cloth-shell .clothing-page .variant-entry input { height: 40px; margin: 0; padding: 0 10px; border: 1px solid var(--cl-line); border-radius: 8px; color: var(--cl-text); background: var(--cl-panel); box-shadow: none; font-size: 12px; }
+.cloth-shell .clothing-page .variant-checkbox { flex-direction: row !important; align-items: center; gap: 8px; }
+.cloth-shell .clothing-page .variant-row-error { grid-column: 1 / -1; color: var(--danger); font-size: 10px; }
+.cloth-shell .clothing-page .variant-form-actions { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+
+/* Lists / grids */
+.cloth-shell .clothing-page .clothing-list { border: 1px solid var(--cl-line); border-radius: 14px; background: var(--cl-panel); overflow: hidden; }
+.cloth-shell .clothing-page .clothing-list-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 14px 20px; border-top: 1px solid var(--cl-line); color: var(--cl-text); font-size: 12px; }
+.cloth-shell .clothing-page .clothing-list-row:first-child { border-top: 0; }
+.cloth-shell .clothing-page .clothing-list-row:hover { background: rgba(90, 167, 255, .04); }
+.cloth-shell .clothing-page .clothing-list-row strong { display: block; color: var(--cl-text); font-size: 12px; }
+.cloth-shell .clothing-page .clothing-list-row small { display: block; margin-top: 3px; color: var(--cl-dim); font: 10px 'DM Mono', monospace; }
+.cloth-shell .clothing-page .clothing-list-row button { min-height: 30px; margin-left: 10px; padding: 0 11px; border: 1px solid var(--cl-line); border-radius: 7px; color: var(--cl-muted); background: var(--cl-panel-2); font-size: 11px; font-weight: 600; }
+.cloth-shell .clothing-page .clothing-grid-table { display: grid; grid-template-columns: 2fr 1fr 1.2fr .6fr; border: 1px solid var(--cl-line); border-radius: 14px; background: var(--cl-panel); overflow: hidden; }
+.cloth-shell .clothing-page .clothing-grid-table > b { padding: 14px 18px; background: var(--cl-panel-2); color: var(--cl-muted); font: 600 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.cloth-shell .clothing-page .clothing-grid-row { display: contents; }
+.cloth-shell .clothing-page .clothing-grid-row > span { padding: 13px 18px; border-top: 1px solid var(--cl-line); color: var(--cl-text); font-size: 12px; }
+.cloth-shell .clothing-page .clothing-grid-row > span small { display: block; margin-top: 3px; color: var(--cl-dim); font: 10px 'DM Mono', monospace; }
+
+/* Clothing Reports */
+.cloth-shell .clothing-page .report-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 22px; }
+.cloth-shell .clothing-page .report-cards article { padding: 20px; border: 1px solid var(--cl-line); border-radius: 15px; background: var(--cl-panel); }
+.cloth-shell .clothing-page .report-cards small { color: var(--cl-muted); font: 600 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.cloth-shell .clothing-page .report-cards strong { display: block; margin-top: 12px; color: var(--cl-text); font: 750 26px 'Manrope', sans-serif; letter-spacing: -1px; }
+.cloth-shell .clothing-page .report-panel { margin-bottom: 16px; border: 1px solid var(--cl-line); border-radius: 14px; background: var(--cl-panel); overflow: hidden; }
+.cloth-shell .clothing-page .report-panel h3 { margin: 0; padding: 16px 20px; border-bottom: 1px solid var(--cl-line); color: var(--cl-text); font-size: 14px; text-transform: capitalize; }
+.cloth-shell .clothing-page .report-panel .clothing-list { border: 0; border-radius: 0; }
+
+.cloth-shell .clothing-page h3 { color: var(--cl-text); }
+.cloth-shell .clothing-page p { color: var(--cl-muted); }
+.cloth-shell .clothing-page :is(.async-state, .no-products, .empty-dashboard) { padding: 30px; border: 1px solid var(--cl-line); border-radius: 13px; color: var(--cl-muted); background: var(--cl-panel); }
+
+@media (max-width: 1000px) {
+  .cloth-shell.stock-ledger-shell .business-context { padding-right: 34px; }
+  .cloth-shell .business-context .cloth-workspace-tag { display: none; }
+  .cloth-shell .clothing-page .clothing-grid-table { grid-template-columns: 1.6fr 1fr .7fr; }
+  .cloth-shell .clothing-page .clothing-grid-table > b:nth-child(3), .cloth-shell .clothing-page .clothing-grid-row > span:nth-child(3) { display: none; }
+}
+@media (max-width: 820px) {
+  .cloth-shell.stock-ledger-shell .dashboard-main { padding: 16px 16px 34px; }
+  .cloth-shell.stock-ledger-shell .business-context { min-height: 40px; margin: 0 0 16px; padding: 0; border: 0; background: transparent; }
+  .cloth-shell.stock-ledger-shell .dashboard-header { position: static; margin-bottom: 14px; }
+  .cloth-shell.stock-ledger-shell .mobile-dashboard-bar { color: var(--cl-text); }
+}
+
+[data-theme="light"] .cloth-shell.stock-ledger-shell {
+  --cl-bg: var(--bg);
+  --cl-panel: var(--surface);
+  --cl-panel-2: var(--surface-soft);
+  --cl-line: var(--line);
+  --cl-text: var(--text);
+  --cl-muted: var(--text-soft);
+  --cl-dim: var(--muted);
+  --cl-green: var(--success);
+  --cl-rose: var(--danger);
+  --cl-amber: var(--warning);
+}
+[data-theme="light"] .cloth-shell.stock-ledger-shell .business-context { background: #fff; }

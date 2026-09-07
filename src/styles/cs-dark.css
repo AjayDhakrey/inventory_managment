@@ -1,0 +1,127 @@
+/* Bulk Orders / Credit Sales / Bulk Pricing — committed dark on stock-ledger-shell.
+   These screens use .credit-sales token-driven CSS; this file flips the tokens
+   under .cs-shell and repaints the hardcoded pale badge/avatar colours. */
+.cs-shell.stock-ledger-shell {
+  --csd-bg: var(--bg);
+  --csd-panel: var(--surface);
+  --csd-panel-2: var(--surface-soft);
+  --csd-line: var(--line);
+  --csd-text: var(--text);
+  --csd-muted: var(--text-soft);
+  --csd-dim: var(--muted);
+  --csd-orange: var(--orange);
+  --csd-green: var(--success);
+  --csd-rose: var(--danger);
+  --csd-amber: var(--warning);
+  --csd-blue: var(--info);
+  color: var(--csd-text);
+  background: var(--csd-bg);
+}
+.cs-shell.stock-ledger-shell .dashboard-main { padding: 0 32px 40px; background: var(--csd-bg); }
+.cs-shell.stock-ledger-shell .dashboard-header { right: 32px; }
+.cs-shell.stock-ledger-shell .business-context { min-height: 74px; margin: 0 -32px 22px; padding: 0 300px 0 34px; border-bottom: 1px solid var(--csd-line); color: var(--csd-muted); background: #080d14; font-size: 11px; }
+.cs-shell .business-context :is(.cs-breadcrumb) { color: var(--csd-orange); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+.cs-shell .business-context .cs-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--csd-green); background: rgba(47, 214, 168, .08); font: 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .7px; }
+.cs-shell .business-context .cs-tag-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.cs-shell .business-context .cs-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--csd-line); border-radius: 6px; color: var(--csd-text); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
+
+/* Token flip — cascades through credit-sales.css + bulk-pricing.css */
+.cs-shell .credit-sales, .cs-shell .bulk-pricing { --cs-bg: var(--csd-panel); --cs-text: var(--csd-text); --cs-muted: var(--csd-muted); --cs-line: var(--csd-line); }
+.cs-shell .credit-sales { width: min(100%, 1400px); margin: 0 auto; }
+.cs-shell .sales-orders-page { background: var(--csd-bg); }
+
+/* Chrome hardcoded-colour repaints */
+.cs-shell .credit-sales .credit-breadcrumb span { color: var(--csd-dim); }
+.cs-shell .credit-sales .credit-title h2 { color: var(--csd-text); font-family: 'Manrope', sans-serif; letter-spacing: -1.5px; }
+.cs-shell .credit-sales .credit-count { border-color: rgba(47, 214, 168, .3); background: rgba(47, 214, 168, .08); color: var(--csd-green); }
+.cs-shell .credit-sales button { background: var(--csd-panel-2); border-color: var(--csd-line); color: var(--csd-text); }
+.cs-shell .credit-sales button:hover:not(:disabled) { border-color: #33475f; }
+.cs-shell .credit-sales .credit-create { color: #fff; border-color: var(--csd-orange); background: var(--csd-orange); box-shadow: 0 10px 24px rgba(255, 106, 26, .22); }
+.cs-shell .credit-sales .credit-search { background: var(--csd-panel-2); border-color: var(--csd-line); }
+.cs-shell .credit-sales .credit-tabs { background: var(--csd-panel-2); border-color: var(--csd-line); }
+.cs-shell .credit-sales .credit-tabs button[aria-pressed='true'] { background: var(--csd-orange); color: #fff; box-shadow: none; }
+.cs-shell .credit-sales .credit-tabs button[aria-pressed='true'] span { background: rgba(0, 0, 0, .2); color: #fff; }
+.cs-shell .credit-sales .credit-tabs button:not([aria-pressed='true']) span { color: var(--csd-dim); }
+.cs-shell .credit-sales .credit-positive { color: var(--csd-green); }
+.cs-shell .credit-sales .credit-negative { color: var(--csd-rose); }
+.cs-shell .credit-sales .credit-amber { color: var(--csd-amber); background: rgba(255, 194, 51, .1); border-color: rgba(255, 194, 51, .3); }
+.cs-shell .credit-sales .credit-red { color: var(--csd-rose); background: rgba(255, 93, 124, .1); border-color: rgba(255, 93, 124, .3); }
+
+.cs-shell .credit-sales .credit-table-card { background: var(--csd-panel); border-color: var(--csd-line); box-shadow: none; }
+.cs-shell .credit-sales .credit-table th { background: var(--csd-panel-2); color: var(--csd-muted); }
+.cs-shell .credit-sales .credit-table td { border-top-color: var(--csd-line); color: var(--csd-text); }
+.cs-shell .credit-sales .credit-table em { background: var(--csd-panel-2); color: var(--csd-muted); }
+.cs-shell .credit-sales .credit-avatar { background: #17233a; color: #cddbed; border-color: #33455e; }
+.cs-shell .credit-sales .credit-avatar.tone-1 { background: rgba(90, 167, 255, .14); color: var(--csd-blue); border-color: rgba(90, 167, 255, .3); }
+.cs-shell .credit-sales .credit-avatar.tone-2 { background: rgba(185, 140, 255, .14); color: var(--purple); border-color: rgba(185, 140, 255, .3); }
+.cs-shell .credit-sales .credit-avatar.tone-3 { background: rgba(47, 214, 168, .12); color: var(--csd-green); border-color: rgba(47, 214, 168, .3); }
+.cs-shell .credit-sales .credit-avatar.tone-4 { background: rgba(255, 93, 124, .12); color: var(--csd-rose); border-color: rgba(255, 93, 124, .3); }
+.cs-shell .credit-sales .credit-status { color: var(--csd-amber); background: rgba(255, 194, 51, .1); border-color: rgba(255, 194, 51, .3); }
+.cs-shell .credit-sales .credit-status.completed { color: var(--csd-green); background: rgba(47, 214, 168, .08); border-color: rgba(47, 214, 168, .3); }
+.cs-shell .credit-sales .credit-status.cancelled { color: var(--csd-rose); background: rgba(255, 93, 124, .1); border-color: rgba(255, 93, 124, .3); }
+.cs-shell .credit-sales .credit-pagination { border-top-color: var(--csd-line); }
+.cs-shell .credit-sales .credit-current { background: var(--csd-orange); color: #fff; }
+.cs-shell .credit-form-backdrop { background: rgba(4, 7, 11, .74); }
+.cs-shell .credit-form-backdrop .purchase-order-form { border: 1px solid var(--csd-line); background: var(--csd-panel); color: var(--csd-text); }
+.cs-shell .credit-form-backdrop .purchase-order-form :is(.product-form-heading h3, h4) { color: var(--csd-text); }
+.cs-shell .credit-form-backdrop .purchase-order-form .dashboard-kicker { color: var(--csd-orange); }
+.cs-shell .credit-form-backdrop .purchase-order-form label { color: var(--csd-muted); }
+.cs-shell .credit-form-backdrop .purchase-order-form :is(input, select, textarea) { border: 1px solid var(--csd-line); border-radius: 8px; color: var(--csd-text); background: var(--csd-panel-2); box-shadow: none; }
+.cs-shell .credit-form-backdrop .purchase-order-form .order-item-row strong { color: var(--csd-green); }
+.cs-shell .credit-form-backdrop .purchase-order-form .submit-button { color: #fff; border: 1px solid var(--csd-orange); background: var(--csd-orange); }
+.cs-shell .credit-form-backdrop .purchase-order-form .outline-button { color: var(--csd-text); border: 1px solid var(--csd-line); background: var(--csd-panel-2); }
+
+/* Bulk Pricing extras */
+.cs-shell .bulk-pricing .credit-breadcrumb { color: var(--csd-orange); }
+.cs-shell .bulk-pricing .credit-stat-label span { background: var(--csd-panel-2); color: var(--csd-blue); }
+.cs-shell .bulk-pricing .credit-summary article:nth-child(2) .credit-stat-label span { color: var(--csd-orange); background: rgba(255, 106, 26, .1); }
+.cs-shell .bulk-pricing .credit-summary article:nth-child(3) .credit-stat-label span { color: var(--csd-green); background: rgba(47, 214, 168, .1); }
+.cs-shell .bulk-pricing .credit-summary article:nth-child(4) .credit-stat-label span { color: var(--purple); background: rgba(185, 140, 255, .12); }
+.cs-shell .bulk-tag { border-color: var(--csd-line); background: var(--csd-panel-2); color: var(--csd-muted); }
+.cs-shell .bulk-description strong { color: var(--csd-text); }
+.cs-shell .bulk-filter-card { border-color: var(--csd-line); background: var(--csd-panel); }
+.cs-shell .bulk-filter-panel { border-color: var(--csd-line); background: var(--csd-panel); box-shadow: 0 14px 30px rgba(0, 0, 0, .5); }
+.cs-shell .bulk-filter-option { color: var(--csd-text); }
+.cs-shell .bulk-filter-option:hover { background: var(--csd-panel-2); }
+.cs-shell .bulk-filter-trigger.active { border-color: var(--csd-orange); color: var(--orange); }
+.cs-shell .bulk-filter-count { background: var(--csd-orange); color: #fff; }
+.cs-shell .bulk-filter-reset, .cs-shell .bulk-clear-all { color: var(--orange); }
+.cs-shell .bulk-chip { border-color: var(--csd-line); background: var(--csd-panel-2); color: var(--csd-text); }
+.cs-shell .bulk-chip button { background: rgba(255, 255, 255, .08); }
+.cs-shell .bulk-price-range input { border-color: var(--csd-line); background: var(--csd-panel-2); color: var(--csd-text); }
+.cs-shell .bulk-product-icon { border-color: var(--csd-line); background: var(--csd-panel-2); color: var(--csd-muted); }
+.cs-shell .bulk-category, .cs-shell .bulk-sku { background: var(--csd-panel-2); color: var(--csd-muted); }
+.cs-shell .bulk-sku { border-color: var(--csd-line); }
+.cs-shell .bulk-discount { color: var(--csd-green); background: rgba(47, 214, 168, .08); border-color: rgba(47, 214, 168, .3); }
+.cs-shell .bulk-status-active { color: var(--csd-green); background: rgba(47, 214, 168, .08); border-color: rgba(47, 214, 168, .3); }
+.cs-shell .bulk-status-below_moq { color: var(--csd-amber); background: rgba(255, 194, 51, .1); border-color: rgba(255, 194, 51, .3); }
+.cs-shell .bulk-status-out_of_stock { color: var(--csd-rose); background: rgba(255, 93, 124, .1); border-color: rgba(255, 93, 124, .3); }
+.cs-shell .bulk-pricing .bulk-edit { border-color: rgba(255, 106, 26, .4); color: var(--orange); }
+.cs-shell .bulk-pricing .bulk-remove { border-color: rgba(255, 93, 124, .4); color: var(--csd-rose); }
+.cs-shell .bulk-page-size select, .cs-shell .bulk-rule-form select, .cs-shell .bulk-rule-form input { border-color: var(--csd-line); background: var(--csd-panel-2); color: var(--csd-text); }
+.cs-shell .bulk-view-grid dd { color: var(--csd-text); }
+
+@media (max-width: 1000px) {
+  .cs-shell.stock-ledger-shell .business-context { padding-right: 34px; }
+  .cs-shell .business-context .cs-workspace-tag { display: none; }
+}
+@media (max-width: 820px) {
+  .cs-shell.stock-ledger-shell .dashboard-main { padding: 16px 16px 34px; }
+  .cs-shell.stock-ledger-shell .business-context { min-height: 40px; margin: 0 0 16px; padding: 0; border: 0; background: transparent; }
+  .cs-shell.stock-ledger-shell .dashboard-header { position: static; margin-bottom: 14px; }
+  .cs-shell.stock-ledger-shell .mobile-dashboard-bar { color: var(--csd-text); }
+}
+
+[data-theme="light"] .cs-shell.stock-ledger-shell {
+  --csd-bg: var(--bg);
+  --csd-panel: var(--surface);
+  --csd-panel-2: var(--surface-soft);
+  --csd-line: var(--line);
+  --csd-text: var(--text);
+  --csd-muted: var(--text-soft);
+  --csd-dim: var(--muted);
+  --csd-green: var(--success);
+  --csd-rose: var(--danger);
+  --csd-amber: var(--warning);
+}
+[data-theme="light"] .cs-shell.stock-ledger-shell .business-context { background: #fff; }

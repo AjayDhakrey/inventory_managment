@@ -1,0 +1,125 @@
+/* Global enterprise sidebar chrome — every screen, scoped to the sidebar's #id so it
+   out-ranks App.css's [data-theme="dark"] .dashboard-sidebar / .module-nav rules. */
+#dashboard-navigation.dashboard-sidebar {
+  color: var(--text-soft);
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+}
+#dashboard-navigation .dashboard-brand { display: flex; flex-wrap: wrap; align-items: center; column-gap: 11px; row-gap: 3px; margin-bottom: 26px; color: var(--text); }
+#dashboard-navigation .dashboard-brand .mark-icon { width: 27px; height: 27px; border: 0; border-radius: 8px; background: #ff6a1a; box-shadow: 0 6px 18px rgba(255, 106, 26, .3); }
+#dashboard-navigation .dashboard-brand .mark-icon span { width: 9px; height: 9px; border-radius: 2px; background: #fff; }
+#dashboard-navigation .dashboard-brand > span:not(.mark-icon) { display: inline-flex; align-items: center; gap: 7px; text-transform: lowercase; letter-spacing: -.4px; }
+.brand-badge { padding: 2px 6px; border-radius: 4px; color: #fff; background: #ff6a1a; font: 700 8px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .6px; }
+.brand-version { flex-basis: 100%; margin-left: 38px; color: var(--muted); font: 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+
+#dashboard-navigation .workspace-switcher { border: 1px solid var(--line); border-radius: 10px; color: var(--text); background: var(--surface-soft) }
+#dashboard-navigation .workspace-switcher.active { border-color: var(--line-strong); }
+#dashboard-navigation .workspace-avatar { color: var(--orange); border-color: var(--line-strong); background: var(--orange-soft); }
+#dashboard-navigation .workspace-copy small { color: var(--muted); text-transform: uppercase; letter-spacing: .6px; font: 8px 'DM Mono', monospace; }
+#dashboard-navigation .workspace-copy strong { color: var(--text); }
+
+#dashboard-navigation .module-nav button { color: var(--text-soft); border-radius: 8px; }
+#dashboard-navigation .module-nav button:hover { color: var(--text); background: var(--surface-muted); }
+#dashboard-navigation .module-nav > button.active,
+#dashboard-navigation .module-nav .nav-children button.active { color: var(--orange); background: var(--orange-soft); box-shadow: inset 0 0 0 1px rgba(255, 106, 26, .4); }
+#dashboard-navigation .module-nav .nav-group-toggle { color: var(--muted); font: 700 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .7px; }
+#dashboard-navigation .module-nav .nav-group-toggle.contains-active { color: var(--orange); }
+#dashboard-navigation .module-nav .nav-group-toggle .nav-symbol { color: var(--muted); }
+#dashboard-navigation .module-nav .nav-group-toggle.contains-active .nav-symbol { color: var(--orange); }
+#dashboard-navigation .module-nav .nav-children { padding-left: 40px; }
+#dashboard-navigation .module-nav .nav-children button { color: var(--text-soft); font-size: 12px; }
+#dashboard-navigation .module-nav .nav-children button:hover { color: var(--text); }
+#dashboard-navigation .nav-chevron { color: var(--muted); }
+#dashboard-navigation .nav-symbol { color: var(--orange); }
+
+#dashboard-navigation .sidebar-bottom { border-top: 1px solid var(--line); padding-top: 12px; background: transparent; }
+.sidebar-sync { display: flex; align-items: center; gap: 9px; margin: 0 4px 8px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--muted); background: var(--surface-soft); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.sidebar-sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px rgba(47, 214, 168, .55); }
+.sidebar-sync b { margin-left: auto; color: var(--success); font-weight: 500; }
+#dashboard-navigation .sidebar-bottom > button { color: var(--text-soft); }
+#dashboard-navigation .sidebar-bottom > button .nav-symbol { color: #ff6a1a; }
+.sidebar-shift { margin-left: auto; padding: 3px 7px; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); background: var(--surface-soft); font: 8px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; }
+
+.sidebar-collapsed .sidebar-sync { display: none; }
+.sidebar-collapsed .sidebar-shift { display: none; }
+.sidebar-collapsed .brand-version { display: none; }
+
+/* Account controls share the dashboard palette in both themes. */
+.dashboard-header:has(.header-popover) { z-index: 100; }
+.user-menu-wrap .user-chip:is(:hover, .active) { color: var(--text); border-color: var(--line-strong); background: var(--surface-muted); box-shadow: var(--sr-shadow-sm); }
+.user-menu-wrap .user-avatar { color: var(--orange); background: var(--orange-soft); }
+.user-menu-wrap .user-chevron { color: var(--muted); }
+.user-menu-wrap .user-popover { position: absolute; top: calc(100% + 10px); right: 0; left: auto; width: min(320px, calc(100vw - 28px)); padding: 18px; color: var(--text); border-color: var(--line); border-radius: 14px; background: var(--surface-raised); box-shadow: var(--sr-shadow-lg); line-height: 1.5; }
+/* Keep the hover target continuous between the trigger and the dropdown. */
+.user-menu-wrap:has(.user-popover)::after { content: ''; position: absolute; top: 100%; right: 0; width: 100%; height: 12px; }
+.user-popover .popover-user { gap: 12px; padding-bottom: 16px; border-color: var(--line); }
+.user-popover .popover-user-avatar { width: 44px; height: 44px; border-radius: 10px; font-size: 17px; }
+.user-popover .popover-user strong { color: var(--text); font-size: 14px; }
+.user-popover .popover-user small { color: var(--muted); font: 11px/1.5 var(--sr-font); text-transform: none; overflow-wrap: anywhere; }
+.user-popover .user-role-badge { align-self: flex-start; margin-top: 7px; padding: 3px 7px; border-radius: 5px; color: var(--success); background: var(--success-soft); font-size: 10px; font-weight: 600; }
+.user-popover .popover-detail { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 12px 16px; padding: 16px 0; border-color: var(--line); }
+.user-popover .popover-detail .detail-label { color: var(--muted); font: 10px/1.5 var(--sr-mono); letter-spacing: .3px; }
+.user-popover .popover-detail .detail-value { min-width: 0; color: var(--text); font-size: 12px; font-weight: 600; }
+.user-popover .popover-detail .highlight { color: var(--success); }
+.user-popover .popover-actions { display: grid; gap: 4px; padding: 12px 0; }
+.user-popover .popover-actions:empty { display: none; }
+.user-popover .popover-action-btn, .user-popover .popover-logout { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 10px; border: 1px solid transparent; border-radius: 8px; color: var(--text-soft); background: transparent; cursor: pointer; font: 600 12px/1.4 var(--sr-font); text-align: left; }
+.user-popover .popover-action-btn:is(:hover, :focus-visible) { color: var(--orange); border-color: var(--line); background: var(--surface-muted); }
+.user-popover .profile-menu-icon { display: block; flex: 0 0 17px; width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.user-popover .profile-menu-arrow { margin-left: auto; color: var(--muted); }
+.user-popover .popover-logout { margin: 0; padding-top: 12px; padding-bottom: 12px; border-top-color: var(--line); border-radius: 0 0 8px 8px; color: var(--danger); }
+.user-popover .popover-logout span { float: none; font-size: inherit; }
+.user-popover .popover-logout:is(:hover, :focus-visible) { background: var(--danger-soft); }
+
+/* Shared chrome must out-rank legacy page and dark-theme colors. */
+#dashboard-navigation .mobile-nav-close { color: var(--text); border-color: var(--line); background: var(--surface-muted); }
+#dashboard-navigation .sidebar-bottom > button:hover { color: var(--danger); background: var(--danger-soft); border-radius: 8px; }
+#dashboard-navigation .workspace-switcher:is(:hover, .active) { color: var(--text); border-color: var(--line-strong); background: var(--surface-muted); }
+#dashboard-navigation .workspace-popover { color: var(--text); border-color: var(--line); background: var(--surface-raised); box-shadow: var(--sr-shadow-lg); }
+#dashboard-navigation .workspace-popover-title strong, #dashboard-navigation .workspace-detail-val { color: var(--text); }
+#dashboard-navigation .workspace-popover-avatar { color: var(--orange); background: var(--orange-soft); }
+#dashboard-navigation .workspace-role-badge { color: var(--success); background: var(--success-soft); }
+#dashboard-navigation .workspace-detail-label { color: var(--muted); }
+#dashboard-navigation .workspace-detail-val.highlight { color: var(--orange); }
+#dashboard-navigation .workspace-popover-divider { background: var(--line); }
+#dashboard-navigation .workspace-popover-actions { border-color: var(--line); }
+#dashboard-navigation .workspace-popover-action { min-height: 40px; border: 1px solid var(--line); border-radius: 8px; color: var(--text-soft); background: var(--surface-soft); }
+#dashboard-navigation .workspace-popover-action:hover { color: var(--orange); background: var(--surface-muted); }
+.dashboard-shell .mobile-dashboard-bar { color: var(--text); border-color: var(--line); border-radius: 10px; background: var(--surface); }
+.dashboard-shell .mobile-page-title { color: var(--text); }
+.dashboard-shell .mobile-menu-button { color: var(--text); border-color: var(--line); border-radius: 8px; background: var(--surface-soft); }
+.dashboard-shell .mobile-menu-button span { background: var(--text); }
+[data-theme] .dashboard-shell .desktop-sidebar-toggle { color: var(--text) !important; border-color: var(--line-strong) !important; background: var(--surface-raised) !important; }
+.dashboard-shell .desktop-collapsed-bar { color: var(--text); background: var(--surface); border-radius: 10px; }
+.dashboard-shell .collapsed-brand { color: var(--text); }
+.dashboard-header .icon-button { color: var(--text); border: 1px solid var(--line); border-radius: 10px; background: var(--surface-raised); }
+.dashboard-header .icon-button:hover { border-color: var(--line-strong); background: var(--surface-muted); }
+.dashboard-header .notification-badge { border-color: var(--surface); background: var(--danger); }
+
+.header-popover.notification-popover { width: min(390px, calc(100vw - 32px)); padding: 0; color: var(--text); border-color: var(--line); background: var(--surface-raised); box-shadow: var(--sr-shadow-lg); }
+.notification-popover .notif-head { padding: 16px; border-color: var(--line); }
+.notification-popover .notif-head strong { color: var(--text); font-size: 14px; }
+.notification-popover .notif-head small { color: var(--muted); font-size: 11px; }
+.notification-popover .notif-head button { min-height: 32px; color: var(--orange); font-size: 11px; }
+.notification-popover .notif-row { border-color: var(--line); }
+.notification-popover .notif-row.unread { background: var(--surface-soft); }
+.notification-popover .notif-row.read { opacity: 1; background: var(--surface); }
+.notification-popover .notif-row:is(:hover, :focus-visible) { background: var(--surface-muted); }
+.notification-popover .notif-text strong { color: var(--text); font-size: 12px; }
+.notification-popover .notif-text small { color: var(--text-soft); font-size: 11px; }
+.notification-popover .notif-text em { color: var(--muted); font-size: 10px; }
+.notification-popover .notif-glyph { color: var(--warning); border-radius: 7px; background: var(--warning-soft); }
+.notification-popover .critical .notif-glyph { color: var(--danger); background: var(--danger-soft); }
+.notification-popover .success .notif-glyph { color: var(--success); background: var(--success-soft); }
+.notification-popover .notif-dismiss { color: var(--muted); border-radius: 5px; }
+.notification-popover .notif-dismiss:hover { color: var(--danger); background: var(--danger-soft); }
+.notification-popover .notif-footer { min-height: 44px; border-top: 1px solid var(--line); color: var(--orange); background: var(--surface-soft); font-size: 12px; }
+.notification-popover .notif-footer span { float: right; }
+.notification-popover .notif-empty, .notification-popover .notif-status, .notification-popover p { color: var(--text-soft); }
+.notification-popover .notif-empty > span { color: var(--success); border-radius: 8px; background: var(--success-soft); }
+.notification-popover .notif-empty strong { color: var(--text); }
+
+@media (max-width: 600px) {
+  .header-actions > .header-popover-wrap:not(.user-menu-wrap) { position: static; }
+  .header-popover.notification-popover { position: absolute; top: calc(100% + 10px); right: 0; left: auto; width: min(390px, calc(100vw - 32px)); max-height: 65svh; overflow-y: auto; }
+}

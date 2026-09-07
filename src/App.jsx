@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import "./App.css";
 import "./styles/ui-system.css";
+import "./styles/app-chrome.css";
 import "./styles/overview-dashboard.css";
 import BusinessSetup from "./components/BusinessSetup.jsx";
 import Products from "./components/Products.jsx";
@@ -40,10 +41,33 @@ import { getToken, setToken } from "./api/client.js";
 import { useResource } from "./hooks/useResource.js";
 
 const LOW_STOCK_LIMIT = 10;
+const NAVIGATION_LABELS = {
+  Overview: "Dashboard Overview",
+  Products: "Products Catalog",
+  Stock: "Stock Ledger",
+  "Stock In": "Stock Inward",
+  "Stock Out": "Stock Outward",
+  Adjustments: "Inventory Adjustments",
+  "Stock History": "Stock Movement Audit",
+  "POS / Billing": "POS Terminal",
+  "Bulk Orders": "Wholesale Orders",
+};
+
+const navigationLabel = (item) => NAVIGATION_LABELS[item] || item;
+
+// Visual stock-health ratio for the Overview inventory meter (0–100).
+const stockLevelPct = (stock, minimum) => {
+  const value = Number(stock || 0);
+  if (value <= 0) return 0;
+  const full = Math.max(Number(minimum || 0) * 3, 12);
+  return Math.max(6, Math.min(100, Math.round((value / full) * 100)));
+};
+
 function Dashboard({ account, business, initialNav = "Overview", onLogout, onBusinessUpdate, theme, onToggleTheme }) {
   const [activeNav, setActiveNav] = useState(initialNav);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [expandedNavSections, setExpandedNavSections] = useState(() => new Set(["Inventory"]));
   const [overviewMenu, setOverviewMenu] = useState(null);
   const [search, setSearch] = useState("");
   const [overviewCategory, setOverviewCategory] = useState("all");
@@ -85,6 +109,15 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
   const visiblePages = new Set(['Overview', ...visibleNavigation.flatMap(([, items]) => items)]);
   const canOpen = (item) => visiblePages.has(item === 'Products' ? capabilities.productLabel : item);
   const navigateTo = (navTo) => {
+    const parentSection = visibleNavigation.find(([, items]) => items.includes(navTo))?.[0];
+    if (parentSection) {
+      setExpandedNavSections((current) => {
+        if (current.has(parentSection)) return current;
+        const next = new Set(current);
+        next.add(parentSection);
+        return next;
+      });
+    }
     setActiveNav(navTo);
     setMobileNavOpen(false);
     setShowUserMenu(false);
@@ -217,13 +250,14 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
   };
 
   return (
-    <main className={`dashboard-shell ${activeNav === "Overview" ? "overview-dashboard" : ""} industry-${String(business?.industry || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-")}${mobileNavOpen ? " nav-open" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
+    <main className={`dashboard-shell ${activeNav === "Overview" ? "overview-dashboard" : ""}${["Stock", "Stock In", "Stock Out", "Adjustments", "Stock History", "Categories", "Purchase Orders"].includes(activeNav) ? " stock-ledger-shell" : ""}${["Stock In", "Stock Out", "Adjustments"].includes(activeNav) ? " stock-in-shell" : ""}${activeNav === "Stock Out" ? " stock-out-shell" : ""}${activeNav === "Adjustments" ? " stock-adjustment-shell" : ""}${activeNav === "Stock History" ? " stock-audit-shell" : ""}${activeNav === "Categories" ? " category-shell" : ""}${activeNav === "Purchase Orders" ? " po-shell" : ""}${activeNav === "POS / Billing" ? " pos-shell" : ""}${activeNav === "Receiving" ? " stock-ledger-shell grn-shell" : ""}${activeNav === "Suppliers" ? " stock-ledger-shell sup-shell" : ""}${["Products", "Medicines"].includes(activeNav) ? " stock-ledger-shell products-shell" : ""}${activeNav === "Bulk Import" ? " stock-ledger-shell import-shell" : ""}${activeNav === "Orders" ? " stock-ledger-shell ord-shell" : ""}${activeNav === "Customers" ? " stock-ledger-shell cust-shell" : ""}${activeNav === "Payments" ? " stock-ledger-shell pay-shell" : ""}${activeNav === "Returns" ? " stock-ledger-shell ret-shell" : ""}${["Users", "Roles", "Permissions"].includes(activeNav) ? " stock-ledger-shell um-shell" : ""}${activeNav === "Reports" ? " stock-ledger-shell rep-shell" : ""}${["Business Profile", "Industry", "Settings"].includes(activeNav) ? " stock-ledger-shell biz-shell" : ""}${["Color Management", "Size Management", "Product Variants"].includes(activeNav) ? " stock-ledger-shell var-shell" : ""}${["Bulk Orders", "Credit Sales", "Bulk Pricing"].includes(activeNav) ? " stock-ledger-shell cs-shell" : ""}${["Variant Grid", "Replenishment", "Promotions", "Loyalty", "Coupons", "Gift Cards", "Cashier Shifts", "Clothing Reports"].includes(activeNav) ? " stock-ledger-shell cloth-shell" : ""} industry-${String(business?.industry || "general").toLowerCase().replace(/[^a-z0-9]+/g, "-")}${mobileNavOpen ? " nav-open" : ""}${sidebarCollapsed ? " sidebar-collapsed" : ""}`}>
       <aside className="dashboard-sidebar" id="dashboard-navigation">
         <div className="dashboard-brand brand-mark">
           <span className="mark-icon" aria-hidden="true">
             <span />
           </span>
-          <span>stockroom</span>
+          <span>stockroom<b className="brand-badge">Pro</b></span>
+          <span className="brand-version">v3.4.2 · Enterprise</span>
           <button
             className="mobile-nav-close"
             type="button"
@@ -360,23 +394,36 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             type="button"
             onClick={() => navigateTo("Overview")}
           >
-            <span className="nav-symbol">▦</span>Overview
+            <span className="nav-symbol">▦</span>{navigationLabel("Overview")}
           </button>
           {visibleNavigation.map(([section, items], index) => (
             <div className="nav-group" key={section}>
               <button
-                className={activeNav === section ? "active" : ""}
+                className={`nav-group-toggle${items.includes(activeNav) ? " contains-active" : ""}`}
                 type="button"
-                onClick={() => navigateTo(section)}
+                aria-expanded={items.length ? expandedNavSections.has(section) : undefined}
+                aria-controls={items.length ? `nav-section-${section.toLowerCase().replace(/[^a-z0-9]+/g, "-")}` : undefined}
+                onClick={() => {
+                  if (!items.length) {
+                    navigateTo(section);
+                    return;
+                  }
+                  setExpandedNavSections((current) => {
+                    const next = new Set(current);
+                    if (next.has(section)) next.delete(section);
+                    else next.add(section);
+                    return next;
+                  });
+                }}
               >
                 <span className="nav-symbol">
                   {["◫", "♧", "▣", "↗", "⌁", "◒", "⚙"][index]}
                 </span>
-                {section}
-                <span className="nav-chevron">{items.length ? "⌄" : ""}</span>
+                {navigationLabel(section)}
+                <span className={`nav-chevron${expandedNavSections.has(section) ? " open" : ""}`}>{items.length ? "⌄" : ""}</span>
               </button>
-              {items.length > 0 && (
-                <div className="nav-children">
+              {items.length > 0 && expandedNavSections.has(section) && (
+                <div className="nav-children" id={`nav-section-${section.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
                   {items.map((item) => (
                     <button
                       className={activeNav === item ? "active" : ""}
@@ -384,7 +431,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                       key={item}
                       onClick={() => navigateTo(item)}
                     >
-                      {item}
+                      {navigationLabel(item)}
                     </button>
                   ))}
                 </div>
@@ -393,8 +440,14 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
           ))}
         </nav>
         <div className="sidebar-bottom">
+          <div className="sidebar-sync" aria-hidden="true">
+            <span className="sidebar-sync-dot" />
+            <span>Cloud sync active</span>
+            <b>99.9%</b>
+          </div>
           <button type="button" onClick={onLogout}>
             <span className="nav-symbol">↪</span>Log out
+            <span className="sidebar-shift">Shift #{(String(account?.email || "user").split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) % 90) + 1}</span>
           </button>
         </div>
       </aside>
@@ -428,23 +481,43 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             <span />
             <span />
           </button>
-          <span className="mobile-page-title">{activeNav}</span>
+          <span className="mobile-page-title">{navigationLabel(activeNav)}</span>
         </div>
         <div className="business-context">
           <span className="business-context-dot" />{" "}
           {business?.name || "Your business"} <span>/</span>{" "}
           {business?.industry || "workspace"}
+          {["Stock In", "Stock Out", "Adjustments"].includes(activeNav) && <><span>/</span><strong className="stock-in-breadcrumb">{activeNav}</strong><span className="stock-in-currency">{business.currency}</span></>}
+          {activeNav === "Stock History" && <><span>/</span><strong className="audit-breadcrumb">Stock Movement Audit</strong><span className="audit-stream">Live stream</span><span className="audit-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Categories" && <><span>/</span><strong className="cat-breadcrumb">Categories</strong><span className="cat-synced">Catalog synced</span><span className="cat-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Overview" && <><span>/</span><strong className="ov-breadcrumb">{(business.industry || "Workspace").toUpperCase()} DASHBOARD</strong><span className="ov-node">Node active</span><span className="ov-workspace-tag">{business.currency} · {(business.city || "Main outlet").toUpperCase()}</span></>}
+          {activeNav === "Purchase Orders" && <><span>/</span><strong className="po-breadcrumb">Purchase Orders</strong><span className="po-gateway">PO Gateway: Live</span><span className="po-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "POS / Billing" && <><span>/</span><strong className="pos-breadcrumb">POS Terminal</strong><span className="pos-gateway">POS Gateway: Live</span><span className="pos-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Receiving" && <><span>/</span><strong className="grn-breadcrumb">Receiving &amp; GRN</strong><span className="grn-dock">Dock bay: Active</span><span className="grn-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Suppliers" && <><span>/</span><strong className="sup-breadcrumb">Suppliers</strong><span className="sup-tag-live">Vendor ledger</span><span className="sup-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {["Products", "Medicines"].includes(activeNav) && <><span>/</span><strong className="pc-breadcrumb">{navigationLabel(activeNav)}</strong><span className="pc-tag-live">Catalog synced</span><span className="pc-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Bulk Import" && <><span>/</span><strong className="pc-breadcrumb">Bulk Import</strong><span className="pc-tag-live">Ingestion pipeline</span><span className="pc-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Orders" && <><span>/</span><strong className="ord-breadcrumb">Orders / Sales</strong><span className="ord-tag-live">Live pipeline</span><span className="ord-workspace-tag">{business.currency} · GST {(business.settings?.defaultGstRate ?? 0)}%</span></>}
+          {activeNav === "Customers" && <><span>/</span><strong className="cust-breadcrumb">Customers</strong><span className="cust-tag-live">CRM ledger</span><span className="cust-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Payments" && <><span>/</span><strong className="pay-breadcrumb">Payments &amp; Settlements</strong><span className="pay-tag-live">Counter online</span><span className="pay-workspace-tag">Base {business.currency}</span></>}
+          {activeNav === "Returns" && <><span>/</span><strong className="ret-breadcrumb">Returns &amp; Refunds</strong><span className="ret-tag-live">Live terminal</span><span className="ret-workspace-tag">GST {(business.settings?.defaultGstRate ?? 0)}%</span></>}
+          {["Users", "Roles", "Permissions"].includes(activeNav) && <><span>/</span><strong className="um-breadcrumb">{activeNav}</strong><span className="um-tag-live">Access control</span><span className="um-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {activeNav === "Reports" && <><span>/</span><strong className="rep-breadcrumb">Business Intelligence</strong><span className="rep-tag-live">Live data</span><span className="rep-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {["Business Profile", "Industry", "Settings"].includes(activeNav) && <><span>/</span><strong className="biz-breadcrumb">{activeNav === "Settings" ? "Settings" : "Business Profile"}</strong><span className="biz-tag-live">Workspace config</span><span className="biz-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {["Color Management", "Size Management", "Product Variants"].includes(activeNav) && <><span>/</span><strong className="var-breadcrumb">{activeNav}</strong><span className="var-tag-live">Catalog attributes</span><span className="var-workspace-tag">{(business.industry || "workspace").toUpperCase()}</span></>}
+          {["Bulk Orders", "Credit Sales", "Bulk Pricing"].includes(activeNav) && <><span>/</span><strong className="cs-breadcrumb">{activeNav}</strong><span className="cs-tag-live">Wholesale</span><span className="cs-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
+          {["Variant Grid", "Replenishment", "Promotions", "Loyalty", "Coupons", "Gift Cards", "Cashier Shifts", "Clothing Reports"].includes(activeNav) && <><span>/</span><strong className="cloth-breadcrumb">{activeNav}</strong><span className="cloth-tag-live">Clothing suite</span><span className="cloth-workspace-tag">{(business.industry || "workspace").toUpperCase()}</span></>}
         </div>
         <header className="dashboard-header">
           <div>
             <p className="dashboard-kicker">
               {activeNav === "Overview"
-                ? new Intl.DateTimeFormat(undefined, {
+                ? `${new Intl.DateTimeFormat(undefined, {
                     weekday: "long",
                     month: "long",
                     day: "numeric",
                     year: "numeric",
-                  }).format(new Date())
+                  }).format(new Date())} • Store shift #1 open`
                 : `Manage your ${activeNav.toLowerCase()}`}
             </p>
             <h1>
@@ -536,8 +609,9 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                           setShowUserMenu(false);
                         }}
                       >
-                        <span>⚙ Business Profile</span>
-                        <span>→</span>
+                        <svg className="profile-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V3h12v18M16 9h4v12M2 21h20M8 7h4M8 11h4M8 15h4M9 21v-2h2v2" /></svg>
+                        <span>Business Profile</span>
+                        <svg className="profile-menu-icon profile-menu-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
                       </button>
                     )}
                     {canOpen("Users") && (
@@ -549,8 +623,9 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                           setShowUserMenu(false);
                         }}
                       >
-                        <span>👥 Team & Users</span>
-                        <span>→</span>
+                        <svg className="profile-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3" /><path d="M3 21v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M21 21v-2a6 6 0 0 0-4-5.66" /></svg>
+                        <span>Team & Users</span>
+                        <svg className="profile-menu-icon profile-menu-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14m-5-5 5 5-5 5" /></svg>
                       </button>
                     )}
                   </div>
@@ -560,8 +635,8 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                     type="button"
                     onClick={onLogout}
                   >
+                    <svg className="profile-menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 21H4V3h5M10 12h11m-5-5 5 5-5 5" /></svg>
                     <span>Log out</span>
-                    <span>↪</span>
                   </button>
                 </div>
               )}
@@ -791,9 +866,10 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                               </span>
                             </span>
                             <span className="category-cell">{firstItem.category}</span>
-                            <span className={`stock-cell ${firstItem.stock === 0 ? "empty" : firstItem.stock < 10 ? "low" : ""}`}>
+                            <span className={`stock-cell ${firstItem.stock === 0 ? "empty" : firstItem.stock <= firstItem.minimumStock ? "low" : ""}`}>
                               {firstItem.stock}
                               <small>{firstItem.stock === 0 ? "Out of stock" : firstItem.stock <= firstItem.minimumStock ? "Low stock" : "In stock"}</small>
+                              <span className="stock-meter" aria-hidden="true"><i style={{ width: `${stockLevelPct(firstItem.stock, firstItem.minimumStock)}%` }} /></span>
                             </span>
                             <span className="price-cell">{business.currency} {firstItem.price.toFixed(2)}</span>
                           </div>
@@ -836,9 +912,10 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                                 </span>
                               </span>
                               <span className="category-cell">{item.category}</span>
-                              <span className={`stock-cell ${item.stock === 0 ? "empty" : item.stock < 10 ? "low" : ""}`}>
+                              <span className={`stock-cell ${item.stock === 0 ? "empty" : item.stock <= item.minimumStock ? "low" : ""}`}>
                                 {item.stock}
                                 <small>{item.stock === 0 ? "Out of stock" : item.stock <= item.minimumStock ? "Low stock" : "In stock"}</small>
+                                <span className="stock-meter" aria-hidden="true"><i style={{ width: `${stockLevelPct(item.stock, item.minimumStock)}%` }} /></span>
                               </span>
                               <span className="price-cell">{business.currency} {item.price.toFixed(2)}</span>
                             </div>
@@ -864,7 +941,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                     onClick={() => setStockAlertsOpen((current) => !current)}
                   >
                     <span className="alert-count">{notifItems.length}</span>
-                    <span className="stock-alert-chevron" aria-hidden="true">⌄</span>
+                    <svg className="stock-alert-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
                   </button>
                 </div>
                 {stockAlertsOpen && <div className="stock-alert-content" id="stock-alert-content">
@@ -908,6 +985,10 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                 </div>}
               </aside>
             </div>
+            <footer className="overview-footer">
+              <span><b>Stockroom</b> · Retail &amp; warehouse management</span>
+              <span>{(products || []).length} SKUs indexed · Branch {(business.city || business.country || "Main outlet").toUpperCase()}</span>
+            </footer>
           </>
         ) : activeNav === "Products" || activeNav === "Medicines" ? (
           <Products business={business} account={account} />
@@ -925,6 +1006,8 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             section={activeNav}
             business={business}
             account={account}
+            onNavigate={navigateTo}
+            canNavigate={canOpen}
           />
         ) : ["Users", "Roles", "Permissions"].includes(activeNav) ? (
           <UserManagement
@@ -933,13 +1016,13 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             account={account}
           />
         ) : activeNav === "Suppliers" ? (
-          <Suppliers business={business} />
+          <Suppliers business={business} onNavigate={navigateTo} canNavigate={canOpen} />
         ) : activeNav === "Customers" ? (
-          <Customers business={business} />
+          <Customers business={business} onNavigate={navigateTo} />
         ) : activeNav === "Purchase Orders" ? (
-          <PurchaseOrders business={business} account={account} />
+          <PurchaseOrders business={business} account={account} onNavigate={navigateTo} />
         ) : activeNav === "Receiving" ? (
-          <Receiving business={business} account={account} />
+          <Receiving business={business} account={account} onNavigate={navigateTo} />
         ) : activeNav === "Orders" ? (
           <SalesOrders business={business} account={account} creditSales={["Credit Sales", "Bulk Orders"].includes(activeNav)} section={activeNav} />
         ) : activeNav === "POS / Billing" ? (
@@ -967,8 +1050,8 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
           <ColorManagement business={business} account={account} />
         ) : ["Variant Grid", "Replenishment", "Promotions", "Loyalty", "Coupons", "Gift Cards", "Cashier Shifts", "Clothing Reports"].includes(activeNav) ? (
           <ClothingModule section={activeNav} business={business} account={account} />
-        ) : activeNav === "Bulk Pricing" ? (<BulkPricing business={business} account={account} />) : ["Batch Management", "Expiry Tracking", "Prescription Management", "Size Management", "Product Variants", "Serial Numbers", "Warranty Tracking", "Offers / Discounts", "Bulk Pricing", "Raw Materials", "Bill of Materials", "Production", "Finished Goods", "Production Tracking"].includes(activeNav) ? (
-          <IndustryModule section={activeNav} business={business} />
+        ) : activeNav === "Bulk Pricing" ? (<BulkPricing business={business} account={account} />) : ["Batch Management", "Expiry Tracking", "Prescription Management", "Size Management", "Product Variants", "Serial Numbers", "Warranty Tracking", "Offers / Discounts", "Raw Materials", "Bill of Materials", "Production", "Finished Goods", "Production Tracking"].includes(activeNav) ? (
+          <IndustryModule section={activeNav} business={business} onNavigate={navigateTo} />
         ) : activeNav === "Bulk Orders" || activeNav === "Credit Sales" ? (
           <SalesOrders business={business} account={account} creditSales={["Credit Sales", "Bulk Orders"].includes(activeNav)} section={activeNav} />
         ) : (
@@ -1455,6 +1538,3 @@ function App() {
 }
 
 export default App;
-
-
-

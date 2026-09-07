@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { colorApi } from '../api/colorApi.js'
 import { useResource } from '../hooks/useResource.js'
 import AsyncBoundary from './AsyncBoundary.jsx'
+import '../styles/variants-modules.css'
 
 export default function ColorManagement({ business, account }) {
   const [search, setSearch] = useState('')

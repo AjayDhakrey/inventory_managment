@@ -5,6 +5,7 @@ import { productApi } from '../api/productApi.js'
 import { supplierApi } from '../api/supplierApi.js'
 import { userApi } from '../api/userApi.js'
 import { resolveBusinessCapabilities } from '../../shared/industryConfig.js'
+import '../styles/onboarding.css'
 
 const industries = ['Clothing', 'Grocery', 'Pharmacy', 'Electronics', 'Hardware', 'Restaurant', 'Automobile', 'Manufacturing', 'Wholesale', 'Retail', 'Other']
 const businessTypes = ['Retail', 'Wholesale', 'Retail + Wholesale']

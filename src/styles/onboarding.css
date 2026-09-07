@@ -1,0 +1,418 @@
+/* Onboarding / business setup wizard (BusinessSetup.jsx).
+   Theme-aware via ui-system.css tokens; selectors kept >= (0,2,x) so they beat
+   the global [data-theme="dark"] input/button rules in App.css. */
+
+.onboarding-shell {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0 64px;
+  color: var(--text);
+  background:
+    radial-gradient(920px 420px at 50% -140px, color-mix(in srgb, var(--orange) 12%, transparent), transparent 70%),
+    var(--bg);
+  font-family: var(--sr-font);
+}
+.onboarding-shell *,
+.onboarding-shell *::before,
+.onboarding-shell *::after { box-sizing: border-box; }
+
+/* ---- Top bar ---- */
+.onboarding-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: min(100%, 900px);
+  margin: 0 auto;
+  padding: 22px 24px 18px;
+}
+.onboarding-topbar .brand-mark { font: 700 18px var(--sr-font); color: var(--ink); letter-spacing: -.4px; }
+.onboarding-topbar .mark-icon { border-color: var(--orange); }
+.onboarding-topbar .mark-icon span { background: var(--orange); }
+.onboarding-topbar .outline-button {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius-xs);
+  color: var(--text);
+  background: var(--surface);
+  font: 600 11px var(--sr-mono);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  cursor: pointer;
+}
+.onboarding-topbar .outline-button:hover { color: var(--orange); border-color: var(--orange); background: var(--orange-soft); }
+
+/* ---- Progress ---- */
+.onboarding-progress {
+  width: min(100%, 760px);
+  margin: 0 auto 22px;
+  padding: 0 24px;
+}
+.onboarding-progress > span {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font: 500 11px var(--sr-mono);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+}
+.onboarding-progress > div {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / 7 - 1px), color-mix(in srgb, var(--bg) 70%, transparent) calc(100% / 7 - 1px), color-mix(in srgb, var(--bg) 70%, transparent) calc(100% / 7)),
+    var(--surface-muted);
+  overflow: hidden;
+}
+.onboarding-progress > div i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--orange), color-mix(in srgb, var(--orange) 70%, #ffb27a));
+  box-shadow: 0 0 18px color-mix(in srgb, var(--orange) 45%, transparent);
+  transition: width .4s var(--sr-ease, ease);
+}
+
+/* ---- Card ---- */
+.onboarding-card {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: clamp(24px, 4vw, 44px);
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius-xl);
+  background: var(--surface);
+  box-shadow: var(--sr-shadow-md);
+}
+.onboarding-card > * + * { margin-top: 22px; }
+
+.onboarding-card :is(h1, h2) {
+  max-width: none;
+  margin: 0;
+  color: var(--ink);
+  font: 800 clamp(24px, 3.2vw, 32px)/1.12 var(--sr-font);
+  letter-spacing: -1.2px;
+}
+.onboarding-card .eyebrow { margin: 0 0 10px; color: var(--orange); }
+.onboarding-card > .setup-error { margin-top: 18px; }
+
+.onboarding-heading p:not(.eyebrow) { margin: 10px 0 0; max-width: 54ch; color: var(--text-soft); font-size: 14px; line-height: 1.6; }
+.onboarding-welcome p:not(.eyebrow) { margin: 12px auto 0; max-width: 44ch; color: var(--text-soft); font-size: 14px; line-height: 1.6; }
+.onboarding-heading { animation: onb-rise .32s var(--sr-ease, ease) both; }
+
+/* ---- Welcome / Complete ---- */
+.onboarding-welcome,
+.onboarding-complete { padding: 12px 0; text-align: center; animation: onb-rise .32s var(--sr-ease, ease) both; }
+.onboarding-welcome h1,
+.onboarding-complete h1 { font-size: clamp(28px, 4vw, 38px); }
+.onboarding-welcome .eyebrow,
+.onboarding-complete .eyebrow { margin-bottom: 14px; }
+.onboarding-welcome .submit-button,
+.onboarding-complete .submit-button {
+  width: auto;
+  min-width: 220px;
+  margin: 26px auto 0;
+  padding: 0 22px;
+}
+
+.onboarding-success {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  color: var(--success);
+  background: var(--success-soft);
+  box-shadow: 0 0 0 8px color-mix(in srgb, var(--success) 12%, transparent);
+  font-size: 26px;
+  font-weight: 700;
+}
+.onboarding-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(128px, 1fr));
+  gap: 12px;
+  margin-top: 26px;
+  text-align: left;
+}
+.onboarding-summary span {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius);
+  background: var(--surface-soft);
+}
+.onboarding-summary small { color: var(--muted); font: 500 10px var(--sr-mono); text-transform: uppercase; letter-spacing: .07em; }
+.onboarding-summary strong { color: var(--text); font: 700 16px var(--sr-font); text-transform: capitalize; }
+
+/* ---- Field grid ---- */
+.onboarding-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 20px;
+}
+.onboarding-fields > label {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text-soft);
+  font: 600 11px var(--sr-mono);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.onboarding-fields > label:has(input[name="address"]) { grid-column: 1 / -1; }
+
+.onboarding-shell :is(input:not([type="checkbox"]):not([type="radio"]), select) {
+  width: 100%;
+  height: var(--sr-control-h);
+  margin: 0;
+  padding: 0 13px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius-xs);
+  color: var(--text);
+  background: var(--surface);
+  font: 400 14px var(--sr-font);
+  text-transform: none;
+  letter-spacing: normal;
+}
+.onboarding-shell select { padding-right: 34px; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23808da0' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; }
+.onboarding-shell :is(input, select):hover:not(:disabled) { border-color: var(--line-strong); }
+.onboarding-shell :is(input, select):focus { border-color: var(--orange); box-shadow: var(--sr-focus); outline: 0; }
+.onboarding-shell input::placeholder { color: var(--text-faint); }
+
+/* ---- Toggle row (tax) ---- */
+.onboarding-fields .onboarding-toggle {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius);
+  background: var(--surface-soft);
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+}
+.onboarding-toggle input { width: 18px; height: 18px; margin-top: 1px; flex: 0 0 auto; accent-color: var(--orange); }
+.onboarding-toggle span { display: block; }
+.onboarding-toggle strong { display: block; color: var(--text); font: 700 13px var(--sr-font); }
+.onboarding-toggle small { display: block; margin-top: 3px; color: var(--muted); font: 400 12px var(--sr-font); line-height: 1.5; }
+
+/* ---- Choice grid (industry / business type) ---- */
+.onboarding-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.onboarding-choice-grid legend {
+  grid-column: 1 / -1;
+  float: none;
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 0;
+  color: var(--text-soft);
+  font: 600 11px var(--sr-mono);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.onboarding-choice-grid label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color .16s, background-color .16s, box-shadow .16s;
+}
+.onboarding-choice-grid label span { color: var(--text); font: 600 13px var(--sr-font); }
+.onboarding-choice-grid label::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  transition: border-color .16s, box-shadow .16s;
+}
+.onboarding-choice-grid input { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; opacity: 0; pointer-events: none; }
+.onboarding-choice-grid label:hover { border-color: var(--line-strong); background: var(--surface-soft); }
+.onboarding-choice-grid label:has(input:checked) {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+  box-shadow: inset 0 0 0 1px var(--orange);
+}
+.onboarding-choice-grid label:has(input:checked)::before { border-color: var(--orange); box-shadow: inset 0 0 0 4px var(--orange); }
+.onboarding-choice-grid label:has(input:checked) span { color: var(--orange-hover); }
+.onboarding-choice-grid label:has(input:focus-visible) { box-shadow: var(--sr-focus); }
+
+/* ---- Option list (inventory choice / optional destination) ---- */
+.onboarding-option-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.onboarding-option-list label {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 15px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius);
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color .16s, background-color .16s, box-shadow .16s;
+}
+.onboarding-option-list input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.onboarding-option-list label::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  transition: border-color .16s, box-shadow .16s;
+}
+.onboarding-option-list label span { display: block; }
+.onboarding-option-list strong { display: block; color: var(--text); font: 700 13px var(--sr-font); }
+.onboarding-option-list small { display: block; margin-top: 3px; color: var(--muted); font: 400 12px var(--sr-font); line-height: 1.5; }
+.onboarding-option-list label:hover { border-color: var(--line-strong); background: var(--surface-soft); }
+.onboarding-option-list label:has(input:checked) { border-color: var(--orange); background: var(--orange-soft); box-shadow: inset 0 0 0 1px var(--orange); }
+.onboarding-option-list label:has(input:checked)::before { border-color: var(--orange); box-shadow: inset 0 0 0 4px var(--orange); }
+.onboarding-option-list label:has(input:checked) strong { color: var(--orange-hover); }
+.onboarding-option-list label:has(input:focus-visible) { box-shadow: var(--sr-focus); }
+
+/* ---- Feature summary panel ---- */
+.onboarding-feature-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px 18px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in srgb, var(--success) 30%, var(--line));
+  border-radius: var(--sr-radius-lg);
+  background: color-mix(in srgb, var(--success-soft) 70%, var(--surface));
+}
+.onboarding-feature-summary strong {
+  grid-column: 1 / -1;
+  color: var(--ink);
+  font: 700 13px var(--sr-font);
+}
+.onboarding-feature-summary span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-soft);
+  font-size: 12.5px;
+}
+
+/* ---- Enabled modules disclosure ---- */
+.onboarding-modules-details {
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius);
+  background: var(--surface-soft);
+}
+.onboarding-modules-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  color: var(--text-soft);
+  font: 600 11px var(--sr-mono);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  cursor: pointer;
+  list-style: none;
+}
+.onboarding-modules-details summary::-webkit-details-marker { display: none; }
+.onboarding-modules-details summary::after { content: "▸"; color: var(--muted); transition: transform .18s ease; }
+.onboarding-modules-details[open] summary::after { transform: rotate(90deg); }
+.onboarding-modules-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+.onboarding-module-pill {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--text-soft);
+  background: var(--surface);
+  font: 500 11px var(--sr-mono);
+}
+
+/* ---- Footer actions ---- */
+.onboarding-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 30px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.onboarding-actions .outline-button {
+  height: 46px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--sr-radius);
+  color: var(--text);
+  background: var(--surface);
+  font: 600 12px var(--sr-font);
+  cursor: pointer;
+}
+.onboarding-actions .outline-button:hover { color: var(--orange); border-color: var(--orange); background: var(--orange-soft); }
+.onboarding-actions .submit-button {
+  width: auto;
+  min-width: 180px;
+  height: 46px;
+  margin: 0 0 0 auto;
+  padding: 0 20px;
+}
+
+.onboarding-card .setup-error {
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  border-radius: var(--sr-radius-xs);
+  color: var(--danger);
+  background: var(--danger-soft);
+  font: 500 12px var(--sr-font);
+}
+
+@keyframes onb-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .onboarding-topbar { padding: 18px 16px 14px; }
+  .onboarding-progress { padding: 0 16px; }
+  .onboarding-card { border-radius: var(--sr-radius-lg); }
+  .onboarding-fields { grid-template-columns: 1fr; }
+  .onboarding-actions { flex-direction: column-reverse; align-items: stretch; }
+  .onboarding-actions .submit-button,
+  .onboarding-actions .outline-button { width: 100%; margin: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-heading,
+  .onboarding-welcome,
+  .onboarding-complete { animation: none; }
+  .onboarding-progress > div i { transition: none; }
+}

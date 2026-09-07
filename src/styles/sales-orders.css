@@ -1,0 +1,187 @@
+.ord-shell.stock-ledger-shell {
+  --ord-bg: var(--bg);
+  --ord-panel: var(--surface);
+  --ord-panel-2: var(--surface-soft);
+  --ord-line: var(--line);
+  --ord-text: var(--text);
+  --ord-muted: var(--text-soft);
+  --ord-dim: var(--muted);
+  --ord-orange: var(--orange);
+  --ord-green: var(--success);
+  --ord-rose: var(--danger);
+  --ord-amber: var(--warning);
+  --ord-blue: var(--info);
+  color: var(--ord-text);
+  background: var(--ord-bg);
+}
+.ord-shell.stock-ledger-shell .dashboard-main { padding: 0 32px 40px; background: var(--ord-bg); }
+.ord-shell.stock-ledger-shell .dashboard-header { right: 32px; }
+.ord-shell.stock-ledger-shell .business-context { min-height: 74px; margin: 0 -32px 26px; padding: 0 300px 0 34px; border-bottom: 1px solid var(--ord-line); color: var(--ord-muted); background: #080d14; font-size: 11px; }
+.ord-shell .business-context .ord-breadcrumb { color: var(--ord-orange); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
+.ord-shell .business-context .ord-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--ord-green); background: rgba(47, 214, 168, .08); font: 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .7px; }
+.ord-shell .business-context .ord-tag-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+.ord-shell .business-context .ord-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--ord-line); border-radius: 6px; color: var(--ord-text); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
+
+.ord-shell .ord-page { width: min(100%, 1440px); margin: 0 auto; color: var(--ord-text); background: var(--ord-bg); animation: ord-fade .28s ease-out both; }
+.ord-shell .ord-page *, .ord-shell .ord-page *::before, .ord-shell .ord-page *::after { box-sizing: border-box; }
+.ord-shell .ord-page button, .ord-shell .ord-page input, .ord-shell .ord-page select { font: inherit; }
+.ord-shell .ord-page button { cursor: pointer; }
+.ord-shell .ord-page button:disabled { opacity: .5; cursor: not-allowed; }
+.ord-shell .ord-page :is(button, input, select, [tabindex]):focus-visible { outline: 2px solid var(--ord-orange); outline-offset: 2px; }
+.ord-shell .ord-page svg { flex-shrink: 0; width: 17px; height: 17px; }
+@keyframes ord-fade { from { opacity: 0; } to { opacity: 1; } }
+
+.ord-shell .ord-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 26px; margin-bottom: 22px; }
+.ord-shell .ord-heading > div:first-child { max-width: 620px; }
+.ord-shell .ord-title-line { display: flex; align-items: center; flex-wrap: wrap; gap: 13px; }
+.ord-shell .ord-page .ord-title-line h1 { margin: 0; color: var(--ord-text); font: 800 clamp(28px, 3vw, 42px)/1.05 'Manrope', sans-serif; letter-spacing: -1.7px; }
+.ord-shell .ord-scope { padding: 5px 11px; border: 1px solid var(--ord-line); border-radius: 6px; color: var(--ord-muted); background: var(--ord-panel-2); font: 10px 'DM Mono', monospace; text-transform: capitalize; }
+.ord-shell .ord-heading > div:first-child > p { margin: 12px 0 0; color: var(--ord-muted); font-size: 14px; line-height: 1.6; }
+.ord-shell .ord-note { color: var(--ord-green) !important; font: 12px 'DM Mono', monospace; }
+.ord-shell .ord-note b { font-weight: 500; }
+.ord-shell .ord-heading-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; }
+.ord-shell .ord-page .ord-heading-actions button { display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 16px; border: 1px solid var(--ord-line); border-radius: 10px; color: var(--ord-text); background: var(--ord-panel); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.ord-shell .ord-page .ord-heading-actions button:hover:not(:disabled) { border-color: #32475f; }
+.ord-shell .ord-page .ord-heading-actions button.primary { color: #fff; border-color: var(--ord-orange); background: var(--ord-orange); box-shadow: 0 10px 26px rgba(255, 106, 26, .24); }
+.ord-shell .ord-page .ord-heading-actions button kbd { padding: 3px 6px; border-radius: 4px; background: rgba(0, 0, 0, .18); font: 9px 'DM Mono', monospace; }
+
+.ord-shell .ord-message { margin: 0 0 18px; padding: 11px 15px; border-radius: 9px; font-size: 12px; }
+.ord-shell .ord-message.success { color: var(--ord-green); background: rgba(47, 214, 168, .09); }
+.ord-shell .ord-message.error { color: var(--danger); background: rgba(255, 93, 124, .1); }
+
+.ord-shell .ord-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin-bottom: 20px; }
+.ord-shell .ord-kpi { min-height: 150px; padding: 22px; border: 1px solid var(--ord-line); border-radius: 15px; background: var(--ord-panel); }
+.ord-shell .ord-kpi > span { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--ord-muted); font: 600 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .7px; }
+.ord-shell .ord-kpi > span b { padding: 3px 7px; border-radius: 4px; font: 10px 'DM Mono', monospace; }
+.ord-shell .ord-kpi > span b.up { color: var(--ord-green); background: rgba(47, 214, 168, .1); }
+.ord-shell .ord-kpi > span b.down { color: var(--ord-rose); background: rgba(255, 93, 124, .1); }
+.ord-shell .ord-kpi > span i { padding: 3px 8px; border-radius: 4px; color: var(--ord-blue); background: rgba(90, 167, 255, .12); font-style: normal; white-space: nowrap; }
+.ord-shell .ord-kpi > span i.green { color: var(--ord-green); background: rgba(47, 214, 168, .12); }
+.ord-shell .ord-kpi > span i.amber { color: var(--ord-amber); background: rgba(255, 194, 51, .12); }
+.ord-shell .ord-kpi > strong { display: flex; align-items: baseline; flex-wrap: wrap; gap: 9px; margin: 15px 0 10px; color: var(--ord-text); font: 750 30px/1.05 'Manrope', sans-serif; letter-spacing: -1.3px; }
+.ord-shell .ord-kpi > strong small { color: var(--ord-muted); font: 500 12px 'DM Mono', monospace; letter-spacing: 0; }
+.ord-shell .ord-kpi > strong em { color: var(--ord-muted); font: 500 11px 'DM Mono', monospace; font-style: normal; }
+.ord-shell .ord-kpi > strong.ord-money { font-size: clamp(20px, 2vw, 28px); white-space: nowrap; }
+.ord-shell .ord-kpi > strong.ord-good { color: var(--ord-green); }
+.ord-shell .ord-kpi > p { margin: 0; color: var(--ord-dim); font-size: 11px; line-height: 1.5; }
+.ord-shell .ord-kpi.ord-kpi-alert { border-color: rgba(255, 194, 51, .34); }
+.ord-shell .ord-kpi.ord-kpi-alert > strong { color: var(--ord-amber); }
+
+.ord-shell .ord-workflow { display: flex; gap: 16px; margin-bottom: 20px; padding: 18px 22px; border: 1px solid var(--ord-line); border-radius: 14px; background: linear-gradient(120deg, var(--ord-panel), var(--ord-panel-2)); }
+.ord-shell .ord-workflow-mark { display: grid; place-items: center; flex: 0 0 40px; width: 40px; height: 40px; border-radius: 10px; color: var(--ord-orange); background: rgba(255, 106, 26, .1); }
+.ord-shell .ord-workflow strong { color: var(--ord-text); font-size: 13px; }
+.ord-shell .ord-workflow p { margin: 5px 0 0; color: var(--ord-muted); font-size: 12px; line-height: 1.55; }
+.ord-shell .ord-workflow-legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 12px; }
+.ord-shell .ord-workflow-legend span { display: flex; align-items: center; gap: 7px; color: var(--ord-dim); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; }
+.ord-shell .ord-workflow-legend i { width: 7px; height: 7px; border-radius: 50%; }
+.ord-shell .ord-workflow-legend i.green { background: var(--ord-green); }
+.ord-shell .ord-workflow-legend i.blue { background: var(--ord-blue); }
+.ord-shell .ord-workflow-legend i.amber { background: var(--ord-amber); }
+
+.ord-shell .ord-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px; }
+.ord-shell .ord-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--ord-line); border-radius: 11px; background: var(--ord-panel); }
+.ord-shell .ord-tabs button { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px; border: 0; border-radius: 8px; color: var(--ord-muted); background: transparent; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.ord-shell .ord-tabs button b { padding: 2px 6px; border-radius: 4px; color: var(--ord-dim); background: var(--ord-panel-2); font: 500 9px 'DM Mono', monospace; }
+.ord-shell .ord-tabs button.active { color: #fff; background: var(--ord-orange); }
+.ord-shell .ord-tabs button.active b { color: #fff; background: rgba(0, 0, 0, .18); }
+.ord-shell .ord-toolbar-right { display: flex; gap: 8px; }
+.ord-shell .ord-page .ord-toolbar-right button { display: flex; align-items: center; gap: 7px; min-height: 38px; padding: 0 13px; border: 1px solid var(--ord-line); border-radius: 9px; color: var(--ord-muted); background: var(--ord-panel); font-size: 11px; font-weight: 600; }
+.ord-shell .ord-page .ord-toolbar-right button:hover:not(:disabled) { color: var(--ord-text); border-color: #32475f; }
+
+.ord-shell .ord-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.ord-shell .ord-search { display: flex; align-items: center; gap: 10px; flex: 1 1 280px; min-width: 210px; min-height: 42px; padding: 0 13px; border: 1px solid var(--ord-line); border-radius: 9px; color: var(--ord-dim); background: var(--ord-panel); }
+.ord-shell .ord-search svg { width: 16px; height: 16px; }
+.ord-shell .ord-page .ord-search input { flex: 1; min-width: 0; height: 40px; margin: 0; padding: 0; border: 0; color: var(--ord-text); background: transparent; box-shadow: none; font-size: 12px; }
+.ord-shell .ord-page .ord-search input::placeholder { color: var(--ord-dim); opacity: 1; }
+.ord-shell .ord-search kbd { padding: 4px 7px; border: 1px solid var(--ord-line); border-radius: 5px; color: var(--ord-muted); background: var(--ord-panel-2); font: 9px 'DM Mono', monospace; }
+.ord-shell .ord-page .ord-filters > select { height: 42px; min-width: 170px; margin: 0; padding: 0 12px; border: 1px solid var(--ord-line); border-radius: 9px; color: var(--ord-text); background: var(--ord-panel); box-shadow: none; font-size: 12px; }
+.ord-shell .ord-page .ord-filters > select option { background: var(--ord-panel); }
+.ord-shell .ord-today { display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 14px; border: 1px solid var(--ord-line); border-radius: 9px; color: var(--ord-muted); background: var(--ord-panel); font: 11px 'DM Mono', monospace; }
+.ord-shell .ord-today svg { width: 15px; height: 15px; color: var(--ord-dim); }
+
+.ord-shell .ord-table-wrap { border: 1px solid var(--ord-line); border-radius: 14px; background: var(--ord-panel); overflow: hidden; }
+.ord-shell .ord-table-scroll { width: 100%; overflow-x: auto; }
+.ord-shell .ord-table { width: 100%; min-width: 1120px; margin: 0; border-collapse: collapse; text-align: left; }
+.ord-shell .ord-table th { padding: 14px 18px; color: var(--ord-muted); background: var(--ord-panel-2); font: 600 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .6px; }
+.ord-shell .ord-table th.num { text-align: right; }
+.ord-shell .ord-table td { padding: 15px 18px; border-top: 1px solid var(--ord-line); color: var(--ord-text); font-size: 12px; vertical-align: middle; }
+.ord-shell .ord-table td.num { text-align: right; }
+.ord-shell .ord-table tbody tr { cursor: pointer; }
+.ord-shell .ord-table tbody tr:hover { background: rgba(90, 167, 255, .04); }
+.ord-shell .ord-table td > strong { display: block; color: var(--ord-text); font-weight: 600; }
+.ord-shell .ord-table td > small { display: block; margin-top: 4px; color: var(--ord-dim); font: 10px 'DM Mono', monospace; }
+.ord-shell .ord-num { font: 600 12px 'DM Mono', monospace; }
+.ord-shell .ord-b2b { margin-left: 7px; padding: 2px 6px; border: 1px solid rgba(255, 194, 51, .35); border-radius: 4px; color: var(--ord-amber); background: rgba(255, 194, 51, .08); font: 8px 'DM Mono', monospace; }
+.ord-shell .ord-value strong { font: 500 13px 'DM Mono', monospace; }
+
+.ord-shell .ord-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border: 1px solid var(--ord-line); border-radius: 999px; color: var(--ord-muted); background: var(--ord-panel-2); font: 9px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+.ord-shell .ord-badge i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.ord-shell .ord-badge.green { color: var(--ord-green); border-color: rgba(47, 214, 168, .28); background: rgba(47, 214, 168, .08); }
+.ord-shell .ord-badge.amber { color: var(--ord-amber); border-color: rgba(255, 194, 51, .28); background: rgba(255, 194, 51, .08); }
+.ord-shell .ord-badge.rose { color: var(--ord-rose); border-color: rgba(255, 93, 124, .28); background: rgba(255, 93, 124, .08); }
+.ord-shell .ord-badge.blue { color: var(--ord-blue); border-color: rgba(90, 167, 255, .28); background: rgba(90, 167, 255, .08); }
+
+.ord-shell .ord-page .ord-menu-btn { width: 28px; height: 30px; border: 1px solid transparent; border-radius: 7px; color: var(--ord-dim); background: transparent; font-size: 16px; line-height: 1; }
+.ord-shell .ord-page .ord-menu-btn:hover { color: var(--ord-text); background: var(--ord-panel-2); }
+.ord-menu-backdrop { position: fixed; inset: 0; z-index: 190; }
+.ord-menu { position: fixed; z-index: 200; display: grid; min-width: 170px; padding: 5px; border: 1px solid var(--ord-line, #1e2a39); border-radius: 10px; background: var(--ord-panel, #0e151f); box-shadow: 0 20px 44px rgba(0, 0, 0, .5); }
+.ord-menu button { padding: 8px 10px; border: 0; border-radius: 6px; color: var(--ord-text, #f2f5fa); background: transparent; text-align: left; font: 12px 'Manrope', sans-serif; cursor: pointer; }
+.ord-menu button:hover { background: var(--ord-panel-2, #0a1019); }
+.ord-menu button.danger { color: var(--ord-rose, #ff5d7c); }
+
+.ord-shell .ord-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 15px 18px; border-top: 1px solid var(--ord-line); color: var(--ord-dim); font: 10px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.ord-shell .ord-pagination-suite { color: var(--ord-orange); }
+
+.ord-shell .ord-page :is(.async-state, .no-products) { padding: 32px; border: 1px solid var(--ord-line); border-radius: 14px; color: var(--ord-muted); background: var(--ord-panel); }
+
+/* Create / edit order form (modal). Prefixed .ord-form-backdrop .ord-form so it
+   out-ranks App.css [data-theme="dark"] .purchase-order-* rules. */
+.ord-form-backdrop { position: fixed; inset: 0; z-index: 150; display: grid; place-items: start center; padding: 5vh 16px; overflow-y: auto; background: rgba(4, 7, 11, .72); --ord-line: var(--line); --ord-panel: var(--surface); --ord-panel-2: var(--surface-soft); --ord-text: var(--text); --ord-orange: var(--orange); --ord-green: var(--success); --ord-rose: var(--danger); }
+.ord-form-backdrop .ord-form { width: min(100%, 640px); margin: 0; border: 1px solid var(--ord-line); border-radius: 15px; background: var(--ord-panel); color: var(--ord-text); }
+.ord-form-backdrop .ord-form .product-form-heading h3 { color: var(--ord-text); }
+.ord-form-backdrop .ord-form .dashboard-kicker { color: var(--ord-orange); }
+.ord-form-backdrop .ord-form .close-button { color: #8f9fb4; }
+.ord-form-backdrop .ord-form label { color: #8f9fb4; font: 600 11px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; }
+.ord-form-backdrop .ord-form :is(input, select) { color: var(--ord-text); border: 1px solid var(--ord-line); border-radius: 8px; background: var(--ord-panel-2); }
+.ord-form-backdrop .ord-form .order-item-row strong, .ord-form-backdrop .ord-form .order-total strong { color: var(--ord-green); }
+.ord-form-backdrop .ord-form .order-items-heading h4 { color: #8f9fb4; }
+.ord-form-backdrop .ord-form .outline-button { color: var(--ord-text); border: 1px solid var(--ord-line); background: var(--ord-panel-2); }
+.ord-form-backdrop .ord-form .submit-button { color: #fff; border: 1px solid var(--ord-orange); background: var(--ord-orange); }
+.ord-form-backdrop .ord-form .remove-item { color: var(--ord-rose); }
+
+@media (max-width: 1200px) {
+  .ord-shell .ord-heading { flex-direction: column; gap: 18px; }
+  .ord-shell .ord-heading-actions { justify-content: flex-start; }
+  .ord-shell .ord-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ord-shell.stock-ledger-shell .business-context { padding-right: 34px; }
+  .ord-shell .business-context .ord-workspace-tag { display: none; }
+}
+@media (max-width: 820px) {
+  .ord-shell.stock-ledger-shell .dashboard-main { padding: 16px 16px 34px; }
+  .ord-shell.stock-ledger-shell .business-context { min-height: 40px; margin: 0 0 16px; padding: 0; border: 0; background: transparent; }
+  .ord-shell.stock-ledger-shell .dashboard-header { position: static; margin-bottom: 14px; }
+  .ord-shell.stock-ledger-shell .mobile-dashboard-bar { color: var(--ord-text); }
+  .ord-shell .ord-toolbar { align-items: stretch; }
+  .ord-shell .ord-filters > select, .ord-shell .ord-today { flex: 1 1 100%; }
+}
+@media (max-width: 560px) {
+  .ord-shell .ord-kpis { grid-template-columns: 1fr; gap: 12px; }
+  .ord-shell .ord-kpi { min-height: 0; padding: 17px; }
+  .ord-shell .ord-workflow { flex-direction: column; }
+  .ord-shell .ord-heading-actions { width: 100%; }
+  .ord-shell .ord-page .ord-heading-actions button { flex: 1; justify-content: center; }
+}
+
+[data-theme="light"] .ord-shell.stock-ledger-shell {
+  --ord-bg: var(--bg);
+  --ord-panel: var(--surface);
+  --ord-panel-2: var(--surface-soft);
+  --ord-line: var(--line);
+  --ord-text: var(--text);
+  --ord-muted: var(--text-soft);
+  --ord-dim: var(--muted);
+  --ord-green: var(--success);
+  --ord-rose: var(--danger);
+  --ord-amber: var(--warning);
+}
+[data-theme="light"] .ord-shell.stock-ledger-shell .business-context { background: #fff; }
