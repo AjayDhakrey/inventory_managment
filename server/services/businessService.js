@@ -3,7 +3,7 @@ import { Role, DEFAULT_ROLES } from '../models/Role.js'
 import { Member } from '../models/Member.js'
 import { User } from '../models/User.js'
 import { ApiError } from '../utils/ApiError.js'
-import { signToken } from '../middleware/auth.js'
+import { signToken } from '../utils/token.js'
 import mongoose from 'mongoose'
 import { requireFields, assert, isEmail } from '../validators/assert.js'
 import { normalizeConfigValue, resolveBusinessCapabilities } from '../../shared/industryConfig.js'
@@ -92,5 +92,3 @@ export async function deleteBusiness(businessId, user) {
   await Business.deleteOne({ _id: business._id })
   return { deleted: true }
 }
-
-export { User }

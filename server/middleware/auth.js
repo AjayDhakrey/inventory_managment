@@ -1,38 +1,56 @@
-import jwt from 'jsonwebtoken'
 import { env } from '../config/env.js'
 import { ApiError } from '../utils/ApiError.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { signToken, verifyToken, tokenTimeToLiveMs } from '../utils/token.js'
+import { refreshSessionCookie } from '../utils/cookies.js'
 import { User } from '../models/User.js'
 import { Member } from '../models/Member.js'
 import { Role, DEFAULT_PERMISSIONS } from '../models/Role.js'
 import { Business } from '../models/Business.js'
 import { hasModule, resolveBusinessCapabilities } from '../../shared/industryConfig.js'
 
-export function signToken(user) {
-  return jwt.sign(
-    { sub: String(user._id), businessId: user.business ? String(user.business) : null, role: user.role },
-    env.jwtSecret,
-    { expiresIn: env.jwtExpiresIn },
-  )
+export { signToken }
+
+// Re-issue the browser cookie once the token is more than halfway to expiry so
+// an active session never lapses, while an idle one still times out.
+const RENEW_AFTER_RATIO = 0.5
+
+function readToken(req) {
+  const cookieToken = req.cookies?.[env.cookie.name]
+  if (cookieToken) return { token: cookieToken, via: 'cookie' }
+  const header = req.headers.authorization || ''
+  if (header.startsWith('Bearer ')) return { token: header.slice(7).trim(), via: 'bearer' }
+  return { token: null, via: null }
 }
 
-/** Verifies the Bearer token and loads the current user onto req.user. */
-export const authenticate = asyncHandler(async (req, _res, next) => {
-  const header = req.headers.authorization || ''
-  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null
+/** Verifies the session (cookie or Bearer token) and loads the user onto req.user. */
+export const authenticate = asyncHandler(async (req, res, next) => {
+  const { token, via } = readToken(req)
   if (!token) throw ApiError.unauthorized('Authentication token is missing.')
 
   let payload
   try {
-    payload = jwt.verify(token, env.jwtSecret)
+    payload = verifyToken(token)
   } catch {
     throw ApiError.unauthorized('Your session has expired. Please sign in again.')
   }
 
   const user = await User.findById(payload.sub)
   if (!user) throw ApiError.unauthorized('Account no longer exists.')
+  if ((payload.tv || 0) !== (user.tokenVersion || 0)) {
+    throw ApiError.unauthorized('Your session ended. Please sign in again.')
+  }
 
   req.user = user
+  req.authVia = via
+
+  // Sliding renewal for cookie sessions.
+  if (via === 'cookie' && typeof payload.exp === 'number') {
+    const ttl = tokenTimeToLiveMs()
+    const remaining = payload.exp * 1000 - Date.now()
+    if (remaining < ttl * RENEW_AFTER_RATIO) refreshSessionCookie(res, user, req.cookies?.[env.cookie.csrfName])
+  }
+
   let member = null
   let permissions = user.role === 'owner' ? DEFAULT_PERMISSIONS : []
   if (user.business) {

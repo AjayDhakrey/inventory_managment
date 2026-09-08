@@ -1,16 +1,22 @@
 import crypto from 'node:crypto'
+import bcrypt from 'bcryptjs'
 import { User } from '../models/User.js'
 import { Business } from '../models/Business.js'
 import { Member } from '../models/Member.js'
 import { Role, DEFAULT_PERMISSIONS } from '../models/Role.js'
 import { ApiError } from '../utils/ApiError.js'
-import { signToken } from '../middleware/auth.js'
+import { signToken } from '../utils/token.js'
 import { env, isProduction } from '../config/env.js'
 import { assert, requireFields, isEmail } from '../validators/assert.js'
+import { assertStrongPassword } from '../validators/password.js'
 import { resolveBusinessCapabilities } from '../../shared/industryConfig.js'
 
 const RESET_TOKEN_TTL_MS = 30 * 60 * 1000
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex')
+
+// A real bcrypt hash to compare against when the account does not exist, so an
+// unknown email costs the same wall-clock time as a wrong password.
+const DUMMY_HASH = bcrypt.hashSync('a-string-no-one-will-guess-0000', 10)
 
 async function buildSession(user) {
   const business = user.business ? await Business.findById(user.business) : null
@@ -32,7 +38,7 @@ export async function register({ email, password, role = 'owner', name } = {}) {
   requireFields({ email, password }, ['email', 'password'])
   const normalizedEmail = String(email).toLowerCase().trim()
   assert(isEmail(normalizedEmail), 'Enter a valid email address.')
-  assert(String(password).length >= 8, 'Your password must contain at least 8 characters.')
+  assertStrongPassword(password, normalizedEmail)
   assert(['owner', 'team'].includes(role), 'Invalid account type.')
 
   const exists = await User.findOne({ email: normalizedEmail })
@@ -68,16 +74,40 @@ export async function register({ email, password, role = 'owner', name } = {}) {
 
 export async function login({ email, password, role } = {}) {
   requireFields({ email, password }, ['email', 'password'])
-  const user = await User.findOne({ email: String(email).toLowerCase().trim() }).select('+password')
-  if (!user || !(await user.comparePassword(String(password)))) {
+  const user = await User.findOne({ email: String(email).toLowerCase().trim() }).select('+password +failedLoginAttempts +lockUntil')
+
+  if (!user) {
+    // Keep the timing indistinguishable from a real account with a wrong password.
+    await bcrypt.compare(String(password), DUMMY_HASH)
     throw ApiError.unauthorized('We could not find an account with those details.')
   }
+
+  if (user.isLocked()) {
+    const minutes = Math.max(1, Math.ceil((user.lockUntil.getTime() - Date.now()) / 60000))
+    throw new ApiError(429, `Too many failed attempts. Try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`)
+  }
+
+  if (!(await user.comparePassword(String(password)))) {
+    const lockedForMinutes = await user.registerFailedLogin()
+    if (lockedForMinutes) {
+      throw new ApiError(429, `Too many failed attempts. Your account is locked for ${lockedForMinutes} minutes.`)
+    }
+    throw ApiError.unauthorized('We could not find an account with those details.')
+  }
+
   if (role && user.role !== role) throw ApiError.unauthorized(`This is a ${user.role === 'owner' ? 'shop owner' : 'team member'} account. Select the correct account type.`)
+
+  await user.clearLoginLock()
   return buildSession(user)
 }
 
 export async function currentSession(user) {
   return buildSession(user)
+}
+
+/** Invalidates every issued token for this user (used by "sign out everywhere"). */
+export async function revokeAllSessions(user) {
+  await User.updateOne({ _id: user._id }, { $inc: { tokenVersion: 1 } })
 }
 
 export async function updateOnboarding(user, payload = {}) {
@@ -132,18 +162,23 @@ export async function requestPasswordReset({ email } = {}) {
 
 export async function resetPassword({ token, password } = {}) {
   requireFields({ token, password }, ['token', 'password'])
-  assert(String(password).length >= 8, 'Your password must contain at least 8 characters.')
 
   const user = await User.findOne({
     resetPasswordTokenHash: hashToken(String(token)),
     resetPasswordExpires: { $gt: new Date() },
-  }).select('+password +resetPasswordTokenHash +resetPasswordExpires')
+  }).select('+password +resetPasswordTokenHash +resetPasswordExpires +failedLoginAttempts +lockUntil')
 
   if (!user) throw ApiError.badRequest('This reset link is invalid or has expired. Request a new one.')
+
+  assertStrongPassword(password, user.email)
 
   user.password = String(password)
   user.resetPasswordTokenHash = null
   user.resetPasswordExpires = null
+  // Sign every other session out — a reset should lock out whoever prompted it.
+  user.tokenVersion = (user.tokenVersion || 0) + 1
+  user.failedLoginAttempts = 0
+  user.lockUntil = null
   await user.save()
 
   return buildSession(user)

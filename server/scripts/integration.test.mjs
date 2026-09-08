@@ -48,18 +48,18 @@ try {
   check('PDF header-coordinate mapping preserves selling price GST and HSN', mappedPdf.rows.length === 1 && mappedPdf.rows[0].sellingPrice === '849' && mappedPdf.rows[0].gstRate === '5' && mappedPdf.rows[0].hsnCode === '5208', JSON.stringify(mappedPdf))
   check('PDF mapping debug exposes header-to-field anchors', mappedPdf.debug.headerMap.some((item) => item.field === 'sellingPrice') && mappedPdf.debug.headerMap.some((item) => item.field === 'gstRate') && mappedPdf.debug.headerMap.some((item) => item.field === 'hsnCode'))
   // ---- auth ----
-  const reg = await call('POST', '/auth/register', { body: { email: 'owner@test.com', password: 'password123', role: 'owner' } })
+  const reg = await call('POST', '/auth/register', { body: { email: 'owner@test.com', password: 'Str0ng-Test-Pass!9', role: 'owner' } })
   check('register 201', reg.status === 201, JSON.stringify(reg.json))
   const badLogin = await call('POST', '/auth/login', { body: { email: 'owner@test.com', password: 'wrong' } })
   check('login wrong password 401', badLogin.status === 401)
-  const login = await call('POST', '/auth/login', { body: { email: 'owner@test.com', password: 'password123' } })
+  const login = await call('POST', '/auth/login', { body: { email: 'owner@test.com', password: 'Str0ng-Test-Pass!9' } })
   check('login 200 + token', login.status === 200 && !!login.json.data.token)
-  check('login never returns password', !JSON.stringify(login.json).includes('password123') || !login.json.data.user.password)
+  check('login never returns password', !JSON.stringify(login.json).includes('Str0ng-Test-Pass!9') || !login.json.data.user.password)
   let token = login.json.data.token
   check('no business yet', login.json.data.business === null)
   check('new owner starts persisted onboarding', login.json.data.user.onboarding.status === 'pending' && login.json.data.user.onboarding.currentStep === 1)
   const savedOnboarding = await call('PATCH', '/auth/onboarding', { token, body: { currentStep: 3, ownerName: 'New Owner', draft: { businessName: 'Test Co', city: 'Delhi', industry: 'Retail' } } })
-  const resumedLogin = await call('POST', '/auth/login', { body: { email: 'owner@test.com', password: 'password123' } })
+  const resumedLogin = await call('POST', '/auth/login', { body: { email: 'owner@test.com', password: 'Str0ng-Test-Pass!9' } })
   check('onboarding progress survives logout/login', savedOnboarding.status === 200 && resumedLogin.json.data.user.onboarding.currentStep === 3 && resumedLogin.json.data.user.onboarding.draft.businessName === 'Test Co')
 
   const noAuth = await call('GET', '/products')
@@ -78,14 +78,14 @@ try {
   check('completed onboarding persists and routes existing owner forward', completedOnboarding.status === 200 && completedOnboarding.json.data.user.onboarding.status === 'completed' && !!completedOnboarding.json.data.user.onboarding.completedAt)
 
   // ---- isolation: a second business must not see the first's data ----
-  await call('POST', '/auth/register', { body: { email: 'other@test.com', password: 'password123' } })
-  const otherLogin = await call('POST', '/auth/login', { body: { email: 'other@test.com', password: 'password123' } })
+  await call('POST', '/auth/register', { body: { email: 'other@test.com', password: 'Str0ng-Test-Pass!9' } })
+  const otherLogin = await call('POST', '/auth/login', { body: { email: 'other@test.com', password: 'Str0ng-Test-Pass!9' } })
   const otherBiz = await call('POST', '/businesses', { token: otherLogin.json.data.token, body: { name: 'Other Co', industry: 'retail', businessType: 'retail', city: 'Mumbai', country: 'India', currency: 'INR' } })
   const otherToken = otherBiz.json.data.token
 
   // ---- clothing color master: legacy compatibility, CRUD, stock, security ----
-  await call('POST', '/auth/register', { body: { email: 'clothing@test.com', password: 'password123' } })
-  const clothingLogin = await call('POST', '/auth/login', { body: { email: 'clothing@test.com', password: 'password123' } })
+  await call('POST', '/auth/register', { body: { email: 'clothing@test.com', password: 'Str0ng-Test-Pass!9' } })
+  const clothingLogin = await call('POST', '/auth/login', { body: { email: 'clothing@test.com', password: 'Str0ng-Test-Pass!9' } })
   const clothingBiz = await call('POST', '/businesses', { token: clothingLogin.json.data.token, body: { name: 'Clothing Co', industry: 'Clothing', businessType: 'Retail', city: 'Delhi', country: 'India', currency: 'INR' } })
   const clothingToken = clothingBiz.json.data.token
   const legacyProduct = await call('POST', '/products', { token: clothingToken, body: { name: 'Legacy Shirt', sku: 'LEG-1', category: 'Shirts', sellingPrice: 500, currentStock: 90, color: 'Black', size: 'M' } })
@@ -119,14 +119,14 @@ try {
   const disabled = await call('PATCH', `/colors/${black.colorId}`, { token: clothingToken, body: { status: 'inactive' } })
   check('enable/disable color', disabled.status === 200 && disabled.json.data.status === 'inactive')
 
-  await call('POST', '/auth/register', { body: { email: 'clothing.other@test.com', password: 'password123' } })
-  const clothingOtherLogin = await call('POST', '/auth/login', { body: { email: 'clothing.other@test.com', password: 'password123' } })
+  await call('POST', '/auth/register', { body: { email: 'clothing.other@test.com', password: 'Str0ng-Test-Pass!9' } })
+  const clothingOtherLogin = await call('POST', '/auth/login', { body: { email: 'clothing.other@test.com', password: 'Str0ng-Test-Pass!9' } })
   const clothingOtherBiz = await call('POST', '/businesses', { token: clothingOtherLogin.json.data.token, body: { name: 'Other Clothing', industry: 'clothing', businessType: 'retail', city: 'Mumbai', country: 'India', currency: 'INR' } })
   const isolatedColorUpdate = await call('PATCH', `/colors/${navy.json.data.colorId}`, { token: clothingOtherBiz.json.data.token, body: { name: 'Stolen' } })
   check('color businessId isolation', isolatedColorUpdate.status === 404)
 
   await call('POST', '/users', { token: clothingToken, body: { name: 'Color Viewer', email: 'color.viewer@test.com', role: 'Staff' } })
-  const colorViewer = await call('POST', '/auth/register', { body: { email: 'color.viewer@test.com', password: 'password123', role: 'team' } })
+  const colorViewer = await call('POST', '/auth/register', { body: { email: 'color.viewer@test.com', password: 'Str0ng-Test-Pass!9', role: 'team' } })
   const viewerList = await call('GET', '/colors', { token: colorViewer.json.data.token })
   const viewerWrite = await call('POST', '/colors', { token: colorViewer.json.data.token, body: { name: 'Red', hexCode: '#FF0000' } })
   check('authorized role can view color master', viewerList.status === 200)
@@ -138,8 +138,8 @@ try {
   // ---- reusable Clothing provisioning, variants, replenishment, masters and security ----
   const clothingModules = clothingBiz.json.data.business.capabilities.modules
   check('new Clothing Retail business auto-provisions advanced modules', ['variantGrid', 'replenishment', 'promotions', 'loyalty', 'coupons', 'giftCards', 'cashierShifts', 'clothingReports'].every((name) => clothingModules.includes(name)), JSON.stringify(clothingModules))
-  await call('POST', '/auth/register', { body: { email: 'new.wholesale.clothing@test.com', password: 'password123' } })
-  const newWholesaleLogin = await call('POST', '/auth/login', { body: { email: 'new.wholesale.clothing@test.com', password: 'password123' } })
+  await call('POST', '/auth/register', { body: { email: 'new.wholesale.clothing@test.com', password: 'Str0ng-Test-Pass!9' } })
+  const newWholesaleLogin = await call('POST', '/auth/login', { body: { email: 'new.wholesale.clothing@test.com', password: 'Str0ng-Test-Pass!9' } })
   const newWholesale = await call('POST', '/businesses', { token: newWholesaleLogin.json.data.token, body: { name: 'New Wholesale Fashion', industry: 'Clothing', businessType: 'Wholesale', city: 'Jaipur', country: 'India', currency: 'INR' } })
   const newWholesaleToken = newWholesale.json.data.token
   check('new Clothing Wholesale business receives clothing and wholesale capabilities', newWholesale.status === 201 && newWholesale.json.data.business.capabilities.modules.includes('variantGrid') && newWholesale.json.data.business.capabilities.modules.includes('bulkPricing'))
@@ -374,6 +374,15 @@ try {
   check('reopened bill preserves confirmed totals and payment references', invoice.json.data.amountPaid === 105 && invoice.json.data.balanceDue === 0 && invoice.json.data.paymentStatus === 'Paid' && invoice.json.data.paymentSummary.some((entry) => entry.method === 'UPI' && entry.reference === 'UTR-TEST' && entry.amount === 55))
   const otherInvoice = await call('GET', `/pos/invoices/${invoiceId}`, { token: otherToken })
   check('POS invoice business isolation', otherInvoice.status === 404)
+
+  // ---- POS payment offers: "Any"/blank method applies on any tender (incl. gift card); a bound method still gates ----
+  await call('PATCH', '/businesses/me', { token, body: { settings: { paymentOffers: [{ code: 'ANY5', label: 'Flat 5% off', paymentMethod: 'Any', discountType: 'percent', value: 5, minimumAmount: 0, maximumDiscount: 0, active: true }] } } })
+  const anyOfferSale = await call('POST', '/pos/checkout', { token, body: { customerId, items: [{ productId, quantity: 1, unitPrice: 100 }], offerCode: 'ANY5', payments: [{ method: 'Cash', amount: 100 }] } })
+  check('payment offer with "Any" method applies regardless of tender', anyOfferSale.status === 201 && anyOfferSale.json.data.invoice.offerDiscount === 5, JSON.stringify(anyOfferSale.json.data?.invoice))
+  await call('PATCH', '/businesses/me', { token, body: { settings: { paymentOffers: [{ code: 'UPIONLY', label: 'UPI only', paymentMethod: 'UPI', discountType: 'percent', value: 10, minimumAmount: 0, maximumDiscount: 0, active: true }] } } })
+  const mismatchOfferSale = await call('POST', '/pos/checkout', { token, body: { customerId, items: [{ productId, quantity: 1, unitPrice: 100 }], offerCode: 'UPIONLY', payments: [{ method: 'Cash', amount: 100 }] } })
+  check('payment offer bound to a method is skipped when that method is not tendered', mismatchOfferSale.status === 201 && mismatchOfferSale.json.data.invoice.offerDiscount === 0)
+  await call('PATCH', '/businesses/me', { token, body: { settings: { paymentOffers: [] } } })
   const creditPos = await call('POST', '/pos/checkout', { token, body: { billingType: 'wholesale', customerId, items: [{ productId, quantity: 1, unitPrice: 50 }], payments: [{ method: 'Cash', amount: 20 }, { method: 'Pay Later', amount: 33 }] } })
   check('POS wholesale partial payment', creditPos.status === 201 && creditPos.json.data.invoice.paymentStatus === 'Partially Paid' && creditPos.json.data.invoice.balanceDue === 33, JSON.stringify(creditPos.json))
   const creditInvoiceId = creditPos.json.data.invoice.orderId
@@ -494,7 +503,7 @@ try {
 
   const invited = await call('POST', '/users', { token, body: { name: 'Sales Agent', email: 'sales.agent@test.com', role: 'Salesperson' } })
   check('new team member starts invitation pending', invited.status === 201 && invited.json.data.status === 'pending')
-  const teamRegistration = await call('POST', '/auth/register', { body: { email: 'sales.agent@test.com', password: 'password123', role: 'team' } })
+  const teamRegistration = await call('POST', '/auth/register', { body: { email: 'sales.agent@test.com', password: 'Str0ng-Test-Pass!9', role: 'team' } })
   check('team signup claims invitation and business', teamRegistration.status === 201 && teamRegistration.json.data.business.businessId === businessId)
   check('team session exposes assigned role', teamRegistration.json.data.user.roleId === 'ROLE-SALESPERSON' && teamRegistration.json.data.user.permissions.includes('create_order'))
   const teamToken = teamRegistration.json.data.token

@@ -1,1 +1,1 @@
-export { getNavigation, moduleDefinitions } from '../../shared/industryConfig.js'
+export { getNavigation } from '../../shared/industryConfig.js'

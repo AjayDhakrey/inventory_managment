@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from "react";
+  import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import "./App.css";
 import "./styles/ui-system.css";
@@ -37,7 +37,7 @@ import { supplierApi } from "./api/supplierApi.js";
 import { userApi } from "./api/userApi.js";
 import { salesOrderApi } from "./api/salesOrderApi.js";
 import { reportApi } from "./api/reportApi.js";
-import { getToken, setToken } from "./api/client.js";
+import { getCsrfToken } from "./api/client.js";
 import { useResource } from "./hooks/useResource.js";
 
 const LOW_STOCK_LIMIT = 10;
@@ -1134,7 +1134,7 @@ function App() {
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [booting, setBooting] = useState(Boolean(getToken()) && !initialReset);
+  const [booting, setBooting] = useState(Boolean(getCsrfToken()) && !initialReset);
   const [session, setSession] = useState(null);
   const [initialNav, setInitialNav] = useState("Overview");
   const [resetToken, setResetToken] = useState(initialReset);
@@ -1147,7 +1147,7 @@ function App() {
   }, [theme]);
 
   useEffect(() => {
-    if (!getToken() || initialReset) return;
+    if (initialReset) return;
     let active = true;
     authApi
       .me()
@@ -1156,10 +1156,7 @@ function App() {
           setSession({ user: result.user, business: result.business });
       })
       .catch(() => {
-        if (active) {
-          setToken(null);
-          setMessage(null);
-        }
+        if (active) setMessage(null);
       })
       .finally(() => active && setBooting(false));
     return () => {
@@ -1169,6 +1166,9 @@ function App() {
 
   useEffect(() => {
     const handleUnauthorized = () => {
+      authApi.logout().catch(() => {
+        /* best effort - the cookie is already invalid server-side */
+      });
       setSession(null);
       setMessage({
         type: "error",
@@ -1246,7 +1246,6 @@ function App() {
       try {
         const result = await authApi.resetPassword({ token, password });
         clearResetUrl();
-        setToken(result.token);
         setSession({ user: result.user, business: result.business });
         setMessage(null);
       } catch (error) {
@@ -1288,7 +1287,6 @@ function App() {
     setSubmitting(true);
     try {
       const result = await authApi.login({ email, password, role });
-      setToken(result.token);
       setSession({ user: result.user, business: result.business });
       setMessage(null);
       form.reset();
@@ -1300,7 +1298,9 @@ function App() {
   };
 
   const handleLogout = () => {
-    setToken(null);
+    authApi.logout().catch(() => {
+      /* clear local state regardless of the network result */
+    });
     setSession(null);
     setMode("signin");
     setMessage(null);
@@ -1318,11 +1318,9 @@ function App() {
         theme={theme}
         onToggleTheme={() => setTheme((current) => current === "dark" ? "light" : "dark")}
         onSession={(result) => {
-          if (result.token) setToken(result.token);
           setSession({ user: result.user, business: result.business });
         }}
         onComplete={(result) => {
-          setToken(result.token);
           setInitialNav(result.initialNav || "Overview");
           setSession({ user: result.user, business: result.business });
         }}

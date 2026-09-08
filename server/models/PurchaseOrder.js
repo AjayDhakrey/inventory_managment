@@ -44,4 +44,3 @@ const purchaseOrderSchema = new mongoose.Schema(
 purchaseOrderSchema.plugin(serialize('purchaseOrderId'))
 
 export const PurchaseOrder = mongoose.model('PurchaseOrder', purchaseOrderSchema)
-export { PO_STATUS }
