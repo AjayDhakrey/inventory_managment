@@ -7,7 +7,7 @@ const getApiBaseUrl = () => {
 };
 
 const API_BASE_URL = getApiBaseUrl();
-const TOKEN_KEY = "stockroom-token";
+const CSRF_COOKIE = "sr_csrf";
 
 export class ApiError extends Error {
   constructor(message, status, payload) {
@@ -18,35 +18,40 @@ export class ApiError extends Error {
   }
 }
 
-export function getToken() {
+/**
+ * The session now lives in an httpOnly cookie the browser sends automatically,
+ * so there is no token for JS to read or store. The readable `sr_csrf` cookie is
+ * echoed back in a header on writes to prove the request came from our app.
+ */
+function readCookie(name) {
   try {
-    return localStorage.getItem(TOKEN_KEY);
+    return (
+      document.cookie
+        .split("; ")
+        .find((row) => row.startsWith(`${name}=`))
+        ?.split("=")[1] ?? null
+    );
   } catch {
     return null;
   }
 }
 
-export function setToken(token) {
-  try {
-    if (token) localStorage.setItem(TOKEN_KEY, token);
-    else localStorage.removeItem(TOKEN_KEY);
-  } catch {
-    /* storage unavailable - session lives in memory only */
-  }
+export function getCsrfToken() {
+  return readCookie(CSRF_COOKIE);
 }
 
 export function clearSession() {
-  setToken(null);
   window.dispatchEvent(new CustomEvent("stockroom:unauthorized"));
 }
 
 /**
- * Single place that talks to the backend: base URL, JSON headers, JWT header,
- * consistent error handling, and unwrapping of the { success, data } envelope.
+ * Single place that talks to the backend: base URL, JSON headers, the session
+ * cookie, CSRF header, consistent error handling, and unwrapping of the
+ * { success, data } envelope.
  */
 export async function request(
   path,
-  { method = "GET", body, params, auth = true } = {},
+  { method = "GET", body, params } = {},
 ) {
   const url = new URL(`${API_BASE_URL}${path}`);
   if (params) {
@@ -59,14 +64,17 @@ export async function request(
   const isFormData =
     typeof FormData !== "undefined" && body instanceof FormData;
   const headers = isFormData ? {} : { "Content-Type": "application/json" };
-  const token = getToken();
-  if (auth && token) headers.Authorization = `Bearer ${token}`;
+  if (method !== "GET" && method !== "HEAD") {
+    const csrf = getCsrfToken();
+    if (csrf) headers["X-CSRF-Token"] = csrf;
+  }
 
   let response;
   try {
     response = await fetch(url, {
       method,
       headers,
+      credentials: "include",
       body:
         body === undefined
           ? undefined
@@ -91,7 +99,9 @@ export async function request(
     }
   }
 
-  if (response.status === 401 && auth) clearSession();
+  // Only treat a 401 as "logged out" when we actually had a session; a fresh
+  // visitor probing /auth/me should just land on the sign-in screen quietly.
+  if (response.status === 401 && getCsrfToken()) clearSession();
 
   if (!response.ok || (payload && payload.success === false)) {
     const fallback =

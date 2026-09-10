@@ -87,7 +87,7 @@ export const businessTypeConfig = {
   other: { modules: [], features: [] },
 }
 
-export const moduleDefinitions = {
+const moduleDefinitions = {
   products: { section: 'Inventory', pages: ['Products', 'Bulk Import'], label: 'Products', permission: 'view_inventory' },
   categories: { section: 'Inventory', page: 'Categories', label: 'Categories', permission: 'view_inventory' },
   inventory: { section: 'Inventory', pages: ['Stock', 'Stock In', 'Stock Out', 'Adjustments', 'Stock History'], permission: 'view_inventory' },
@@ -133,49 +133,6 @@ const pagePermissions = {
   'Bulk Pricing': 'edit_product', Production: 'stock_out',
 }
 
-export const productFieldDefinitions = {
-  name: { label: 'Product name', required: true, wide: true },
-  sku: { label: 'SKU / product code', required: true },
-  category: { label: 'Category', required: true },
-  subcategory: { label: 'Subcategory' },
-  brand: { label: 'Brand / Manufacturer' },
-  genericName: { label: 'Generic name' },
-  manufacturer: { label: 'Manufacturer' },
-  batchNumber: { label: 'Batch number' },
-  manufacturingDate: { label: 'Manufacturing date', type: 'date' },
-  expiryDate: { label: 'Expiry date', type: 'date' },
-  mrp: { label: 'MRP', type: 'number' },
-  model: { label: 'Model / Item code' },
-  dimensions: { label: 'Dimensions / Length' },
-  material: { label: 'Material / Grade' },
-  serialNumber: { label: 'Serial number' },
-  imei: { label: 'IMEI' },
-  warrantyMonths: { label: 'Warranty (months)', type: 'number' },
-  size: { label: 'Size' },
-  color: { label: 'Color' },
-  barcode: { label: 'Barcode' },
-  weight: { label: 'Weight', type: 'number' },
-  purchasePrice: { label: 'Purchase price', type: 'number' },
-  sellingPrice: { label: 'Selling / Retail price', type: 'number', required: true },
-  wholesalePrice: { label: 'Wholesale price', type: 'number' },
-  wholesaleMinQuantity: { label: 'Wholesale minimum qty', type: 'number' },
-  dealerPrice: { label: 'Dealer / Contractor price', type: 'number' },
-  currentStock: { label: 'Current stock', type: 'number' },
-  minimumStock: { label: 'Minimum stock level', type: 'number' },
-  reorderLevel: { label: 'Reorder alert level', type: 'number' },
-  warehouse: { label: 'Warehouse / Storage' },
-  rackLocation: { label: 'Rack / Bin location' },
-  unit: {
-    label: 'Unit of measurement',
-    type: 'select',
-    options: ['piece', 'box', 'packet', 'kg', 'gram', 'meter', 'feet', 'roll', 'bundle', 'set', 'pair', 'litre'],
-  },
-  supplier: { label: 'Supplier' },
-  hsnCode: { label: 'HSN code' },
-  gstRate: { label: 'GST rate %', type: 'number' },
-  description: { label: 'Description', type: 'textarea', wide: true },
-}
-
 export function normalizeConfigValue(value, fallback = 'other') {
   const normalized = String(value || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '')
   return normalized || fallback
@@ -183,11 +140,11 @@ export function normalizeConfigValue(value, fallback = 'other') {
 
 const unique = (items) => [...new Set(items)]
 
-export function getIndustryConfig(industry) {
+function getIndustryConfig(industry) {
   return industryConfig[normalizeConfigValue(industry)] || industryConfig.other
 }
 
-export function getBusinessTypeConfig(businessType) {
+function getBusinessTypeConfig(businessType) {
   return businessTypeConfig[normalizeConfigValue(businessType)] || businessTypeConfig.other
 }
 
@@ -207,9 +164,8 @@ export function resolveBusinessCapabilities(business = {}) {
   }
 }
 
-export const getAvailableModules = (business) => resolveBusinessCapabilities(business).modules
+const getAvailableModules = (business) => resolveBusinessCapabilities(business).modules
 export const hasModule = (business, module) => getAvailableModules(business).includes(module)
-export const hasFeature = (business, feature) => resolveBusinessCapabilities(business).features.includes(feature)
 
 export function getNavigation(business, can = () => true) {
   const config = resolveBusinessCapabilities(business)

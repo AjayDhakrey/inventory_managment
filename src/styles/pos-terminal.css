@@ -133,6 +133,9 @@
 .pos-shell .pos-cart-row > button { color: var(--pos-rose); }
 .pos-shell .pos-cart-row label, .pos-shell .pos-adjustments label, .pos-shell .pos-cart-head, .pos-shell .pos-payments .pos-cart-head { color: var(--pos-muted); }
 .pos-shell .pos-cart-row label, .pos-shell .pos-adjustments label { color: var(--pos-dim); font: 8px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .4px; }
+.pos-shell .pos-adjustments label small { display: block; margin-top: 5px; color: var(--pos-dim); font: 9px 'DM Mono', monospace; letter-spacing: .2px; text-transform: none; line-height: 1.4; }
+.pos-shell .pos-adjustments label small.pos-offer-hint { color: var(--pos-amber); }
+.pos-shell .pos-adjustments label small.pos-offer-ok { color: var(--pos-green); }
 .pos-shell .pos-cart-row b { color: var(--pos-text); font: 500 11px 'DM Mono', monospace; }
 
 .pos-shell .pos-totals { display: grid; gap: 9px; background: var(--pos-panel-2); }

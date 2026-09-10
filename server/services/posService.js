@@ -105,7 +105,10 @@ export async function checkout(businessId, payload, actor, permissions = []) {
     const paymentPayload = Array.isArray(payload.payments) ? payload.payments : []
     for (const payment of paymentPayload) assert(PAYMENT_METHODS.includes(payment.method), `Unsupported payment method: ${payment.method}.`)
     const configuredOffers = business.settings?.paymentOffers || []
-    const offer = configuredOffers.find((entry) => entry.active !== false && entry.code === payload.offerCode && paymentPayload.some((payment) => payment.method === entry.paymentMethod) && afterLines >= entry.minimumAmount)
+    // A blank / "Any" offer method applies regardless of how the bill is paid
+    // (gift card, cash, …); otherwise a payment line must use the offer's method.
+    const offerMethodMatches = (entry) => !entry.paymentMethod || entry.paymentMethod === 'Any' || paymentPayload.some((payment) => payment.method === entry.paymentMethod)
+    const offer = configuredOffers.find((entry) => entry.active !== false && entry.code === payload.offerCode && offerMethodMatches(entry) && afterLines >= entry.minimumAmount)
     let offerDiscount = 0
     if (offer) {
       offerDiscount = offer.discountType === 'fixed' ? offer.value : afterLines * offer.value / 100

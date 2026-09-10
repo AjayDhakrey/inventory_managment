@@ -29,8 +29,11 @@ try {
   user.password = password
   user.resetPasswordTokenHash = null
   user.resetPasswordExpires = null
+  user.tokenVersion = (user.tokenVersion || 0) + 1
+  user.failedLoginAttempts = 0
+  user.lockUntil = null
   await user.save()
-  console.log(`Password updated for ${user.email}. You can now sign in with the new password.`)
+  console.log(`Password updated for ${user.email}. All existing sessions were signed out.`)
   await disconnectDatabase()
   process.exit(0)
 } catch (error) {

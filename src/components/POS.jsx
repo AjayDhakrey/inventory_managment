@@ -409,11 +409,15 @@ export default function POS({ business, account }) {
   const activePaymentOffers = (business.settings?.paymentOffers || []).filter(
     (offer) => offer.active !== false && offer.code,
   );
+  const offerMethodMatches = (offer) =>
+    !offer.paymentMethod ||
+    offer.paymentMethod === "Any" ||
+    payments.some((payment) => payment.method === offer.paymentMethod);
   const selectedOffer = activePaymentOffers.find(
     (offer) =>
       offer.active !== false &&
       offer.code === offerCode &&
-      payments.some((payment) => payment.method === offer.paymentMethod) &&
+      offerMethodMatches(offer) &&
       beforeBillDiscount >= Number(offer.minimumAmount || 0),
   );
   let offerDiscount = selectedOffer
@@ -427,6 +431,14 @@ export default function POS({ business, account }) {
     Math.max(0, beforeBillDiscount - globalDiscount),
     offerDiscount,
   );
+  const chosenOffer = activePaymentOffers.find((offer) => offer.code === offerCode);
+  const offerNotice = !chosenOffer
+    ? ""
+    : selectedOffer
+      ? `Applied − ${money(business.currency, offerDiscount)}`
+      : beforeBillDiscount < Number(chosenOffer.minimumAmount || 0)
+        ? `Needs a bill of ${money(business.currency, chosenOffer.minimumAmount)} to apply`
+        : `Applies only when paying by ${chosenOffer.paymentMethod}`;
   const taxable = Math.max(
     0,
     beforeBillDiscount - globalDiscount - offerDiscount,
@@ -900,6 +912,11 @@ export default function POS({ business, account }) {
                     </option>
                   ))}
               </select>
+              {offerNotice && (
+                <small className={selectedOffer ? "pos-offer-ok" : "pos-offer-hint"}>
+                  {offerNotice}
+                </small>
+              )}
             </label>
             <label>
               Coupon code
