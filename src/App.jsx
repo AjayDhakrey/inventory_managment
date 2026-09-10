@@ -1344,26 +1344,67 @@ function App() {
     );
   }
 
+  const aside =
+    mode === "signup"
+      ? {
+          title: "One of us?",
+          body: "Already have a Stockroom workspace? Sign in to pick up your inventory, billing and reports.",
+          cta: "Sign In",
+          go: "signin",
+        }
+      : mode === "forgot" || mode === "reset"
+      ? {
+          title: "Remembered it?",
+          body: "Head back to the sign in screen and continue into your workspace.",
+          cta: "Back to sign in",
+          go: "signin",
+        }
+      : {
+          title: "New Here?",
+          body: "Create your Stockroom workspace and manage inventory, POS billing, sales, purchases and suppliers in one place.",
+          cta: "Sign Up",
+          go: "signup",
+        };
+
   return (
     <main className="auth-motion-stage">
-      <header className="auth-motion-topbar brand-mark"><span className="mark-icon" aria-hidden="true"><span /></span><span>stockroom</span></header>
-      <section className="auth-feature-container" aria-labelledby="auth-features-title">
-        <h2 id="auth-features-title">Everything your business needs</h2>
-        <div className="auth-feature-list">
-          <div className="auth-feature-item">Inventory management</div>
-          <div className="auth-feature-item">Stock tracking</div>
-          <div className="auth-feature-item">POS &amp; billing</div>
-          <div className="auth-feature-item">Sales &amp; purchases</div>
-          <div className="auth-feature-item">Customers &amp; suppliers</div>
-          <div className="auth-feature-item">Reports &amp; alerts</div>
-        </div>
-      </section>
-        <button className="public-theme-toggle" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
-          <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span> {theme === "dark" ? "Light" : "Dark"}
-        </button>
+      <button className="public-theme-toggle" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
+        <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span> {theme === "dark" ? "Light" : "Dark"}
+      </button>
       <MotionConfig transition={{ type: "spring", bounce: 0.24, visualDuration: 0.45 }}>
-        <AnimatePresence mode="wait">
-        <motion.div className="form-wrap auth-motion-card" key={mode} initial={{ opacity: 0, y: 70, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -24, scale: 0.96 }}>
+        <div className="auth-split">
+          <aside className="auth-split-aside">
+            <span className="auth-blob auth-blob-a" aria-hidden="true" />
+            <span className="auth-blob auth-blob-b" aria-hidden="true" />
+            <div className="auth-aside-inner">
+              <span className="auth-aside-badge" aria-hidden="true">
+                <span className="mark-icon"><span /></span>
+              </span>
+              <h2>{aside.title}</h2>
+              <p>{aside.body}</p>
+              <button
+                type="button"
+                className="auth-aside-btn"
+                onClick={() => {
+                  if (mode === "forgot" || mode === "reset") clearResetUrl();
+                  goToMode(aside.go);
+                }}
+              >
+                {aside.cta}
+              </button>
+              <ul className="auth-aside-features">
+                <li>Inventory &amp; stock tracking</li>
+                <li>POS &amp; billing</li>
+                <li>Sales &amp; purchase orders</li>
+                <li>Customers &amp; suppliers</li>
+                <li>Reports &amp; low-stock alerts</li>
+              </ul>
+            </div>
+          </aside>
+          <AnimatePresence mode="wait">
+          <motion.section className="auth-split-form" key={mode} initial={{ opacity: 0, x: 40, scale: 0.96 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 30, scale: 0.97 }}>
+          <div className="auth-split-inner">
+          <header className="auth-split-brand"><span className="mark-icon" aria-hidden="true"><span /></span><span>stockroom</span></header>
           <div className="form-heading">
             <p className="eyebrow">{copy.eyebrow}</p>
             <h2>{copy.title}</h2>
@@ -1422,17 +1463,6 @@ function App() {
                   <label htmlFor="password">
                     {mode === "reset" ? "New password" : "Password"}
                   </label>
-                  {mode === "signin" && (
-                    <a
-                      href="#forgot"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        goToMode("forgot");
-                      }}
-                    >
-                      Forgot password?
-                    </a>
-                  )}
                 </div>
                 <div className="password-field">
                   <input
@@ -1479,57 +1509,26 @@ function App() {
               <p className={`form-status ${message.type}`}>{message.text}</p>
             )}
           </form>
-          <p className="signup">
-            {mode === "signin" && (
-              <>
-                New to Stockroom?{" "}
-                <a
-                  href="#signup"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    goToMode("signup");
-                  }}
-                >
-                  Create an account ↗
-                </a>
-              </>
-            )}
-            {mode === "signup" && (
-              <>
-                Already have an account?{" "}
-                <a
-                  href="#signin"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    goToMode("signin");
-                  }}
-                >
-                  Sign in ↗
-                </a>
-              </>
-            )}
-            {(mode === "forgot" || mode === "reset") && (
-              <>
-                Remembered it?{" "}
-                <a
-                  href="#signin"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    clearResetUrl();
-                    goToMode("signin");
-                  }}
-                >
-                  Back to sign in ↗
-                </a>
-              </>
-            )}
-          </p>
+          {mode === "signin" && (
+            <a
+              className="auth-forgot"
+              href="#forgot"
+              onClick={(event) => {
+                event.preventDefault();
+                goToMode("forgot");
+              }}
+            >
+              Forgot Password?
+            </a>
+          )}
           <p className="legal">
             By continuing, you agree to our <a href="#terms">Terms</a> and{" "}
             <a href="#privacy">Privacy Policy</a>.
           </p>
-        </motion.div>
+          </div>
+        </motion.section>
         </AnimatePresence>
+        </div>
       </MotionConfig>
     </main>
   );
