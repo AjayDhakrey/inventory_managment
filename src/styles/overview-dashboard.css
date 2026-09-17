@@ -55,7 +55,8 @@
 .overview-dashboard .overview-quick-nav { position: relative; z-index: 40; display: flex; justify-content: flex-end; margin: 0 0 22px; }
 .overview-dashboard .overview-quick-nav:has(.overview-mega-menu)::after { content: ''; position: absolute; top: 100%; left: 0; right: 0; height: 10px; }
 .overview-dashboard .overview-quick-nav-toggle { display: none; align-items: center; gap: 6px; padding: 9px 14px; border: 1px solid var(--ov-line); border-radius: 10px; color: var(--ov-text); background: var(--ov-panel); font: 600 12px 'Manrope', sans-serif; cursor: pointer; }
-.overview-dashboard .overview-quick-nav-toggle span { color: var(--ov-orange); transition: transform .15s ease; }
+.overview-dashboard .overview-quick-nav-toggle span { display: inline-flex; color: var(--ov-orange); transition: transform .15s ease; }
+.overview-dashboard .overview-quick-nav-toggle span svg { width: 14px; height: 14px; }
 .overview-dashboard .overview-quick-nav.mobile-open .overview-quick-nav-toggle span { transform: rotate(180deg); }
 .overview-dashboard .overview-quick-nav nav { display: flex; gap: 3px; width: auto; padding: 4px; border: 1px solid var(--ov-line); border-radius: 12px; background: var(--ov-panel); }
 .overview-dashboard .overview-quick-nav nav button { padding: 8px 15px; border: 0; border-radius: 8px; color: var(--ov-muted); background: transparent; font: 600 12px 'Manrope', sans-serif; }
@@ -92,20 +93,20 @@
 
 /* KPI cards */
 .overview-dashboard .summary-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 18px; margin-bottom: 26px; }
-.overview-dashboard .summary-card { position: relative; min-width: 0; min-height: 172px; padding: 22px; border: 1px solid var(--ov-line); border-radius: 16px; background: var(--ov-panel); color: var(--ov-text); box-shadow: none; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.overview-dashboard .summary-card { position: relative; min-width: 0; min-height: 128px; padding: 16px; border: 1px solid var(--ov-line); border-radius: 14px; background: var(--ov-panel); color: var(--ov-text); box-shadow: none; overflow: hidden; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .overview-dashboard .summary-card::before { content: ''; position: absolute; inset: 0 0 auto 0; height: 3px; background: linear-gradient(90deg, var(--auth-brand-light, var(--ov-orange)), var(--ov-orange)); opacity: 0; transform: translateY(-3px); transition: opacity .2s ease, transform .2s ease; }
 .overview-dashboard .summary-card::after { display: none; }
 .overview-dashboard .summary-card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 16px 32px -14px rgba(91, 55, 31, .35); }
 .overview-dashboard .summary-card:hover::before { opacity: 1; transform: translateY(0); }
 .overview-dashboard .summary-card.dark-card { background: var(--ov-panel); }
-.overview-dashboard .summary-icon { position: absolute; top: 20px; right: 20px; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; }
-.overview-dashboard .summary-icon svg { width: 18px; height: 18px; }
+.overview-dashboard .summary-icon { position: absolute; top: 14px; right: 14px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; }
+.overview-dashboard .summary-icon svg { width: 15px; height: 15px; }
 .overview-dashboard .summary-icon.positive { color: var(--ov-green); background: var(--success-soft); }
 .overview-dashboard .summary-icon.negative { color: var(--ov-rose); background: var(--danger-soft); }
 .overview-dashboard .summary-icon.neutral { color: var(--ov-orange); background: var(--orange-soft); }
-.overview-dashboard .summary-label { display: block; max-width: calc(100% - 46px); color: var(--ov-muted); font: 10px/1.6 'sans-serif', sans-serif; letter-spacing: 1px; text-transform: uppercase; }
-.overview-dashboard .summary-card > strong { display: block; margin: 20px 0 14px; color: var(--ov-text); font: 600 clamp(21px, 2.1vw, 30px)/1.25 'sans-serif', sans-serif; letter-spacing: -1px; overflow-wrap: anywhere; }
-.overview-dashboard .summary-card .trend { display: inline-flex; align-items: center; gap: 7px; color: var(--ov-dim); font: 11px/1.6 'sans-serif', sans-serif; }
+.overview-dashboard .summary-label { display: block; max-width: calc(100% - 38px); color: var(--ov-text); font: 700 12px/1.5 'Manrope', sans-serif; letter-spacing: .4px; text-transform: uppercase; }
+.overview-dashboard .summary-card > strong { display: block; margin: 12px 0 8px; color: var(--ov-text); font: 600 clamp(17px, 1.6vw, 22px)/1.25 'sans-serif', sans-serif; letter-spacing: -.6px; overflow-wrap: anywhere; }
+.overview-dashboard .summary-card .trend { display: inline-flex; align-items: center; gap: 6px; color: var(--ov-dim); font: 10px/1.6 'sans-serif', sans-serif; }
 .overview-dashboard .summary-card .trend::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--ov-orange); }
 .overview-dashboard .summary-card .trend.positive { color: var(--ov-green); }
 .overview-dashboard .summary-card .trend.positive::before { background: var(--ov-green); }
@@ -213,7 +214,8 @@
 }
 @media (max-width: 820px) {
   .overview-dashboard .dashboard-main { padding: 16px 16px 36px; }
-  .overview-dashboard .business-context { display: none; }
+  .overview-dashboard .business-context { display: block; margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; min-height: 0 !important; }
+  .overview-dashboard .business-context > *:not(.header-actions) { display: none !important; }
   .overview-dashboard .dashboard-header .dashboard-kicker { display: none; }
   .overview-dashboard .dashboard-header { flex-direction: column; gap: 12px; margin: 28px 0 22px; }
   .overview-dashboard .dashboard-header h1 { font-size: 21px; letter-spacing: -.8px; }
@@ -251,8 +253,10 @@
 }
 @media (max-width: 460px) {
   .overview-dashboard .summary-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-  .overview-dashboard .summary-card { min-height: 128px; padding: 16px 14px; }
-  .overview-dashboard .summary-card > strong { margin: 12px 0 8px; }
+  .overview-dashboard .summary-card { min-height: 100px; padding: 12px; }
+  .overview-dashboard .summary-card > strong { margin: 8px 0 6px; }
+  .overview-dashboard .summary-icon { top: 10px; right: 10px; width: 26px; height: 26px; }
+  .overview-dashboard .summary-icon svg { width: 13px; height: 13px; }
   .overview-dashboard .getting-started > div { grid-template-columns: 1fr; }
   .overview-dashboard .table-tools .search-box { flex-basis: 100%; }
   .overview-dashboard .overview-filter { flex: 1; min-width: 0; max-width: none; }

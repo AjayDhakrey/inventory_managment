@@ -40,7 +40,7 @@ function FilterMenu({ label, options, selected, onChange }) {
   return (
     <div className="bulk-filter-menu" ref={ref}>
       <button type="button" className={`bulk-filter-trigger ${selected.length ? 'active' : ''}`} onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-haspopup="true">
-        {label}{selected.length > 0 && <span className="bulk-filter-count">{selected.length}</span>} <i aria-hidden="true">⌄</i>
+        {label}{selected.length > 0 && <span className="bulk-filter-count">{selected.length}</span>} <i aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></i>
       </button>
       {open && (
         <div className="bulk-filter-panel" role="menu">

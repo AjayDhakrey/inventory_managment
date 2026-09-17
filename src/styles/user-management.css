@@ -184,6 +184,9 @@
   .um-shell.stock-ledger-shell .dashboard-header { position: static; margin-bottom: 14px; }
   .um-shell.stock-ledger-shell .mobile-dashboard-bar { color: var(--um-text); }
   .um-shell .um-user-form-grid { grid-template-columns: 1fr; }
+  .um-shell .um-toolbar { flex-wrap: wrap; }
+  .um-shell .um-search { flex: 1 1 100%; min-width: 0; }
+  .um-shell .um-page .um-toolbar > select { flex: 1 1 auto; min-width: 0; max-width: none; }
 }
 @media (max-width: 560px) {
   .um-shell .um-kpis { grid-template-columns: 1fr; gap: 12px; }

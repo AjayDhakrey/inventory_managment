@@ -283,7 +283,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             aria-label="Close navigation"
             onClick={() => setMobileNavOpen(false)}
           >
-            ×
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
           </button>
         </div>
         <div
@@ -439,7 +439,11 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                   {["◫", "♧", "▣", "↗", "⌁", "◒", "⚙"][index]}
                 </span>
                 {navigationLabel(section)}
-                <span className={`nav-chevron${expandedNavSections.has(section) ? " open" : ""}`}>{items.length ? "⌄" : ""}</span>
+                <span className={`nav-chevron${expandedNavSections.has(section) ? " open" : ""}`}>
+                  {items.length ? (
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+                  ) : ""}
+                </span>
               </button>
               {items.length > 0 && expandedNavSections.has(section) && (
                 <div className="nav-children" id={`nav-section-${section.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
@@ -505,7 +509,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
         <div className="business-context">
           <span className="business-context-dot" />{" "}
           <strong className="business-context-name">{business?.name || "Your business"}</strong> <span>/</span>{" "}
-          {business?.industry || "workspace"}
+          <span>{business?.industry || "workspace"}</span>
           {["Stock In", "Stock Out", "Adjustments"].includes(activeNav) && <><span>/</span><strong className="stock-in-breadcrumb">{activeNav}</strong><span className="stock-in-currency">{business.currency}</span></>}
           {activeNav === "Stock History" && <><span>/</span><strong className="audit-breadcrumb">Stock Movement Audit</strong><span className="audit-stream">Live stream</span><span className="audit-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
           {activeNav === "Categories" && <><span>/</span><strong className="cat-breadcrumb">Categories</strong><span className="cat-synced">Catalog synced</span><span className="cat-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
@@ -526,25 +530,6 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
           {["Color Management", "Size Management", "Product Variants"].includes(activeNav) && <><span>/</span><strong className="var-breadcrumb">{activeNav}</strong><span className="var-tag-live">Catalog attributes</span><span className="var-workspace-tag">{(business.industry || "workspace").toUpperCase()}</span></>}
           {["Bulk Orders", "Credit Sales", "Bulk Pricing"].includes(activeNav) && <><span>/</span><strong className="cs-breadcrumb">{activeNav}</strong><span className="cs-tag-live">Wholesale</span><span className="cs-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
           {["Variant Grid", "Replenishment", "Promotions", "Loyalty", "Coupons", "Gift Cards", "Cashier Shifts", "Clothing Reports"].includes(activeNav) && <><span>/</span><strong className="cloth-breadcrumb">{activeNav}</strong><span className="cloth-tag-live">Clothing suite</span><span className="cloth-workspace-tag">{(business.industry || "workspace").toUpperCase()}</span></>}
-        </div>
-        <header className="dashboard-header">
-          <div>
-            <p className="dashboard-kicker">
-              {activeNav === "Overview"
-                ? `${new Intl.DateTimeFormat(undefined, {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
-                  }).format(new Date())} • Store shift #1 open`
-                : `Manage your ${activeNav.toLowerCase()}`}
-            </p>
-            <h1>
-              {activeNav === "Overview"
-                ? `Welcome back, ${capitalize(account.name || account.email.split("@")[0])}.`
-                : activeNav}
-            </h1>
-          </div>
           <div className="header-actions">
             <button className="icon-button theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} data-tooltip={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
               <svg className="header-action-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -661,6 +646,25 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
             </div>
           </div>
+        </div>
+        <header className="dashboard-header">
+          <div>
+            <p className="dashboard-kicker">
+              {activeNav === "Overview"
+                ? `${new Intl.DateTimeFormat(undefined, {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  }).format(new Date())} • Store shift #1 open`
+                : `Manage your ${activeNav.toLowerCase()}`}
+            </p>
+            <h1>
+              {activeNav === "Overview"
+                ? `Welcome back, ${capitalize(account.name || account.email.split("@")[0])}.`
+                : activeNav}
+            </h1>
+          </div>
         </header>
         {activeNav === "Overview" ? (
           <>
@@ -677,7 +681,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                 aria-label="Open section menu"
                 onClick={() => setMobileQuickNavOpen((current) => { if (current) setOverviewMenu(null); return !current; })}
               >
-                Menu <span aria-hidden="true">▾</span>
+                Menu <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
               </button>
               <div className="overview-quick-nav-panel">
                 <nav aria-label="Overview shortcuts">

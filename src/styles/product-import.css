@@ -77,7 +77,7 @@
 .import-shell .import-page .import-guide article { padding: 20px 18px 18px; border: 1px solid var(--im-line); border-radius: 14px; color: var(--im-text); background: var(--im-panel); }
 .import-shell .import-page .import-guide article b { display: grid; place-items: center; width: 26px; height: 26px; margin-bottom: 12px; border-radius: 8px; color: #fff; background: var(--im-orange); font: 700 12px 'sans-serif', sans-serif; }
 .import-shell .import-page .import-guide article strong { color: var(--im-text); }
-.import-shell .import-page .import-guide article p { color: var(--im-dim); }
+.import-shell .import-page .import-guide article p { color: var(--im-muted); font-weight: 500; }
 
 .import-shell .import-page .import-summary { display: grid; grid-template-columns: repeat(4, minmax(90px, .6fr)) minmax(180px, 1.6fr); margin-bottom: 14px; border: 1px solid var(--im-line); border-radius: 12px; color: var(--im-text); background: var(--im-panel); overflow: hidden; }
 .import-shell .import-page .import-summary span { padding: 14px 16px; border-right: 1px solid var(--im-line); }
@@ -146,6 +146,11 @@
   .import-shell.stock-ledger-shell .business-context { min-height: 40px; margin: 0 0 16px; padding: 0; border: 0; background: transparent; }
   .import-shell.stock-ledger-shell .dashboard-header { position: static; margin-bottom: 14px; }
   .import-shell.stock-ledger-shell .mobile-dashboard-bar { color: var(--im-text); }
+  .import-shell .import-page .import-history-tools { flex-wrap: wrap; }
+  .import-shell .import-page .import-history-tools .search-box { flex: 1 1 100%; width: auto; }
+  .import-shell .import-page .import-history-tools select { flex: 1 1 calc(50% - 5px); min-width: 0; }
+  .import-shell .import-page .import-history-tools .import-refresh { flex: 0 0 auto; }
+  .import-shell .import-page .import-guide { grid-template-columns: 1fr; }
 }
 
 [data-theme="light"] .import-shell.stock-ledger-shell {

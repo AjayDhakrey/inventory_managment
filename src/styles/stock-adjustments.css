@@ -49,7 +49,8 @@
 .adjustment-new-quantity input { padding-right: 75px; }
 .adjustment-new-quantity span { position: absolute; right: 11px; top: 16px; color: var(--adjust-green); font: 10px 'sans-serif',sans-serif; pointer-events: none; }
 .adjustment-new-quantity span.negative { color: var(--adjust-amber); }
-.adjustment-submit { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 49px; padding: 0 14px; border: 1px solid var(--adjust-orange); border-radius: 10px; color: #fff; background: linear-gradient(110deg,#f15b06,#ff7819); font-size: 12px; font-weight: 750; }
+.adjustment-submit { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 49px; padding: 0 14px; border: 1px solid var(--adjust-orange); border-radius: 10px; color: #fff; background: linear-gradient(180deg, var(--auth-brand-light) 0%, var(--adjust-orange) 50%, var(--orange-hover) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 22px rgba(91, 55, 31, .22); font-size: 12px; font-weight: 750; }
+.adjustment-submit:hover { background: linear-gradient(180deg, var(--auth-brand-light) 0%, var(--orange-hover) 60%, var(--orange-hover) 100%); }
 .adjustment-form-context { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 20px; padding-top: 17px; border-top: 1px solid var(--adjust-border); color: var(--adjust-dim); font-size: 11px; }
 .adjustment-form-context strong { color: var(--adjust-muted); font-weight: 600; }
 .adjustment-form-status { margin: 0 27px 22px; padding: 11px 14px; border-radius: 7px; font-size: 12px; }
