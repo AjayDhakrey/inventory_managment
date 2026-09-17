@@ -933,83 +933,84 @@ select { text-overflow: ellipsis; }
   .clothing-motion { display: none; }
 }
 
-/* Split-panel authentication UI - navy 3D theme. Scoped so dashboard styles are untouched. */
-.auth-motion-stage { position: relative; display: grid; place-items: center; min-height: 100svh; padding: clamp(28px, 6vh, 72px) 16px 40px; overflow-x: hidden; color: #011934; background: radial-gradient(circle at 16% 18%, rgba(2,84,194,.22), transparent 34%), radial-gradient(circle at 86% 84%, rgba(1,25,52,.12), transparent 36%), linear-gradient(135deg, #dde6f6 0%, #eef2fb 48%, #e7ecfa 100%); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.auth-motion-stage::before, .auth-motion-stage::after { content: ''; position: fixed; width: 320px; height: 320px; border-radius: 46% 54% 62% 38%; background: radial-gradient(circle at 32% 32%, rgba(2,84,194,.28), transparent 70%); pointer-events: none; animation: auth-orbit 16s ease-in-out infinite alternate; }
-.auth-motion-stage::before { top: -140px; left: -100px; }
-.auth-motion-stage::after { right: -130px; bottom: -160px; background: radial-gradient(circle at 32% 32%, rgba(1,25,52,.18), transparent 70%); animation-delay: -7s; animation-direction: alternate-reverse; }
-@keyframes auth-orbit { to { transform: translate3d(30px, 20px, 0) rotate(24deg) scale(1.1); } }
-
-/* Framer Motion puts a compositing transform on the form panel, which defeats a plain
-   `overflow:hidden` + `border-radius` clip on the card. `contain: paint` forces the card
-   to clip its children to the rounded box so the blue panel's corners can't escape. */
-.auth-split { position: relative; z-index: 2; display: grid; grid-template-columns: .82fr 1fr; align-items: stretch; width: 100%; max-width: 840px; border-radius: 32px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.05), 0 8px 16px -4px rgba(15,23,42,.08), 0 24px 48px -12px rgba(1,25,52,.22), 0 2px 4px rgba(1,25,52,.06); transition: transform .3s ease, box-shadow .3s ease; overflow: hidden; contain: paint; }
-@media (min-width: 641px) { .auth-split { border-radius: 40px; } }
-@media (hover: hover) and (min-width: 641px) {
-  .auth-split:hover { transform: translateY(-4px); box-shadow: 0 2px 4px rgba(15,23,42,.06), 0 12px 24px -4px rgba(15,23,42,.1), 0 34px 66px -12px rgba(1,25,52,.3), 0 4px 8px rgba(1,25,52,.09); }
+/* Single-card brown authentication UI - identical layout on phone and desktop, built
+   around the supplied blob-scene SVG as a 3D-shaded hero band. Scoped so dashboard
+   styles are untouched. */
+:root {
+  --auth-brand: #5b371f;
+  --auth-brand-light: #8b5a34;
+  --auth-brand-deep: #3d2414;
 }
+.auth-motion-stage { position: relative; display: grid; place-items: center; min-height: 100svh; padding: 48px 16px 28px; overflow-x: hidden; color: #2a221c; background: radial-gradient(circle at 18% 14%, rgba(91,55,31,.14), transparent 36%), radial-gradient(circle at 86% 86%, rgba(61,36,20,.08), transparent 38%), linear-gradient(150deg, #fdf8f3 0%, #f9f0e6 50%, #f5e8da 100%); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
 
-/* Left: dark-blue marketing / sign-up panel with the signature curved edge */
-.auth-split-aside { position: relative; overflow: hidden; display: grid; place-items: center; padding: 44px 38px; text-align: center; color: #eaf2fe; background: linear-gradient(158deg, #0254c2 0%, #024d91 48%, #011934 100%); border-radius: 40px 120px 120px 40px; box-shadow: inset -14px 0 26px -18px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07); }
-.auth-split-aside::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 22% 12%, rgba(255,255,255,.22), transparent 55%), linear-gradient(180deg, rgba(255,255,255,.08), transparent 45%); pointer-events: none; }
-.auth-blob { position: absolute; border-radius: 50%; background: rgba(255,255,255,.08); pointer-events: none; }
-.auth-blob-a { top: -46px; right: -30px; width: 150px; height: 150px; }
-.auth-blob-b { bottom: 32px; left: -46px; width: 140px; height: 140px; }
-.auth-aside-inner { position: relative; z-index: 1; width: 100%; max-width: 280px; }
-.auth-aside-badge { display: none; }
-.auth-split-aside h2 { margin: 0 0 12px; color: #fff; font: 800 26px 'Manrope', sans-serif; letter-spacing: -1.2px; }
-.auth-split-aside p { margin: 0 0 22px; color: rgba(224,236,252,.8); font: 12.5px/1.6 'Manrope', sans-serif; }
-.auth-aside-btn { width: 100%; height: 46px; border: 0; border-radius: 999px; color: #fff; background: linear-gradient(180deg, #1a72e0 0%, #0254c2 100%); cursor: pointer; font: 700 12.5px 'Manrope', sans-serif; letter-spacing: .4px; box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 4px rgba(1,25,52,.4), 0 10px 20px -6px rgba(2,84,194,.55), 0 4px 10px -2px rgba(1,25,52,.45); transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
-.auth-aside-btn:hover { transform: translateY(-1px); background: linear-gradient(180deg, #2f81ea 0%, #0a63d8 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 4px rgba(1,25,52,.4), 0 14px 26px -6px rgba(2,84,194,.7), 0 6px 12px -2px rgba(1,25,52,.5); }
-.auth-aside-btn:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 2px 4px rgba(1,25,52,.45), 0 4px 10px -4px rgba(2,84,194,.6); }
-.auth-aside-features { list-style: none; margin: 24px 0 0; padding: 20px 0 0; border-top: 1px solid rgba(255,255,255,.16); display: grid; gap: 9px; text-align: left; }
-.auth-aside-features li { position: relative; padding-left: 20px; color: rgba(224,236,252,.82); font: 600 11.5px 'Manrope', sans-serif; }
-.auth-aside-features li::before { content: ''; position: absolute; top: 4px; left: 0; width: 7px; height: 7px; border-radius: 2px; background: #71c8fb; transform: rotate(45deg); }
+/* The card itself: one compact, centred layout used at every viewport width. */
+.auth-card { position: relative; z-index: 2; width: 100%; max-width: 400px; border-radius: 30px; background: #fff; overflow: hidden; box-shadow: 0 1px 2px rgba(50,30,15,.06), 0 10px 20px -6px rgba(50,30,15,.1), 0 30px 56px -18px rgba(91,55,31,.28), 0 3px 6px rgba(91,55,31,.08); }
 
-/* Right: white sign-in panel */
-.auth-split-form { position: relative; overflow: hidden; padding: 40px 40px 34px; color: #33405c; background: #fff; }
-.auth-split-inner { position: relative; z-index: 1; }
-.auth-split-brand { display: flex; align-items: center; gap: 9px; margin-bottom: 20px; color: #011934; font: 700 15px 'Manrope', sans-serif; letter-spacing: -.4px; }
-.auth-split-brand .mark-icon { border-color: #011934; box-shadow: 0 4px 10px rgba(15,23,42,.16), inset 0 1px 1px rgba(255,255,255,.9); }
-.auth-split-brand .mark-icon span { background: #024d91; }
-.auth-split-form .form-heading { margin-bottom: 18px; text-align: left; }
-.auth-split-form .eyebrow { margin-bottom: 6px; color: #0254c2; }
-.auth-split-form .form-heading h2 { margin-bottom: 6px; color: #011934; font-size: 26px; line-height: 1.1; letter-spacing: -1.2px; }
-.auth-split-form .form-subtitle { margin: 0; color: #5c6b86; font-size: 12.5px; line-height: 1.5; }
-.auth-split-form .role-switch { border: 0; border-radius: 999px; background: #eef2fa; box-shadow: inset 2px 2px 5px rgba(163,177,198,.4), inset -2px -2px 5px rgba(255,255,255,.85); padding: 4px; margin-bottom: 16px; }
-.auth-split-form .role-switch button { border-radius: 999px; padding: 9px 8px; color: #7683a0; }
-.auth-split-form .role-switch button.active { color: #011934; background: #fff; box-shadow: 0 3px 8px rgba(3,22,80,.14), inset 0 1px 0 rgba(255,255,255,.9); }
-.auth-split-form form label, .auth-split-form .password-label label { color: #5c6b86; }
-.auth-split-form input { height: 46px; margin-bottom: 13px; padding: 0 18px; border: 0; border-radius: 999px; color: #011934; background: #eef2fa; box-shadow: inset 3px 3px 6px rgba(163,177,198,.4), inset -3px -3px 6px rgba(255,255,255,.75); transition: box-shadow .2s ease, background .2s ease; }
-.auth-split-form input::placeholder { color: #9aa7bd; }
-.auth-split-form input:focus { background: #f3f6fb; box-shadow: inset 2px 2px 4px rgba(163,177,198,.3), inset -2px -2px 4px rgba(255,255,255,.75), 0 0 0 3px rgba(2,84,194,.4); }
-.auth-split-form .password-field input { padding-right: 62px; }
-.auth-split-form .show-password { height: 46px; color: #0254c2; font-weight: 700; }
-.auth-split-form .submit-button { height: 48px; margin-top: 4px; border-radius: 999px; color: #fff; letter-spacing: .3px; background: linear-gradient(180deg, #0254c2 0%, #011934 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 4px rgba(0,0,0,.25), 0 10px 20px -6px rgba(1,25,52,.5), 0 4px 10px -2px rgba(1,25,52,.4); transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
-.auth-split-form .submit-button:hover { transform: translateY(-1px); background: linear-gradient(180deg, #0a63d8 0%, #02244f 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 4px rgba(0,0,0,.25), 0 16px 28px -6px rgba(1,25,52,.55), 0 6px 14px -2px rgba(1,25,52,.45); }
-.auth-split-form .submit-button:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), inset 0 2px 4px rgba(0,0,0,.35), 0 4px 10px -4px rgba(1,25,52,.5); }
-.auth-split-form .submit-button { align-items: center; }
-.auth-split-form .submit-button span { display: inline-flex; align-items: center; justify-content: center; align-self: center; line-height: 1; font-size: 16px; color: #fff; }
-.auth-split-form .form-status { margin-top: 12px; border-radius: 12px; color: #011934; background: #eef3fb; }
-.auth-split-form .form-status.error { color: #9b1c1c; background: #fdecec; }
-.auth-forgot { display: block; margin-top: 14px; color: #5c6b86; text-align: center; text-decoration: none; font: 700 12px 'Manrope', sans-serif; }
-.auth-forgot:hover { color: #0254c2; text-decoration: underline; }
-.auth-split-form .legal { margin: 18px 0 0; color: #99a3b7; }
-.auth-split-form .legal a { color: #5c6b86; }
+/* Hero: takes up roughly the top half of the card. The provided blob SVG is layered
+   (soft-light) over a brown 3D gradient for organic texture, and a smooth wave shape
+   is cut across the bottom in white so the colour/white boundary curves rather than
+   ending in a flat line. */
+.auth-hero { position: relative; height: 280px; overflow: hidden; background: linear-gradient(160deg, var(--auth-brand-light) 0%, var(--auth-brand) 55%, var(--auth-brand-deep) 100%); }
+.auth-hero::before { content: ''; position: absolute; inset: 0; z-index: 0; background: radial-gradient(circle at 20% 14%, rgba(255,255,255,.3), transparent 52%); pointer-events: none; }
+.auth-hero-texture { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; display: block; opacity: .4; mix-blend-mode: soft-light; }
+.auth-hero-texture path { fill: #fff; }
+.auth-hero-wave { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; display: block; }
+.auth-hero-wave path { fill: #fff; filter: drop-shadow(0 -6px 12px rgba(61,36,20,.16)); }
+.auth-hero-brand { position: absolute; top: 18px; left: 22px; z-index: 3; color: #fff; font: 800 13px 'Manrope', sans-serif; letter-spacing: -.3px; text-shadow: 0 2px 8px rgba(30,15,5,.35); }
 
-[data-theme="dark"] .auth-motion-stage { color: #e8eefb; background: radial-gradient(circle at 16% 18%, rgba(2,84,194,.18), transparent 34%), radial-gradient(circle at 86% 84%, rgba(1,25,52,.4), transparent 36%), linear-gradient(135deg, #0a0e1f 0%, #0b1020 50%, #090c1a 100%); }
-[data-theme="dark"] .auth-split { background: #101528; box-shadow: 0 2px 6px rgba(0,0,0,.55), 0 20px 44px -14px rgba(0,0,0,.7), 0 40px 80px -30px rgba(1,25,52,.6); }
-[data-theme="dark"] .auth-split-form { color: #c4d0e6; background: #101528; }
-[data-theme="dark"] .auth-split-brand { color: #eaf1fb; }
-[data-theme="dark"] .auth-split-form .form-heading h2 { color: #eaf1fb; }
-[data-theme="dark"] .auth-split-form .form-subtitle { color: #9fb0cc; }
-[data-theme="dark"] .auth-split-form .role-switch { background: #1a2138; box-shadow: inset 2px 2px 5px rgba(0,0,0,.45), inset -2px -2px 5px rgba(255,255,255,.03); }
-[data-theme="dark"] .auth-split-form .role-switch button { color: #9fb0cc; }
-[data-theme="dark"] .auth-split-form .role-switch button.active { color: #fff; background: #2b3450; box-shadow: none; }
-[data-theme="dark"] .auth-split-form input { background: #1a2138; color: #eaf1fb; box-shadow: inset 3px 3px 6px rgba(0,0,0,.45), inset -3px -3px 6px rgba(255,255,255,.04); }
-[data-theme="dark"] .auth-split-form input::placeholder { color: #7080a0; }
-[data-theme="dark"] .auth-split-form input:focus { background: #1e2740; box-shadow: inset 2px 2px 4px rgba(0,0,0,.4), inset -2px -2px 4px rgba(255,255,255,.04), 0 0 0 3px rgba(2,84,194,.35); }
-[data-theme="dark"] .auth-split-form .form-status { color: #eaf1fb; background: #1a2138; }
+.auth-card-body { position: relative; padding: 18px 24px 22px; }
+.auth-title { margin: 0 0 3px; color: #2a1f16; font: 800 24px 'Manrope', sans-serif; letter-spacing: -1px; }
+.auth-subtitle { margin: 0 0 13px; color: #8f8175; font: 12.5px/1.5 'Manrope', sans-serif; }
+
+.auth-card .role-switch { border: 0; border-radius: 14px; background: #f7f2ec; box-shadow: inset 2px 2px 5px rgba(160,120,80,.12), inset -2px -2px 4px rgba(255,255,255,.8); padding: 4px; margin: 4px 0 13px; }
+.auth-card .role-switch button { border-radius: 11px; padding: 8px 6px; color: #9c8672; font-size: 11.5px; }
+.auth-card .role-switch button.active { color: var(--auth-brand); background: #fff; box-shadow: 0 3px 8px rgba(120,70,30,.18); }
+
+.auth-field { margin-bottom: 11px; }
+.auth-field label { display: block; margin-bottom: 6px; color: #9c8b7a; font: 700 10.5px 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.auth-input-wrap { position: relative; display: flex; align-items: center; }
+.auth-input-icon { position: absolute; left: 15px; width: 18px; height: 18px; color: var(--auth-brand); pointer-events: none; }
+.auth-input-icon svg { width: 100%; height: 100%; }
+.auth-input-wrap input { width: 100%; height: 45px; margin: 0; padding: 0 16px 0 44px; border: 1px solid #e9ddd0; border-radius: 15px; color: #2c2117; background: #f9f5f0; box-shadow: inset 2px 2px 5px rgba(160,120,80,.09), inset -2px -2px 4px rgba(255,255,255,.7); font: 13px 'Manrope', sans-serif; transition: box-shadow .2s ease, border-color .2s ease; }
+.auth-input-wrap input::placeholder { color: #ad9c8c; }
+.auth-input-wrap input:focus { border-color: var(--auth-brand); box-shadow: inset 2px 2px 4px rgba(160,120,80,.09), inset -2px -2px 4px rgba(255,255,255,.7), 0 0 0 3px rgba(91,55,31,.22); }
+.auth-input-wrap:has(.auth-eye-toggle) input, .auth-input-wrap.has-toggle input { padding-right: 42px; }
+.auth-eye-toggle { position: absolute; right: 12px; width: 26px; height: 26px; display: grid; place-items: center; border: 0; background: transparent; color: #b6a291; cursor: pointer; }
+.auth-eye-toggle svg { width: 17px; height: 17px; }
+.auth-eye-toggle:hover { color: var(--auth-brand); }
+
+.auth-row { display: flex; align-items: center; justify-content: space-between; margin: 2px 0 13px; }
+.auth-remember { position: relative; display: inline-block; padding-left: 23px; color: #6b5d4f; font: 600 11.5px 'Manrope', sans-serif; cursor: pointer; user-select: none; }
+.auth-remember input { position: absolute; left: 0; top: 50%; width: 16px; height: 16px; margin: 0; transform: translateY(-50%); opacity: 0; cursor: pointer; }
+.auth-checkbox-box { position: absolute; left: 0; top: 50%; width: 16px; height: 16px; transform: translateY(-50%); border: 1.5px solid #ddd0c0; border-radius: 5px; background: #fff; transition: background .15s ease, border-color .15s ease; }
+.auth-remember input:checked ~ .auth-checkbox-box { border-color: var(--auth-brand); background: var(--auth-brand); }
+.auth-remember input:checked ~ .auth-checkbox-box::after { content: ''; position: absolute; left: 5px; top: 2px; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.auth-remember input:focus-visible ~ .auth-checkbox-box { box-shadow: 0 0 0 3px rgba(91,55,31,.3); }
+.auth-row > a { color: var(--auth-brand); text-decoration: none; font: 700 11.5px 'Manrope', sans-serif; }
+.auth-row > a:hover { text-decoration: underline; }
+
+.auth-card .submit-button { display: flex; align-items: center; justify-content: center; width: 100%; height: 46px; margin-top: 4px; padding: 0; border: 0; border-radius: 16px; color: #fff; letter-spacing: .3px; font: 700 14px 'Manrope', sans-serif; background: linear-gradient(180deg, var(--auth-brand-light) 0%, var(--auth-brand) 45%, var(--auth-brand-deep) 100%); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -3px 6px rgba(61,36,20,.35), 0 14px 26px -10px rgba(139,90,52,.55), 0 4px 10px -2px rgba(91,55,31,.45); transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.auth-card .submit-button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -3px 6px rgba(61,36,20,.35), 0 18px 32px -10px rgba(139,90,52,.65), 0 6px 14px -2px rgba(91,55,31,.5); }
+.auth-card .submit-button:active:not(:disabled) { transform: translateY(1px); box-shadow: inset 0 2px 5px rgba(45,25,10,.4), 0 6px 14px -6px rgba(91,55,31,.45); }
+.auth-card .submit-button:disabled { opacity: .7; cursor: not-allowed; }
+
+.auth-card .form-status { margin-top: 12px; padding: 9px 12px; border-radius: 11px; text-align: center; font-size: 12px; background: #f2ece3; color: #4a3d30; }
+.auth-card .form-status.error { color: #b5302f; background: #fdecec; }
+.auth-card .form-status.success { color: #1f8a4c; background: #eafaf0; }
+
+.auth-switch-line { margin: 12px 0 0; color: #7d7062; text-align: center; font: 12.5px 'Manrope', sans-serif; }
+.auth-switch-line button { border: 0; margin-left: 4px; padding: 0; color: var(--auth-brand); background: none; font: 700 12.5px 'Manrope', sans-serif; cursor: pointer; }
+.auth-switch-line button:hover { text-decoration: underline; }
+.auth-card .legal { margin: 10px 0 0; color: #a89685; font-size: 9.5px; }
+.auth-card .legal a { color: #7d7062; }
+
+/* Framer Motion owns `transform` on .auth-card (it's a motion.div), so the hover lift is
+   done via the whileHover prop in JSX rather than a CSS :hover transform, which an
+   inline style would silently win over. Box-shadow is free to animate from CSS. */
+@media (hover: hover) and (min-width: 641px) {
+  .auth-card { transition: box-shadow .3s ease; }
+  .auth-card:hover { box-shadow: 0 2px 4px rgba(50,30,15,.07), 0 14px 26px -6px rgba(50,30,15,.12), 0 40px 74px -20px rgba(91,55,31,.32), 0 4px 8px rgba(91,55,31,.09); }
+}
 
 @media (max-width: 600px) {
   .variant-entry { grid-template-columns: 1fr; }
@@ -1017,42 +1018,18 @@ select { text-overflow: ellipsis; }
   .variant-form-actions > span, .variant-form-actions button { width: 100%; }
 }
 
-/* Mobile: single column that mirrors the reference — blue brand panel stacked on top,
-   white sign-in panel below, everything centred, full-width pill controls. Colours and
-   content are unchanged from desktop. */
-@media (max-width: 860px) {
-  /* Vertically centred, compact enough to fit a phone screen without scrolling. */
-  .auth-motion-stage { padding: 16px 16px 16px; }
-  .auth-split { grid-template-columns: 1fr; width: 100%; max-width: 420px; }
+/* Mobile: the card fills the whole screen edge to edge - no page gutter, no floating
+   card, no corner radius or drop shadow, since there's no surrounding page visible. */
+@media (max-width: 640px) {
+  .auth-motion-stage { padding: 0; }
+  .auth-card { width: 100%; max-width: none; min-height: 100svh; border-radius: 0; box-shadow: none; }
+}
 
-  /* Theme toggle floats clear of the card so it stays visible over the blue panel. */
-  .auth-motion-stage .public-theme-toggle { position: fixed; top: auto; bottom: 12px; right: 12px; z-index: 30; min-height: 32px; padding: 0 13px; border-radius: 999px; color: #011934; background: #fff; border-color: rgba(1,25,52,.14); box-shadow: 0 4px 14px rgba(1,25,52,.22); }
-
-  .auth-split-aside { border-radius: 32px 32px 0 0; padding: 20px 22px 20px; text-align: center; box-shadow: inset 0 -14px 22px -16px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.07); }
-  .auth-aside-inner { max-width: 260px; margin: 0 auto; }
-  /* stockroom mark moves into the blue top panel as a raised 3D badge (mobile only) */
-  .auth-aside-badge { display: grid; place-items: center; width: 46px; height: 46px; margin: 0 auto 9px; border-radius: 50%; background: linear-gradient(180deg, rgba(255,255,255,.32) 0%, rgba(255,255,255,.12) 100%); box-shadow: 0 8px 16px rgba(1,25,52,.38), 0 2px 5px rgba(1,25,52,.22), inset 0 1.5px 1px rgba(255,255,255,.9), inset 0 -3px 5px rgba(1,25,52,.2); }
-  .auth-aside-badge .mark-icon { width: 19px; height: 19px; border: 2px solid #fff; border-radius: 50%; }
-  .auth-aside-badge .mark-icon span { width: 8px; height: 8px; border-radius: 2px; background: #fff; }
-  .auth-split-aside h2 { font-size: 19px; margin-bottom: 5px; }
-  .auth-split-aside p { font-size: 11px; line-height: 1.45; max-width: 250px; margin: 0 auto 12px; }
-  .auth-aside-btn { width: 100%; max-width: 230px; margin: 0 auto; height: 38px; font-size: 11.5px; }
-  .auth-aside-features { display: none; }
-  .auth-blob-a { width: 120px; height: 120px; top: -30px; right: -24px; }
-  .auth-blob-b { width: 120px; height: 120px; top: 42%; bottom: auto; left: -40px; }
-
-  .auth-split-form { padding: 18px 22px 18px; text-align: center; }
-  .auth-split-brand { display: none; }
-  .auth-split-form .form-heading { display: none; }
-  .auth-split-form .role-switch { max-width: 300px; margin: 0 auto 10px; }
-  .auth-split-form .role-switch button { padding: 7px 6px; font-size: 11px; }
-  .auth-split-form form { max-width: 300px; margin-left: auto; margin-right: auto; text-align: left; }
-  .auth-split-form form label, .auth-split-form .password-label label { font-size: 9.5px; margin-bottom: 5px; }
-  .auth-split-form input { height: 40px; margin-bottom: 8px; font-size: 13px; }
-  .auth-split-form .show-password { height: 40px; }
-  .auth-split-form .submit-button { height: 42px; font-size: 12px; }
-  .auth-forgot { margin-top: 8px; font-size: 11px; }
-  .auth-split-form .legal { margin-top: 8px; font-size: 9px; max-width: 300px; margin-left: auto; margin-right: auto; }
+/* Small phones: same curvy design, just tightened so it still fits without scrolling. */
+@media (max-width: 380px) {
+  .auth-hero { height: 230px; }
+  .auth-card-body { padding: 16px 20px 20px; }
+  .auth-title { font-size: 22px; }
 }
 
 /* Overview-only quick navigation with a compact, permission-aware mega menu. */
@@ -1176,9 +1153,6 @@ select { text-overflow: ellipsis; }
 
 /* Product-wide polish: public value summary, themes, feedback and accessibility. */
 
-.public-theme-toggle { position: absolute; top: 22px; right: 24px; display: flex; align-items: center; gap: 7px; min-height: 40px; padding: 0 12px; border: 1px solid var(--line); color: var(--ink); background: transparent; cursor: pointer; font: 700 11px 'Manrope', sans-serif; }
-
-
 
 
 .theme-toggle { font-size: 18px; }
@@ -1269,13 +1243,6 @@ select:disabled { cursor: not-allowed; opacity: .72; background-image: none; }
 [data-theme="dark"] .mobile-menu-button span { background: #edf3ef; }
 [data-theme="dark"] .supplier-modal-backdrop, [data-theme="dark"] .invoice-overlay { background: rgba(4,8,6,.78); }
 
-@media (max-width: 720px) {
-  .public-theme-toggle { top: 19px; right: 18px; }
-  
-  
-  
-  
-}
 
 @media (max-width: 600px) {
   .danger-zone { align-items: stretch; flex-direction: column; padding: 18px; }

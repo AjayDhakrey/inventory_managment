@@ -1070,55 +1070,20 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
 }
 
 const AUTH_COPY = {
-  signin: {
-    eyebrow: "Welcome back",
-    title: (
-      <>
-        Sign in to your
-        <br />
-        workspace
-      </>
-    ),
-    subtitle: "Choose your account type to continue.",
-    submit: "Sign in",
-  },
-  signup: {
-    eyebrow: "Get started",
-    title: (
-      <>
-        Create your
-        <br />
-        workspace
-      </>
-    ),
-    subtitle: "Set up your account in a few seconds.",
-    submit: "Create account",
-  },
-  forgot: {
-    eyebrow: "Account recovery",
-    title: (
-      <>
-        Reset your
-        <br />
-        password
-      </>
-    ),
-    subtitle: "Enter your work email and we will issue a reset code.",
-    submit: "Send reset code",
-  },
-  reset: {
-    eyebrow: "Account recovery",
-    title: (
-      <>
-        Choose a new
-        <br />
-        password
-      </>
-    ),
-    subtitle: "Paste your reset code and pick a new password.",
-    submit: "Update password",
-  },
+  signin: { title: "Sign in", subtitle: "", submit: "Login" },
+  signup: { title: "Create account", subtitle: "Set up your workspace in a few seconds.", submit: "Sign up" },
+  forgot: { title: "Reset password", subtitle: "Enter your work email and we will issue a reset code.", submit: "Send reset code" },
+  reset: { title: "New password", subtitle: "Paste your reset code and pick a new password.", submit: "Update password" },
 };
+
+// Small line-icon set for the auth card. Plain inline SVG (currentColor) so no
+// external requests and the icons pick up theme colour automatically.
+const iconProps = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
+const IconMail = () => (<svg {...iconProps}><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3.5 6.5 8.5 6.5 8.5-6.5" /></svg>);
+const IconLock = () => (<svg {...iconProps}><rect x="4" y="11" width="16" height="9" rx="2.5" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>);
+const IconKey = () => (<svg {...iconProps}><circle cx="8" cy="15" r="4" /><path d="m10.8 12.2 7.7-7.7M16 7l2 2M19 4l2 2" /></svg>);
+const IconEye = () => (<svg {...iconProps}><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z" /><circle cx="12" cy="12" r="3" /></svg>);
+const IconEyeOff = () => (<svg {...iconProps}><path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.61 3.81M6.53 6.53A18.6 18.6 0 0 0 1 12s4 8 11 8a10.9 10.9 0 0 0 5.47-1.47M14.12 14.12a3 3 0 1 1-4.24-4.24" /><path d="m1 1 22 22" /></svg>);
 
 function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem("stockroom-theme") || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
@@ -1132,6 +1097,7 @@ function App() {
   const [mode, setMode] = useState(initialReset ? "reset" : "signin");
   const [role, setRole] = useState("owner");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [message, setMessage] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [booting, setBooting] = useState(Boolean(getCsrfToken()) && !initialReset);
@@ -1344,191 +1310,184 @@ function App() {
     );
   }
 
-  const aside =
+  const footer =
     mode === "signup"
-      ? {
-          title: "One of us?",
-          body: "Already have a Stockroom workspace? Sign in to pick up your inventory, billing and reports.",
-          cta: "Sign In",
-          go: "signin",
-        }
+      ? { text: "Already have a workspace?", cta: "Sign In", go: "signin" }
       : mode === "forgot" || mode === "reset"
-      ? {
-          title: "Remembered it?",
-          body: "Head back to the sign in screen and continue into your workspace.",
-          cta: "Back to sign in",
-          go: "signin",
-        }
-      : {
-          title: "New Here?",
-          body: "Create your Stockroom workspace and manage inventory, POS billing, sales, purchases and suppliers in one place.",
-          cta: "Sign Up",
-          go: "signup",
-        };
+      ? { text: "Remembered it?", cta: "Back to sign in", go: "signin" }
+      : { text: "Don't have an account?", cta: "Sign Up", go: "signup" };
 
   return (
     <main className="auth-motion-stage">
-      <button className="public-theme-toggle" type="button" onClick={() => setTheme((current) => current === "dark" ? "light" : "dark")} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
-        <span aria-hidden="true">{theme === "dark" ? "☀" : "◐"}</span> {theme === "dark" ? "Light" : "Dark"}
-      </button>
       <MotionConfig transition={{ type: "spring", bounce: 0.24, visualDuration: 0.45 }}>
-        <div className="auth-split">
-          <aside className="auth-split-aside">
-            <span className="auth-blob auth-blob-a" aria-hidden="true" />
-            <span className="auth-blob auth-blob-b" aria-hidden="true" />
-            <div className="auth-aside-inner">
-              <span className="auth-aside-badge" aria-hidden="true">
-                <span className="mark-icon"><span /></span>
-              </span>
-              <h2>{aside.title}</h2>
-              <p>{aside.body}</p>
-              <button
-                type="button"
-                className="auth-aside-btn"
-                onClick={() => {
-                  if (mode === "forgot" || mode === "reset") clearResetUrl();
-                  goToMode(aside.go);
-                }}
-              >
-                {aside.cta}
-              </button>
-              <ul className="auth-aside-features">
-                <li>Inventory &amp; stock tracking</li>
-                <li>POS &amp; billing</li>
-                <li>Sales &amp; purchase orders</li>
-                <li>Customers &amp; suppliers</li>
-                <li>Reports &amp; low-stock alerts</li>
-              </ul>
-            </div>
-          </aside>
-          <AnimatePresence mode="wait">
-          <motion.section className="auth-split-form" key={mode} initial={{ opacity: 0, x: 40, scale: 0.96 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: 30, scale: 0.97 }}>
-          <div className="auth-split-inner">
-          <header className="auth-split-brand"><span className="mark-icon" aria-hidden="true"><span /></span><span>stockroom</span></header>
-          <div className="form-heading">
-            <p className="eyebrow">{copy.eyebrow}</p>
-            <h2>{copy.title}</h2>
-            <p className="form-subtitle">{copy.subtitle}</p>
+        <AnimatePresence mode="wait">
+        <motion.div className="auth-card" key={mode} initial={{ opacity: 0, y: 22, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -14, scale: 0.98 }} whileHover={{ y: -4 }}>
+          <div className="auth-hero" aria-hidden="true">
+            <svg className="auth-hero-texture" viewBox="0 0 900 600" preserveAspectRatio="xMidYMin slice">
+              <g transform="translate(900, 600)">
+                <path d="M-378.6 0C-374.6 -50.7 -370.6 -101.5 -349.8 -144.9C-329 -188.3 -291.3 -224.3 -253.1 -253.1C-215 -282 -176.2 -303.6 -133.9 -323.4C-91.7 -343.1 -45.8 -360.8 0 -378.6L0 0Z" />
+              </g>
+              <g transform="translate(0, 0)">
+                <path d="M378.6 0C374 49.3 369.5 98.5 349.8 144.9C330.1 191.2 295.2 234.7 252.4 252.4C209.7 270.2 159 262.3 115.6 279C72.2 295.8 36.1 337.2 0 378.6L0 0Z" />
+              </g>
+            </svg>
+            <svg className="auth-hero-wave" viewBox="0 0 400 220" preserveAspectRatio="none">
+              <path d="M0,140 C70,190 120,80 200,110 C270,135 310,70 400,90 L400,220 L0,220 Z" />
+            </svg>
+            <span className="auth-hero-brand">stockroom</span>
           </div>
-          {(mode === "signin" || mode === "signup") && (
-            <div
-              className="role-switch"
-              role="tablist"
-              aria-label="Account type"
-            >
-              <button
-                className={role === "owner" ? "active" : ""}
-                type="button"
-                onClick={() => setRole("owner")}
+          <div className="auth-card-body">
+            <h1 className="auth-title">{copy.title}</h1>
+            {copy.subtitle && <p className="auth-subtitle">{copy.subtitle}</p>}
+            {(mode === "signin" || mode === "signup") && (
+              <div
+                className="role-switch"
+                role="tablist"
+                aria-label="Account type"
               >
-                ⌂ Shop owner
-              </button>
-              <button
-                className={role === "team" ? "active" : ""}
-                type="button"
-                onClick={() => setRole("team")}
-              >
-                ♧ Team member
-              </button>
-            </div>
-          )}
-          <form onSubmit={handleSubmit}>
-            {mode !== "reset" && (
-              <>
-                <label htmlFor="email">Work email</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  placeholder="you@yourbusiness.com"
-                />
-              </>
+                <button
+                  className={role === "owner" ? "active" : ""}
+                  type="button"
+                  onClick={() => setRole("owner")}
+                >
+                  ⌂ Shop owner
+                </button>
+                <button
+                  className={role === "team" ? "active" : ""}
+                  type="button"
+                  onClick={() => setRole("team")}
+                >
+                  ♧ Team member
+                </button>
+              </div>
             )}
-            {mode === "reset" && (
-              <>
-                <label htmlFor="token">Reset code</label>
-                <input
-                  id="token"
-                  name="token"
-                  required
-                  placeholder="Paste the code from your email"
-                  defaultValue={resetToken}
-                />
-              </>
-            )}
-            {mode !== "forgot" && (
-              <>
-                <div className="password-label">
+            <form onSubmit={handleSubmit}>
+              {mode !== "reset" && (
+                <div className="auth-field">
+                  <label htmlFor="email">Email</label>
+                  <div className="auth-input-wrap">
+                    <span className="auth-input-icon"><IconMail /></span>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="you@yourbusiness.com"
+                    />
+                  </div>
+                </div>
+              )}
+              {mode === "reset" && (
+                <div className="auth-field">
+                  <label htmlFor="token">Reset code</label>
+                  <div className="auth-input-wrap">
+                    <span className="auth-input-icon"><IconKey /></span>
+                    <input
+                      id="token"
+                      name="token"
+                      required
+                      placeholder="Paste the code from your email"
+                      defaultValue={resetToken}
+                    />
+                  </div>
+                </div>
+              )}
+              {mode !== "forgot" && (
+                <div className="auth-field">
                   <label htmlFor="password">
                     {mode === "reset" ? "New password" : "Password"}
                   </label>
+                  <div className="auth-input-wrap">
+                    <span className="auth-input-icon"><IconLock /></span>
+                    <input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder={
+                        mode === "reset"
+                          ? "At least 8 characters"
+                          : "Enter your password"
+                      }
+                    />
+                    <button
+                      type="button"
+                      className="auth-eye-toggle"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <IconEyeOff /> : <IconEye />}
+                    </button>
+                  </div>
                 </div>
-                <div className="password-field">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    placeholder={
-                      mode === "reset"
-                        ? "At least 8 characters"
-                        : "Enter your password"
-                    }
-                  />
-                  <button
-                    type="button"
-                    className="show-password"
-                    onClick={() => setShowPassword(!showPassword)}
+              )}
+              {(mode === "signup" || mode === "reset") && (
+                <div className="auth-field">
+                  <label htmlFor="confirmPassword">Confirm password</label>
+                  <div className="auth-input-wrap">
+                    <span className="auth-input-icon"><IconLock /></span>
+                    <input
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      type={showPassword ? "text" : "password"}
+                      required
+                      placeholder="Repeat your password"
+                    />
+                  </div>
+                </div>
+              )}
+              {mode === "signin" && (
+                <div className="auth-row">
+                  <label className="auth-remember">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(event) => setRememberMe(event.target.checked)}
+                    />
+                    <span className="auth-checkbox-box" aria-hidden="true" />
+                    <span>Remember Me</span>
+                  </label>
+                  <a
+                    href="#forgot"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      goToMode("forgot");
+                    }}
                   >
-                    {showPassword ? "Hide" : "Show"}
-                  </button>
+                    Forgot Password?
+                  </a>
                 </div>
-              </>
-            )}
-            {(mode === "signup" || mode === "reset") && (
-              <>
-                <label htmlFor="confirmPassword">Confirm password</label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showPassword ? "text" : "password"}
-                  required
-                  placeholder="Repeat your password"
-                />
-              </>
-            )}
-            <button
-              className="submit-button"
-              type="submit"
-              disabled={submitting}
-            >
-              {submitting ? "Please wait…" : copy.submit} <span>→</span>
-            </button>
-            {message && (
-              <p className={`form-status ${message.type}`}>{message.text}</p>
-            )}
-          </form>
-          {mode === "signin" && (
-            <a
-              className="auth-forgot"
-              href="#forgot"
-              onClick={(event) => {
-                event.preventDefault();
-                goToMode("forgot");
-              }}
-            >
-              Forgot Password?
-            </a>
-          )}
-          <p className="legal">
-            By continuing, you agree to our <a href="#terms">Terms</a> and{" "}
-            <a href="#privacy">Privacy Policy</a>.
-          </p>
+              )}
+              <button
+                className="submit-button"
+                type="submit"
+                disabled={submitting}
+              >
+                {submitting ? "Please wait…" : copy.submit}
+              </button>
+              {message && (
+                <p className={`form-status ${message.type}`}>{message.text}</p>
+              )}
+            </form>
+            <p className="auth-switch-line">
+              {footer.text}{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  if (mode === "forgot" || mode === "reset") clearResetUrl();
+                  goToMode(footer.go);
+                }}
+              >
+                {footer.cta}
+              </button>
+            </p>
+            <p className="legal">
+              By continuing, you agree to our <a href="#terms">Terms</a> and{" "}
+              <a href="#privacy">Privacy Policy</a>.
+            </p>
           </div>
-        </motion.section>
+        </motion.div>
         </AnimatePresence>
-        </div>
       </MotionConfig>
     </main>
   );
