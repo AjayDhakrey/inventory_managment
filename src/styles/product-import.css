@@ -21,9 +21,9 @@
 .import-shell.stock-ledger-shell .dashboard-header { right: 32px; }
 .import-shell.stock-ledger-shell .business-context { min-height: 74px; margin: 0 -32px 26px; padding: 0 300px 0 34px; border-bottom: 1px solid var(--im-line); color: var(--im-muted); background: #080d14; font-size: 11px; }
 .import-shell .business-context .pc-breadcrumb { color: var(--im-orange); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
-.import-shell .business-context .pc-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--im-green); background: rgba(47, 214, 168, .08); font: 9px 'DM Mono', sans-serif; text-transform: uppercase; letter-spacing: .7px; }
+.import-shell .business-context .pc-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--im-green); background: rgba(47, 214, 168, .08); font: 9px 'sans-serif', sans-serif; text-transform: uppercase; letter-spacing: .7px; }
 .import-shell .business-context .pc-tag-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
-.import-shell .business-context .pc-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--im-line); border-radius: 6px; color: var(--im-text); font: 10px 'DM Mono', sans-serif; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
+.import-shell .business-context .pc-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--im-line); border-radius: 6px; color: var(--im-text); font: 10px 'sans-serif', sans-serif; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
 
 .import-shell .import-page { width: min(100%, 1400px); margin: 0 auto; color: var(--im-text); background: var(--im-bg); animation: im-fade .28s ease-out both; }
 .import-shell .import-page *, .import-shell .import-page *::before, .import-shell .import-page *::after { box-sizing: border-box; }
@@ -34,7 +34,7 @@
 @keyframes im-fade { from { opacity: 0; } to { opacity: 1; } }
 
 .import-shell .import-page .products-toolbar { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
-.import-shell .import-page .products-toolbar .dashboard-kicker { color: var(--im-muted); font: 10px 'DM Mono', sans-serif; text-transform: uppercase; letter-spacing: .9px; }
+.import-shell .import-page .products-toolbar .dashboard-kicker { color: var(--im-muted); font: 10px 'sans-serif', sans-serif; text-transform: uppercase; letter-spacing: .9px; }
 .import-shell .import-page .products-toolbar h2 { margin: 9px 0 0; color: var(--im-text); font: 800 clamp(24px, 2.7vw, 36px)/1.08 'Manrope', sans-serif; letter-spacing: -1.4px; }
 .import-shell .import-page .products-count { margin: 10px 0 0; color: var(--im-muted); font-size: 13px; }
 .import-shell .import-page .products-count b { color: var(--im-text); font-weight: 600; }
@@ -63,7 +63,7 @@
 .import-shell .import-page .import-dropzone strong { margin: 14px 0 6px; color: var(--im-text); font-size: 17px; }
 .import-shell .import-page .import-dropzone small { color: var(--im-dim); }
 .import-shell .import-page .import-browse-link { color: var(--im-orange); font-weight: 700; }
-.import-shell .import-page .import-limits { color: var(--im-dim); font: 9px 'DM Mono', sans-serif; text-transform: uppercase; letter-spacing: .3px; }
+.import-shell .import-page .import-limits { color: var(--im-dim); font: 9px 'sans-serif', sans-serif; text-transform: uppercase; letter-spacing: .3px; }
 .import-shell .import-page .import-icon { color: #fff; background: var(--im-orange); box-shadow: 0 10px 26px rgba(255, 106, 26, .28); }
 .import-shell .import-page .import-format-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 16px 0 14px; }
 .import-shell .import-page .import-pill { display: inline-flex; align-items: center; gap: 7px; padding: 8px 14px; border: 1px solid var(--im-line); border-radius: 999px; color: var(--im-muted); background: var(--im-panel-2); font: 600 10px 'Manrope', sans-serif; }
@@ -75,25 +75,25 @@
 
 .import-shell .import-page .import-guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 0 0 30px; }
 .import-shell .import-page .import-guide article { padding: 20px 18px 18px; border: 1px solid var(--im-line); border-radius: 14px; color: var(--im-text); background: var(--im-panel); }
-.import-shell .import-page .import-guide article b { display: grid; place-items: center; width: 26px; height: 26px; margin-bottom: 12px; border-radius: 8px; color: #fff; background: var(--im-orange); font: 700 12px 'DM Mono', sans-serif; }
+.import-shell .import-page .import-guide article b { display: grid; place-items: center; width: 26px; height: 26px; margin-bottom: 12px; border-radius: 8px; color: #fff; background: var(--im-orange); font: 700 12px 'sans-serif', sans-serif; }
 .import-shell .import-page .import-guide article strong { color: var(--im-text); }
 .import-shell .import-page .import-guide article p { color: var(--im-dim); }
 
 .import-shell .import-page .import-summary { display: grid; grid-template-columns: repeat(4, minmax(90px, .6fr)) minmax(180px, 1.6fr); margin-bottom: 14px; border: 1px solid var(--im-line); border-radius: 12px; color: var(--im-text); background: var(--im-panel); overflow: hidden; }
 .import-shell .import-page .import-summary span { padding: 14px 16px; border-right: 1px solid var(--im-line); }
-.import-shell .import-page .import-summary small { color: var(--im-dim); font: 8px 'DM Mono', sans-serif; text-transform: uppercase; }
+.import-shell .import-page .import-summary small { color: var(--im-dim); font: 8px 'sans-serif', sans-serif; text-transform: uppercase; }
 .import-shell .import-page .import-summary strong { margin-top: 5px; color: var(--im-text); font-size: 12px; }
 .import-shell .import-page .import-summary .success strong { color: var(--im-green); }
 .import-shell .import-page .import-summary .danger strong { color: var(--im-rose); }
 
 .import-shell .import-page .import-options { display: grid; grid-template-columns: 1fr 1fr auto; gap: 12px; align-items: end; padding: 14px; border: 1px solid var(--im-line); border-radius: 12px; background: var(--im-panel-2); }
-.import-shell .import-page .import-options label, .import-shell .import-page .import-options > div { color: var(--im-muted); font: 8px 'DM Mono', sans-serif; text-transform: uppercase; }
+.import-shell .import-page .import-options label, .import-shell .import-page .import-options > div { color: var(--im-muted); font: 8px 'sans-serif', sans-serif; text-transform: uppercase; }
 .import-shell .import-page .import-options select, .import-shell .import-page .import-options input { height: 38px; border: 1px solid var(--im-line); border-radius: 7px; color: var(--im-text); background: var(--im-panel); box-shadow: none; }
 .import-shell .import-page .import-options button { height: 38px; border: 1px solid var(--im-line); border-radius: 7px; color: var(--im-muted); background: var(--im-panel); }
 
 .import-shell .import-page .import-table-wrap, .import-shell .import-page .import-history-table-wrap { margin-top: 12px; border: 1px solid var(--im-line); border-radius: 12px; color: var(--im-text); background: var(--im-panel); overflow: auto; }
 .import-shell .import-page .import-table, .import-shell .import-page .import-history-table { border-collapse: collapse; }
-.import-shell .import-page .import-table th, .import-shell .import-page .import-history-table th { color: var(--im-muted); background: var(--im-panel-2); font: 8px 'DM Mono', sans-serif; text-transform: uppercase; }
+.import-shell .import-page .import-table th, .import-shell .import-page .import-history-table th { color: var(--im-muted); background: var(--im-panel-2); font: 8px 'sans-serif', sans-serif; text-transform: uppercase; }
 .import-shell .import-page .import-table td, .import-shell .import-page .import-history-table td { border-top: 1px solid var(--im-line); color: var(--im-text); }
 .import-shell .import-page .import-table tr.invalid { background: rgba(255, 93, 124, .07); }
 .import-shell .import-page .import-table tr.duplicate { background: rgba(255, 194, 51, .07); }
@@ -101,7 +101,7 @@
 .import-shell .import-page .import-table td:first-child { background: var(--im-panel); }
 .import-shell .import-page .import-table td:first-child small { color: var(--im-rose); }
 .import-shell .import-page .import-table td:first-child small.import-warning { color: var(--im-amber); }
-.import-shell .import-page .import-status { color: var(--im-dim); font: 8px 'DM Mono', sans-serif; text-transform: uppercase; }
+.import-shell .import-page .import-status { color: var(--im-dim); font: 8px 'sans-serif', sans-serif; text-transform: uppercase; }
 .import-shell .import-page .import-remove { border: 0; color: var(--im-rose); background: transparent; font-size: 18px; }
 .import-shell .import-page .import-confirm { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px; border: 1px solid var(--im-line); border-top: 0; border-radius: 0 0 12px 12px; color: var(--im-text); background: var(--im-panel); }
 .import-shell .import-page .import-confirm p { color: var(--im-muted); }

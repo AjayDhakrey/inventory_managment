@@ -42,7 +42,7 @@
 .credit-table small { display: block; margin-top: 5px; color: var(--cs-muted); font-size: 11px; }
 .credit-table small span { margin: 0 6px; }
 .credit-table em { font-style: normal; padding: 2px 5px; border-radius: 4px; background: #78716c09; }
-.credit-order-id { font-family: 'DM Mono', sans-serif; white-space: nowrap; }
+.credit-order-id { font-family: 'sans-serif', sans-serif; white-space: nowrap; }
 .credit-customer { display: flex; align-items: center; gap: 12px; }
 .credit-avatar { flex: 0 0 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 12px; }
 .credit-avatar.tone-1 { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }

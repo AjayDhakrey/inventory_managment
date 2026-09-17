@@ -21,9 +21,9 @@
 .cs-shell.stock-ledger-shell .dashboard-header { right: 32px; }
 .cs-shell.stock-ledger-shell .business-context { min-height: 74px; margin: 0 -32px 22px; padding: 0 300px 0 34px; border-bottom: 1px solid var(--csd-line); color: var(--csd-muted); background: #080d14; font-size: 11px; }
 .cs-shell .business-context :is(.cs-breadcrumb) { color: var(--csd-orange); text-transform: uppercase; letter-spacing: .5px; white-space: nowrap; }
-.cs-shell .business-context .cs-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--csd-green); background: rgba(47, 214, 168, .08); font: 9px 'DM Mono', sans-serif; text-transform: uppercase; letter-spacing: .7px; }
+.cs-shell .business-context .cs-tag-live { display: inline-flex; align-items: center; gap: 6px; margin-left: 4px; padding: 4px 9px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--csd-green); background: rgba(47, 214, 168, .08); font: 9px 'sans-serif', sans-serif; text-transform: uppercase; letter-spacing: .7px; }
 .cs-shell .business-context .cs-tag-live::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
-.cs-shell .business-context .cs-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--csd-line); border-radius: 6px; color: var(--csd-text); font: 10px 'DM Mono', sans-serif; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
+.cs-shell .business-context .cs-workspace-tag { margin-left: auto; padding: 6px 12px; border: 1px solid var(--csd-line); border-radius: 6px; color: var(--csd-text); font: 10px 'sans-serif', sans-serif; text-transform: uppercase; letter-spacing: .6px; white-space: nowrap; }
 
 /* Token flip — cascades through credit-sales.css + bulk-pricing.css */
 .cs-shell .credit-sales, .cs-shell .bulk-pricing { --cs-bg: var(--csd-panel); --cs-text: var(--csd-text); --cs-muted: var(--csd-muted); --cs-line: var(--csd-line); }

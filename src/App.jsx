@@ -54,6 +54,7 @@ const NAVIGATION_LABELS = {
 };
 
 const navigationLabel = (item) => NAVIGATION_LABELS[item] || item;
+const capitalize = (value) => (value ? value.charAt(0).toUpperCase() + value.slice(1) : value);
 
 // Visual stock-health ratio for the Overview inventory meter (0–100).
 const stockLevelPct = (stock, minimum) => {
@@ -503,7 +504,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
         </div>
         <div className="business-context">
           <span className="business-context-dot" />{" "}
-          {business?.name || "Your business"} <span>/</span>{" "}
+          <strong className="business-context-name">{business?.name || "Your business"}</strong> <span>/</span>{" "}
           {business?.industry || "workspace"}
           {["Stock In", "Stock Out", "Adjustments"].includes(activeNav) && <><span>/</span><strong className="stock-in-breadcrumb">{activeNav}</strong><span className="stock-in-currency">{business.currency}</span></>}
           {activeNav === "Stock History" && <><span>/</span><strong className="audit-breadcrumb">Stock Movement Audit</strong><span className="audit-stream">Live stream</span><span className="audit-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
@@ -540,7 +541,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             </p>
             <h1>
               {activeNav === "Overview"
-                ? `Welcome back, ${account.name || account.email.split("@")[0]}.`
+                ? `Welcome back, ${capitalize(account.name || account.email.split("@")[0])}.`
                 : activeNav}
             </h1>
           </div>
@@ -573,7 +574,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                   {(account.name || account.email)[0].toUpperCase()}
                 </span>
                 <span className="user-chip-copy">
-                  <strong>{account.name || account.email.split("@")[0]}</strong>
+                  <strong>{capitalize(account.name || account.email.split("@")[0])}</strong>
                   <small>{account.role === "owner" ? "Administrator" : account.role || "Team member"}</small>
                 </span>
                 <span className={`chevron user-chevron ${showUserMenu ? "open" : ""}`} aria-hidden="true">
@@ -587,7 +588,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
                       {(account.name || account.email)[0].toUpperCase()}
                     </span>
                     <div className="popover-user-info">
-                      <strong>{account.name || account.email.split("@")[0]}</strong>
+                      <strong>{capitalize(account.name || account.email.split("@")[0])}</strong>
                       <small>{account.email}</small>
                       <span className="user-role-badge">
                         {account.role === "owner" ? "Administrator / Owner" : account.role || "Team member"}
@@ -663,6 +664,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
         </header>
         {activeNav === "Overview" ? (
           <>
+            <div className="overview-top-order">
             <div
               className={`overview-quick-nav${mobileQuickNavOpen ? " mobile-open" : ""}`}
               ref={overviewMenuRef}
@@ -836,6 +838,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               {hasWidget('batchAlerts') && <article className="summary-card"><span className="summary-icon neutral" aria-hidden="true"><KpiIconLayers /></span><span className="summary-label">Tracked batches</span><strong>{(products || []).filter((product) => product.batchNumber).length}</strong><span className="trend neutral">Batch records</span></article>}
               {hasWidget('topSizes') && <article className="summary-card"><span className="summary-icon neutral" aria-hidden="true"><KpiIconLayers /></span><span className="summary-label">Top stocked size</span><strong>{topValue('size')}</strong><span className="trend neutral">Across clothing variants</span></article>}
               {hasWidget('warrantyAlerts') && <article className="summary-card"><span className="summary-icon negative" aria-hidden="true"><KpiIconAlertTriangle /></span><span className="summary-label">Warranty-tracked items</span><strong>{(products || []).filter((product) => product.warrantyMonths).length}</strong><span className="trend neutral">Electronics records</span></article>}
+            </div>
             </div>
             </div>
             <div className="dashboard-grid">

@@ -7,7 +7,7 @@
   --auth-brand: #5b371f; --auth-brand-light: #8b5a34; --auth-brand-deep: #3d2414;
   --success: #227a4e; --success-soft: #e2f5e9; --warning: #92640a; --warning-soft: #fbeed7; --danger: #b3402f; --danger-soft: #fbe6e1; --info: #2f6f8a; --info-soft: #e3f1f5;
   --purple: #6b4c8a;
-  --sr-font: 'Manrope','Segoe UI',sans-serif; --sr-mono: 'DM Mono',Consolas,sans-serif;
+  --sr-font: 'Manrope','Segoe UI',sans-serif; --sr-mono: 'sans-serif',Consolas,sans-serif;
   --sr-fs-micro: 11px; --sr-fs-caption: 12px; --sr-fs-body: 14px; --sr-fs-body-lg: 15px; --sr-lh: 1.55;
   --sr-space-1: 4px; --sr-space-2: 8px; --sr-space-3: 12px; --sr-space-4: 16px; --sr-space-5: 20px; --sr-space-6: 28px;
   --sr-radius-xs: 6px; --sr-radius: 10px; --sr-radius-lg: 14px; --sr-radius-xl: 18px; --sr-control-h: 44px; --sr-control-h-sm: 38px;
