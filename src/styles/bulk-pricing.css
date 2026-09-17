@@ -4,7 +4,7 @@
 .bulk-pricing .credit-stat-label { color: var(--cs-muted); font-weight: 500; }
 .bulk-pricing .credit-stat-label span { display: grid; place-items: center; width: 38px; height: 38px; border: 0; border-radius: 10px; background: #eff6ff; color: #2563eb; font-size: 20px; }
 .bulk-pricing .credit-summary article:nth-child(2) .credit-stat-label span { color: #ea580c; background: #fff7ed; }
-.bulk-pricing .credit-summary article:nth-child(3) .credit-stat-label span { color: #059669; background: #ecfdf5; }
+.bulk-pricing .credit-summary article:nth-child(3) .credit-stat-label span { color: #965b05; background: #fdf6ec; }
 .bulk-pricing .credit-summary article:nth-child(4) .credit-stat-label span { color: #9333ea; background: #faf5ff; }
 .bulk-tag { border: 1px solid var(--cs-line); background: #64748b08; border-radius: 20px; padding: 5px 12px; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
 .bulk-description { color: var(--cs-muted); font-size: 14px; max-width: 670px; line-height: 1.7; margin-bottom: 0; }
@@ -52,12 +52,12 @@
 .bulk-chip button:hover { background: #e44917; color: #fff; }
 .bulk-clear-all { border: 0; background: transparent; color: #e44917; font-size: 12px; font-weight: 700; padding: 6px 4px; }
 
-.bulk-product-icon { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid var(--cs-line); border-radius: 12px; background: #64748b09; font: 600 13px 'DM Mono',monospace; }
+.bulk-product-icon { display: grid; place-items: center; flex: 0 0 40px; height: 40px; border: 1px solid var(--cs-line); border-radius: 12px; background: #64748b09; font: 600 13px 'DM Mono',sans-serif; }
 .bulk-category, .bulk-sku { display: inline-block; border-radius: 6px; padding: 7px 10px; background: #64748b09; font-size: 11px; }
-.bulk-sku { white-space: nowrap; border: 1px solid var(--cs-line); font-family: 'DM Mono',monospace; }
-.bulk-discount { border: 1px solid #a7f3d0; border-radius: 4px; padding: 4px 7px; color: #00865a; background: #ecfdf5; font-size: 11px; white-space: nowrap; }
+.bulk-sku { white-space: nowrap; border: 1px solid var(--cs-line); font-family: 'DM Mono',sans-serif; }
+.bulk-discount { border: 1px solid #f3d2a7; border-radius: 4px; padding: 4px 7px; color: #864f00; background: #fdf6ec; font-size: 11px; white-space: nowrap; }
 .bulk-status { padding: 4px 9px; border-radius: 20px; font-size: 11px; }
-.bulk-status-active { color: #00865a; background: #ecfdf5; border: 1px solid #a7f3d0; }
+.bulk-status-active { color: #864f00; background: #fdf6ec; border: 1px solid #f3d2a7; }
 .bulk-status-below_moq { color: #a16207; background: #fffbeb; border: 1px solid #fde68a; }
 .bulk-status-out_of_stock { color: #e11d48; background: #fff1f2; border: 1px solid #fecdd3; }
 .bulk-row-actions { flex-wrap: nowrap; }

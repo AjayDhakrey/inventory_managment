@@ -63,12 +63,27 @@ const stockLevelPct = (stock, minimum) => {
   return Math.max(6, Math.min(100, Math.round((value / full) * 100)));
 };
 
+// Small line-icon set for the KPI summary cards. Plain inline SVG (currentColor) so the
+// badge tint (set by the card's trend class) carries through with no extra assets.
+const kpiIconProps = { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
+const KpiIconWallet = () => (<svg {...kpiIconProps}><path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3" /><path d="M3 7v11a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-7a1 1 0 0 0-1-1h-5a2.5 2.5 0 0 0 0 5h6" /></svg>);
+const KpiIconTrendUp = () => (<svg {...kpiIconProps}><path d="M3 17 10 10l4 4 7-7" /><path d="M17 6h4v4" /></svg>);
+const KpiIconAlertTriangle = () => (<svg {...kpiIconProps}><path d="M12 4 2.5 20h19L12 4Z" /><path d="M12 10.5v4" /><path d="M12 17.5h.01" /></svg>);
+const KpiIconBox = () => (<svg {...kpiIconProps}><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9Z" /><path d="M3.5 7.5 12 12l8.5-4.5" /><path d="M12 12v9" /></svg>);
+const KpiIconTruck = () => (<svg {...kpiIconProps}><path d="M2 7h11v9H2z" /><path d="M13 10h4l3 3v3h-7z" /><circle cx="7" cy="18" r="1.6" /><circle cx="17" cy="18" r="1.6" /></svg>);
+const KpiIconUsers = () => (<svg {...kpiIconProps}><circle cx="9" cy="8" r="3.2" /><path d="M2.5 19c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /><path d="M16 8.2a3 3 0 1 1 3.6 2.9" /><path d="M19 13.7c2.2.5 3.5 2.1 3.5 4.3" /></svg>);
+const KpiIconClock = () => (<svg {...kpiIconProps}><circle cx="12" cy="12" r="8.5" /><path d="M12 7.5V12l3 2" /></svg>);
+const KpiIconXCircle = () => (<svg {...kpiIconProps}><circle cx="12" cy="12" r="8.5" /><path d="m9 9 6 6M15 9l-6 6" /></svg>);
+const KpiIconLayers = () => (<svg {...kpiIconProps}><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></svg>);
+const KpiIconRefresh = () => (<svg {...kpiIconProps}><path d="M4 12a8 8 0 0 1 14-5.3L21 9" /><path d="M21 4v5h-5" /><path d="M20 12a8 8 0 0 1-14 5.3L3 15" /><path d="M3 20v-5h5" /></svg>);
+
 function Dashboard({ account, business, initialNav = "Overview", onLogout, onBusinessUpdate, theme, onToggleTheme }) {
   const [activeNav, setActiveNav] = useState(initialNav);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [expandedNavSections, setExpandedNavSections] = useState(() => new Set(["Inventory"]));
   const [overviewMenu, setOverviewMenu] = useState(null);
+  const [mobileQuickNavOpen, setMobileQuickNavOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [overviewCategory, setOverviewCategory] = useState("all");
   const [overviewSort, setOverviewSort] = useState("default");
@@ -156,14 +171,17 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
     return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
   }, [showWorkspacePopover]);
   useEffect(() => {
-    if (!overviewMenu) return undefined;
+    if (!overviewMenu && !mobileQuickNavOpen) return undefined;
     const close = (event) => {
-      if (event.type === "keydown" ? event.key === "Escape" : !overviewMenuRef.current?.contains(event.target)) setOverviewMenu(null);
+      if (event.type === "keydown" ? event.key === "Escape" : !overviewMenuRef.current?.contains(event.target)) {
+        setOverviewMenu(null);
+        setMobileQuickNavOpen(false);
+      }
     };
     document.addEventListener("pointerdown", close);
     window.addEventListener("keydown", close);
     return () => { document.removeEventListener("pointerdown", close); window.removeEventListener("keydown", close); };
-  }, [overviewMenu]);
+  }, [overviewMenu, mobileQuickNavOpen]);
   useEffect(() => {
     if (!canViewInventory) return undefined;
     const refreshDashboardProducts = () => {
@@ -646,65 +664,78 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
         {activeNav === "Overview" ? (
           <>
             <div
-              className="overview-quick-nav"
+              className={`overview-quick-nav${mobileQuickNavOpen ? " mobile-open" : ""}`}
               ref={overviewMenuRef}
               onMouseLeave={() => setOverviewMenu(null)}
             >
-              <nav aria-label="Overview shortcuts">
-                {Object.keys(overviewNavigation).map((group) => {
-                  const available = overviewNavigation[group].some(([, items]) => items.some(canOpen));
-                  if (!available) return null;
-                  return (
-                    <button
-                      type="button"
-                      key={group}
-                      className={overviewMenu === group ? "active" : ""}
-                      aria-expanded={overviewMenu === group}
-                      onMouseEnter={() => setOverviewMenu(group)}
-                      onClick={() => setOverviewMenu((current) => (current === group ? null : group))}
+              <button
+                type="button"
+                className="overview-quick-nav-toggle"
+                aria-expanded={mobileQuickNavOpen}
+                aria-label="Open section menu"
+                onClick={() => setMobileQuickNavOpen((current) => { if (current) setOverviewMenu(null); return !current; })}
+              >
+                Menu <span aria-hidden="true">▾</span>
+              </button>
+              <div className="overview-quick-nav-panel">
+                <nav aria-label="Overview shortcuts">
+                  {Object.keys(overviewNavigation).map((group) => {
+                    const available = overviewNavigation[group].some(([, items]) => items.some(canOpen));
+                    if (!available) return null;
+                    return (
+                      <button
+                        type="button"
+                        key={group}
+                        className={overviewMenu === group ? "active" : ""}
+                        aria-expanded={overviewMenu === group}
+                        onMouseEnter={() => setOverviewMenu(group)}
+                        onClick={() => setOverviewMenu(group)}
+                      >
+                        {group}
+                      </button>
+                    );
+                  })}
+                </nav>
+                <AnimatePresence>
+                  {overviewMenu && (
+                    <motion.div
+                      className="overview-mega-menu"
+                      initial={{ opacity: 0, y: -6, scale: 0.99 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.99 }}
+                      transition={{ duration: 0.15 }}
                     >
-                      {group}
-                    </button>
-                  );
-                })}
-              </nav>
-              <AnimatePresence>
-                {overviewMenu && (
-                  <motion.div
-                    className="overview-mega-menu"
-                    initial={{ opacity: 0, y: -6, scale: 0.99 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -4, scale: 0.99 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    {overviewNavigation[overviewMenu].map(([heading, items]) => {
-                      const visible = items.filter(canOpen);
-                      return (
-                        visible.length > 0 && (
-                          <section key={heading}>
-                            <p>{heading}</p>
-                            {visible.map((item) => (
-                              <button
-                                type="button"
-                                key={item}
-                                onClick={() => {
-                                  navigateTo(item);
-                                  setOverviewMenu(null);
-                                }}
-                              >
-                                {item}
-                                <span aria-hidden="true">→</span>
-                              </button>
-                            ))}
-                          </section>
-                        )
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                      {overviewNavigation[overviewMenu].map(([heading, items]) => {
+                        const visible = items.filter(canOpen);
+                        return (
+                          visible.length > 0 && (
+                            <section key={heading}>
+                              <p>{heading}</p>
+                              {visible.map((item) => (
+                                <button
+                                  type="button"
+                                  key={item}
+                                  onClick={() => {
+                                    navigateTo(item);
+                                    setOverviewMenu(null);
+                                    setMobileQuickNavOpen(false);
+                                  }}
+                                >
+                                  {item}
+                                  <span aria-hidden="true">→</span>
+                                </button>
+                              ))}
+                            </section>
+                          )
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
             {account.role === 'owner' && !checklistDismissed && gettingStarted && <section className="getting-started"><header><div><p className="dashboard-kicker">Getting started</p><h2>Finish setting up at your pace</h2></div><button type="button" className="close-button" aria-label="Dismiss getting started" onClick={() => { localStorage.setItem(`stockroom-getting-started:${business.businessId}`, 'dismissed'); setChecklistDismissed(true); }}>×</button></header><div>{[[products.length > 0, 'Add first product', capabilities.productLabel], [gettingStarted.suppliers > 0, 'Add supplier', 'Suppliers'], [products.some((product) => Number(product.minimumStock) > 0 || product.variants?.some((variant) => variant.reorderPoint > 0)), 'Configure stock/reorder settings', capabilities.productLabel], [gettingStarted.sales, 'Make first sale', 'POS / Billing'], [gettingStarted.members > 1, 'Invite team member', 'Users']].map(([done, label, destination]) => <button type="button" key={label} onClick={() => navigateTo(destination)}><span className={done ? 'done' : ''}>{done ? '✓' : '○'}</span>{label}</button>)}</div></section>}
+            <div className="pos-kpi-order">
             {(hasWidget('todaySales') || hasWidget('sales')) && <PosDashboardStats
               business={business}
               onOpen={() => navigateTo("POS / Billing")}
@@ -712,6 +743,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
             <div className="summary-row">
               {hasWidget('inventoryValue') && (
                 <article className="summary-card dark-card" title="Total inventory valuation based on purchase prices">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconWallet /></span>
                   <span className="summary-label">Inventory value</span>
                   <strong>{business.currency} {(reportData?.inventorySummary?.totalValuation ?? inventoryValue).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <span className="trend neutral">Live cost valuation</span>
@@ -719,6 +751,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('todaySales') && (
                 <article className="summary-card" title="Total sales revenue generated today">
+                  <span className="summary-icon positive" aria-hidden="true"><KpiIconTrendUp /></span>
                   <span className="summary-label">Today's Sales</span>
                   <strong>{business.currency} {Number(reportData?.salesSummary?.todaySales || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <span className="trend positive">Today's billing</span>
@@ -726,6 +759,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('grossProfit') && (
                 <article className="summary-card" title="Total profit margin (Revenue minus Cost of Goods Sold)">
+                  <span className="summary-icon positive" aria-hidden="true"><KpiIconTrendUp /></span>
                   <span className="summary-label">Gross Profit</span>
                   <strong>{business.currency} {Number(reportData?.salesSummary?.grossProfit || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <span className="trend positive">Revenue − COGS</span>
@@ -733,6 +767,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('receivables') && (
                 <article className="summary-card" title="Total pending credit/receivable balances due from customers">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconWallet /></span>
                   <span className="summary-label">Receivables</span>
                   <strong>{business.currency} {Number(reportData?.financialSummary?.outstandingReceivables || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <span className="trend neutral">Customer credit due</span>
@@ -740,6 +775,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {(hasWidget('lowStock') || hasWidget('lowStockVariants')) && (
                 <article className="summary-card" title="Products that have reached or fallen below minimum reorder levels">
+                  <span className="summary-icon negative" aria-hidden="true"><KpiIconAlertTriangle /></span>
                   <span className="summary-label">Needs restocking</span>
                   <strong>{reportData?.inventorySummary?.lowStockCount ?? (hasWidget('lowStockVariants') ? lowStockVariantCount : lowStockCount)}</strong>
                   <span className="trend negative">Low stock / Reorder alert</span>
@@ -747,6 +783,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('purchaseDue') && (
                 <article className="summary-card" title="Pending payable balances due to suppliers for purchase orders">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconWallet /></span>
                   <span className="summary-label">Purchase Due</span>
                   <strong>{business.currency} {Number(reportData?.financialSummary?.purchaseDue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <span className="trend neutral">Supplier payables</span>
@@ -754,6 +791,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('pendingOrders') && (
                 <article className="summary-card" title="Sales orders placed and awaiting fulfillment or payment">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconClock /></span>
                   <span className="summary-label">Pending Orders</span>
                   <strong>{reportData?.salesSummary?.pendingOrdersCount ?? 0}</strong>
                   <span className="trend neutral">{business.currency} {Number(reportData?.salesSummary?.pendingOrdersAmount || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
@@ -761,6 +799,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('outOfStock') && (
                 <article className="summary-card" title="Products with zero current stock in warehouse">
+                  <span className="summary-icon negative" aria-hidden="true"><KpiIconXCircle /></span>
                   <span className="summary-label">Out of Stock</span>
                   <strong>{reportData?.inventorySummary?.outOfStockCount ?? (products || []).filter((p) => Number(p.currentStock || 0) <= 0).length}</strong>
                   <span className="trend negative">Zero stock items</span>
@@ -768,6 +807,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('itemsInStock') && (
                 <article className="summary-card" title="Total units in stock across all products">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconBox /></span>
                   <span className="summary-label">Items in stock</span>
                   <strong>{unitsInStock.toLocaleString()}</strong>
                   <span className="trend neutral">Across {(products || []).length} products</span>
@@ -775,6 +815,7 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('activeSuppliers') && (
                 <article className="summary-card" title="Suppliers currently active and verified for purchasing">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconTruck /></span>
                   <span className="summary-label">Active Suppliers</span>
                   <strong>{reportData?.financialSummary?.activeSuppliers ?? 0}</strong>
                   <span className="trend neutral">Verified vendors</span>
@@ -782,18 +823,20 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
               )}
               {hasWidget('activeCustomers') && (
                 <article className="summary-card" title="Registered retail, wholesale, dealer, and contractor accounts">
+                  <span className="summary-icon neutral" aria-hidden="true"><KpiIconUsers /></span>
                   <span className="summary-label">Active Customers</span>
                   <strong>{reportData?.financialSummary?.activeCustomers ?? 0}</strong>
                   <span className="trend neutral">Customer accounts</span>
                 </article>
               )}
-              {hasWidget('totalVariants') && <article className="summary-card"><span className="summary-label">Active variants</span><strong>{clothingVariants.filter((variant) => variant.active !== false).length}</strong><span className="trend neutral">Size × color combinations</span></article>}
-              {hasWidget('reorderSuggestions') && <article className="summary-card" title="Products flagged for reordering"><span className="summary-label">Reorder suggestions</span><strong>{reportData?.inventorySummary?.reorderRequired ?? reorderSuggestionCount}</strong><span className="trend neutral">Ready for review</span></article>}
-              {hasWidget('expiringStock') && <article className="summary-card"><span className="summary-label">Expiring within 30 days</span><strong>{expiringCount}</strong><span className="trend neutral">Expiry tracking</span></article>}
-              {hasWidget('expiredStock') && <article className="summary-card"><span className="summary-label">Expired stock</span><strong>{expiredCount}</strong><span className="trend neutral">Remove from sale</span></article>}
-              {hasWidget('batchAlerts') && <article className="summary-card"><span className="summary-label">Tracked batches</span><strong>{(products || []).filter((product) => product.batchNumber).length}</strong><span className="trend neutral">Batch records</span></article>}
-              {hasWidget('topSizes') && <article className="summary-card"><span className="summary-label">Top stocked size</span><strong>{topValue('size')}</strong><span className="trend neutral">Across clothing variants</span></article>}
-              {hasWidget('warrantyAlerts') && <article className="summary-card"><span className="summary-label">Warranty-tracked items</span><strong>{(products || []).filter((product) => product.warrantyMonths).length}</strong><span className="trend neutral">Electronics records</span></article>}
+              {hasWidget('totalVariants') && <article className="summary-card"><span className="summary-icon neutral" aria-hidden="true"><KpiIconLayers /></span><span className="summary-label">Active variants</span><strong>{clothingVariants.filter((variant) => variant.active !== false).length}</strong><span className="trend neutral">Size × color combinations</span></article>}
+              {hasWidget('reorderSuggestions') && <article className="summary-card" title="Products flagged for reordering"><span className="summary-icon neutral" aria-hidden="true"><KpiIconRefresh /></span><span className="summary-label">Reorder suggestions</span><strong>{reportData?.inventorySummary?.reorderRequired ?? reorderSuggestionCount}</strong><span className="trend neutral">Ready for review</span></article>}
+              {hasWidget('expiringStock') && <article className="summary-card"><span className="summary-icon neutral" aria-hidden="true"><KpiIconClock /></span><span className="summary-label">Expiring within 30 days</span><strong>{expiringCount}</strong><span className="trend neutral">Expiry tracking</span></article>}
+              {hasWidget('expiredStock') && <article className="summary-card"><span className="summary-icon negative" aria-hidden="true"><KpiIconXCircle /></span><span className="summary-label">Expired stock</span><strong>{expiredCount}</strong><span className="trend neutral">Remove from sale</span></article>}
+              {hasWidget('batchAlerts') && <article className="summary-card"><span className="summary-icon neutral" aria-hidden="true"><KpiIconLayers /></span><span className="summary-label">Tracked batches</span><strong>{(products || []).filter((product) => product.batchNumber).length}</strong><span className="trend neutral">Batch records</span></article>}
+              {hasWidget('topSizes') && <article className="summary-card"><span className="summary-icon neutral" aria-hidden="true"><KpiIconLayers /></span><span className="summary-label">Top stocked size</span><strong>{topValue('size')}</strong><span className="trend neutral">Across clothing variants</span></article>}
+              {hasWidget('warrantyAlerts') && <article className="summary-card"><span className="summary-icon negative" aria-hidden="true"><KpiIconAlertTriangle /></span><span className="summary-label">Warranty-tracked items</span><strong>{(products || []).filter((product) => product.warrantyMonths).length}</strong><span className="trend neutral">Electronics records</span></article>}
+            </div>
             </div>
             <div className="dashboard-grid">
               <section className="inventory-section">

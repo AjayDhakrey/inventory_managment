@@ -42,7 +42,7 @@
 .credit-table small { display: block; margin-top: 5px; color: var(--cs-muted); font-size: 11px; }
 .credit-table small span { margin: 0 6px; }
 .credit-table em { font-style: normal; padding: 2px 5px; border-radius: 4px; background: #78716c09; }
-.credit-order-id { font-family: 'DM Mono', monospace; white-space: nowrap; }
+.credit-order-id { font-family: 'DM Mono', sans-serif; white-space: nowrap; }
 .credit-customer { display: flex; align-items: center; gap: 12px; }
 .credit-avatar { flex: 0 0 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #fef3c7; color: #92400e; border: 1px solid #fde68a; font-size: 12px; }
 .credit-avatar.tone-1 { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
@@ -63,7 +63,7 @@
 .credit-pagination p span { margin-left: 8px; }
 .credit-pagination > div { display: flex; gap: 7px; }
 .credit-pagination .credit-current { background: #111827; color: white; }
-[data-theme="dark"] .credit-sales { --cs-bg: #18221e; --cs-text: #edf4ef; --cs-muted: #abb8b0; --cs-line: #34463b; }
+[data-theme="dark"] .credit-sales { --cs-bg: #221e18; --cs-text: #f4f1ed; --cs-muted: #b8b2ab; --cs-line: #463e34; }
 @media (max-width: 1200px) { .credit-summary { grid-template-columns: repeat(2,minmax(0,1fr)); } .credit-tabs { margin-left: 0; } }
 @media (max-width: 600px) { .credit-summary { gap: 10px; } .credit-summary article { padding: 14px; } .credit-stat-label { align-items: flex-start; flex-direction: column; font-size: 10px; } .credit-summary article > strong { font-size: 21px; } .credit-title { flex-wrap: wrap; gap: 8px; } .credit-count { font-size: 11px; } .credit-controls select, .credit-search { flex: 1; } .credit-tabs { width: 100%; } .credit-tabs button { flex: 1; padding: 6px; } .credit-pagination { flex-wrap: wrap; padding: 16px; } }
 .credit-form-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 24px; background: #11182780; overflow-y: auto; }

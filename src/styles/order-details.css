@@ -22,11 +22,11 @@
 .receipt-item:last-child { border-bottom: 0; }
 .receipt-product-icon { flex-basis: 44px; height: 44px; border-radius: 12px; border: 1px solid #e2e8f0; background: #f1f5f9; }
 .receipt-item-price { margin-left: auto; text-align: right; flex-shrink: 0; }
-.receipt-item-price strong { font-family: 'DM Mono', monospace; font-size: 12px; }
+.receipt-item-price strong { font-family: 'DM Mono', sans-serif; font-size: 12px; }
 .receipt-totals { background: #f8fafc; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 26px; }
 .receipt-totals dl { margin: 0; color: #64748b; font-size: 11px; }
 .receipt-totals dl div { display: flex; gap: 14px; margin: 5px 0; }
-.receipt-totals dd { margin: 0; color: #475569; font-family: 'DM Mono', monospace; }
+.receipt-totals dd { margin: 0; color: #475569; font-family: 'DM Mono', sans-serif; }
 .receipt-grand-total { text-align: right; }
 .receipt-grand-total h3 { margin-bottom: 6px; }
 .receipt-grand-total > strong { font-size: 28px; letter-spacing: -1px; }
