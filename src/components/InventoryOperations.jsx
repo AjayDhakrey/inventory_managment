@@ -125,7 +125,7 @@ function StockLedgerView({ products, loading, error, refetch, business, onNaviga
       <article><span>Catalog density <i className="purple">▤</i></span><strong>{products.length} <small>SKUs</small></strong><p>{categories.length} {categories.length === 1 ? 'category' : 'categories'} in this workspace</p></article>
     </div>
     <div className="stock-ledger-filters">
-      <label className="ledger-search"><span>⌕</span><input aria-label="Search stock ledger" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search product, SKU, tag…" /><kbd>Ctrl+K</kbd></label>
+      <label className="ledger-search"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg></span><input aria-label="Search stock ledger" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search product, SKU, tag…" /><kbd>Ctrl+K</kbd></label>
       <div className="ledger-status-tabs">
         {[['all', 'All items', products.length], ['in', 'In stock', counts.in], ['low', 'Low stock', counts.low], ['out', 'Out of stock', counts.out]].map(([value, label, count]) => <button type="button" key={value} className={status === value ? 'active' : ''} onClick={() => setStatus(value)}><i className={value} />{label}<b>{count}</b></button>)}
       </div>

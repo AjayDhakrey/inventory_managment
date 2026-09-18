@@ -26,11 +26,14 @@
 .credit-create span { margin-left: 16px; }
 .credit-controls { margin-bottom: 20px; flex-wrap: wrap; }
 .credit-sales .credit-search { display: flex; align-items: center; gap: 10px; width: min(400px,100%); height: 44px; margin: 0; padding: 0 14px; border: 1px solid var(--cs-line); border-radius: 10px; background: var(--cs-bg); color: var(--cs-muted); }
+.credit-sales .credit-search > span { display: inline-flex; }
+.credit-sales .credit-search > span svg { width: 16px; height: 16px; }
 .credit-sales .credit-search input { height: 40px; min-width: 0; border: 0; background: transparent; margin: 0; padding: 0; color: var(--cs-text); box-shadow: none; font-size: 13px; }
+.credit-sales .credit-search input:focus-visible { outline: none; }
 .credit-search:focus-within { outline: 2px solid #f75b20; }
 .credit-controls select { height: 44px; min-width: 160px; }
-.credit-tabs { margin-left: auto; display: flex; gap: 5px; padding: 4px; background: #78716c0c; border: 1px solid var(--cs-line); border-radius: 14px; }
-.credit-tabs button { padding: 6px 12px; border-color: transparent; background: transparent; }
+.credit-tabs { margin-left: auto; display: flex; align-items: center; height: 44px; gap: 5px; padding: 4px; background: #78716c0c; border: 1px solid var(--cs-line); border-radius: 14px; box-sizing: border-box; }
+.credit-tabs button { display: flex; align-items: center; height: 100%; padding: 0 12px; border-color: transparent; background: transparent; }
 .credit-tabs button[aria-pressed=true] { background: var(--cs-bg); font-weight: 700; box-shadow: 0 1px 4px #00000009; }
 .credit-tabs button span { margin-left: 5px; font-size: 11px; }
 .credit-tabs button[aria-pressed=true] span { border-radius: 12px; padding: 2px 6px; background: #111827; color: white; }

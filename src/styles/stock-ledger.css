@@ -44,8 +44,10 @@
 .stock-ledger-kpis p { margin: 9px 0 0; color: #8998ac; font-size: 11px; line-height: 1.5; }
 .stock-ledger-filters { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; padding: 15px; border: 1px solid var(--ledger-line); border-radius: 13px; background: var(--ledger-surface); }
 .ledger-search { display: flex; align-items: center; flex: 1 1 270px; min-width: 210px; height: 42px; padding: 0 12px; border: 1px solid #2b3d56; border-radius: 8px; background: #0a121e; }
-.ledger-search > span { color: #9bacbf; font-size: 20px; }
-.ledger-search input { height: 40px; min-width: 0; margin: 0; padding: 0 10px; border: 0; color: #e8edf4; background: transparent; box-shadow: none; }
+.ledger-search > span { display: inline-flex; color: #9bacbf; font-size: 20px; }
+.ledger-search > span svg { width: 17px; height: 17px; }
+.ledger-search input { height: 40px; min-height: 40px; min-width: 0; margin: 0; padding: 0 10px; border: 0; color: #e8edf4; background: transparent; box-shadow: none; }
+.ledger-search input:focus-visible { outline: none; }
 .ledger-search kbd { padding: 3px 6px; border: 1px solid #32445d; border-radius: 4px; color: #708299; background: #142033; font: 8px 'sans-serif', sans-serif; white-space: nowrap; }
 .ledger-status-tabs { display: flex; gap: 7px; }
 .ledger-status-tabs button { display: flex; align-items: center; gap: 7px; height: 38px; padding: 0 11px; border: 1px solid #2a3c55; border-radius: 8px; color: #b6c2d1; background: #121d2c; cursor: pointer; font: 600 10px 'Manrope', sans-serif; white-space: nowrap; }

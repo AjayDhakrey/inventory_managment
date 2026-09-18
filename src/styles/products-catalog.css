@@ -59,9 +59,10 @@
 .products-shell .products-catalog .products-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0; padding: 14px; border: 1px solid var(--pc-line); border-bottom: 0; border-radius: 14px 14px 0 0; background: var(--pc-panel); }
 .products-shell .products-catalog .products-controls .search-box { flex: 1; min-width: 220px; min-height: 42px; border: 1px solid var(--pc-line); border-radius: 9px; background: var(--pc-panel-2); }
 .products-shell .products-catalog .products-controls .search-box span { color: var(--pc-dim); }
-.products-shell .products-catalog .products-controls .search-box input { color: var(--pc-text); background: transparent; box-shadow: none; font-size: 12px; }
-.products-shell .products-catalog .products-controls .business-filter { padding: 8px 12px; border: 1px solid var(--pc-line); border-radius: 7px; color: var(--pc-muted); background: var(--pc-panel-2); font: 10px 'sans-serif', sans-serif; text-transform: capitalize; }
-.products-shell .products-catalog .products-controls select { height: 42px; padding: 0 12px; border: 1px solid var(--pc-line); border-radius: 9px; color: var(--pc-text); background: var(--pc-panel-2); box-shadow: none; font-size: 12px; }
+.products-shell .products-catalog .products-controls .search-box input { height: 38px; min-height: 38px; color: var(--pc-text); background: transparent; box-shadow: none; font-size: 12px; }
+.products-shell .products-catalog .products-controls .search-box input:focus-visible { outline: none; }
+.products-shell .products-catalog .products-controls .business-filter { display: grid; place-items: center; min-height: 42px; padding: 0 12px; border: 1px solid var(--pc-line); border-radius: 7px; color: var(--pc-muted); background: var(--pc-panel-2); font: 10px 'sans-serif', sans-serif; text-transform: capitalize; }
+.products-shell .products-catalog .products-controls select { height: 42px; min-height: 42px; padding: 0 12px; border: 1px solid var(--pc-line); border-radius: 9px; color: var(--pc-text); background: var(--pc-panel-2); box-shadow: none; font-size: 12px; }
 .products-shell .products-catalog .products-controls select option { background: var(--pc-panel); }
 .products-shell .products-catalog .products-controls .outline-button { min-height: 42px; padding: 0 14px; border: 1px solid var(--pc-line); border-radius: 9px; color: var(--pc-text); background: var(--pc-panel-2); font-size: 11px; font-weight: 600; }
 

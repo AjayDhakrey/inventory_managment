@@ -130,6 +130,7 @@
 .overview-dashboard .search-box input::placeholder { color: var(--ov-dim); }
 .overview-dashboard .search-box:focus-within { border-color: var(--ov-orange); box-shadow: var(--sr-focus); }
 .overview-dashboard .search-box input:focus { box-shadow: none; }
+.overview-dashboard .search-box input:focus-visible { outline: none; }
 .overview-dashboard .overview-filter { max-width: 190px; min-height: 40px; height: 40px; }
 .overview-dashboard .overview-filter option { background: var(--ov-panel); color: var(--ov-text); }
 

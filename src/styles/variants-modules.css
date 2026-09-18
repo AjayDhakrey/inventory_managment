@@ -42,8 +42,9 @@
 .var-shell .products-page .products-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 18px; padding: 12px; border: 1px solid var(--vr-line); border-radius: 13px; background: var(--vr-panel); }
 .var-shell .products-page .products-controls .search-box { flex: 1; min-width: 220px; min-height: 42px; border: 1px solid var(--vr-line); border-radius: 9px; background: var(--vr-panel-2); }
 .var-shell .products-page .products-controls .search-box span { color: var(--vr-dim); }
-.var-shell .products-page .products-controls .search-box input { color: var(--vr-text); background: transparent; box-shadow: none; font-size: 12px; }
-.var-shell .products-page .products-controls .business-filter { padding: 8px 12px; border: 1px solid var(--vr-line); border-radius: 7px; color: var(--vr-muted); background: var(--vr-panel-2); font: 10px 'sans-serif', sans-serif; }
+.var-shell .products-page .products-controls .search-box input { height: 38px; min-height: 38px; color: var(--vr-text); background: transparent; box-shadow: none; font-size: 12px; }
+.var-shell .products-page .products-controls .search-box input:focus-visible { outline: none; }
+.var-shell .products-page .products-controls .business-filter { display: grid; place-items: center; min-height: 42px; padding: 0 12px; border: 1px solid var(--vr-line); border-radius: 7px; color: var(--vr-muted); background: var(--vr-panel-2); font: 10px 'sans-serif', sans-serif; }
 
 .var-shell .products-page .form-status { margin: 16px 0; padding: 11px 15px; border-radius: 9px; font-size: 12px; }
 .var-shell .products-page .form-status.success { color: var(--vr-green); background: rgba(47, 214, 168, .09); }

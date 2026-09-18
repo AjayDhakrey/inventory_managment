@@ -158,7 +158,7 @@ export default function BulkPricing({ business, account }) {
     {message && !editing && <p role="status" className={`form-status ${message.type}`}>{message.text}</p>}
     <div className="bulk-filter-card">
       <div className="credit-controls">
-        <label className="credit-search"><span aria-hidden="true">⌕</span><input aria-label="Search bulk products" placeholder="Search product name, category, SKU, or variant…" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} /></label>
+        <label className="credit-search"><span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg></span><input aria-label="Search bulk products" placeholder="Search product name, category, SKU, or variant…" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} /></label>
         <button type="button" className="bulk-filters-toggle" aria-expanded={filtersOpen} onClick={() => setFiltersOpen((current) => !current)}>
           Filters{activeChips.length > 0 && <span className="bulk-filter-count">{activeChips.length}</span>}
         </button>

@@ -114,8 +114,9 @@
 .import-shell .import-page .import-history .section-heading .dashboard-kicker { color: var(--im-orange); }
 .import-shell .import-page .import-history-tools { display: flex; align-items: center; gap: 8px; }
 .import-shell .import-page .import-history-tools .search-box { border: 1px solid var(--im-line); border-radius: 8px; background: var(--im-panel-2); }
-.import-shell .import-page .import-history-tools .search-box input { color: var(--im-text); background: transparent; }
-.import-shell .import-page .import-history-tools select { height: 34px; border: 1px solid var(--im-line); border-radius: 8px; color: var(--im-text); background: var(--im-panel-2); }
+.import-shell .import-page .import-history-tools .search-box input { height: 32px; min-height: 32px; padding: 0; margin: 0; border: 0; color: var(--im-text); background: transparent; font-size: 12px; box-shadow: none; }
+.import-shell .import-page .import-history-tools .search-box input:focus-visible { outline: none; }
+.import-shell .import-page .import-history-tools select { height: 34px; min-height: 34px; border: 1px solid var(--im-line); border-radius: 8px; color: var(--im-text); background: var(--im-panel-2); }
 .import-shell .import-page .import-refresh { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--im-line); border-radius: 8px; color: var(--im-muted); background: var(--im-panel-2); }
 .import-shell .import-page .import-history-file strong { color: var(--im-text); }
 .import-shell .import-page .import-history-file small { color: var(--im-dim); }

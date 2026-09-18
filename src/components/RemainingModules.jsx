@@ -178,7 +178,7 @@ function Reports({ business }) {
         <div className="rep-panel-head">
           <div><p className="rep-kicker">Inventory report</p><h2>Current stock — highest value first</h2></div>
           <div className="rep-panel-tools">
-            <label className="rep-search"><span>⌕</span><input aria-label="Search stock" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search product or SKU" /></label>
+            <label className="rep-search"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg></span><input aria-label="Search stock" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search product or SKU" /></label>
             <select value={stockFilter} onChange={(event) => setStockFilter(event.target.value)} aria-label="Stock status filter">
               <option value="all">All items</option><option value="in">In stock</option><option value="low">Low stock</option><option value="out">Out of stock</option>
             </select>

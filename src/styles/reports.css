@@ -66,7 +66,10 @@
 .rep-shell .rep-panel-head h2 { margin: 6px 0 0; color: var(--rp-text); font-size: 18px; letter-spacing: -.4px; }
 .rep-shell .rep-panel-tools { display: flex; align-items: center; gap: 10px; }
 .rep-shell .rep-search { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 0 12px; border: 1px solid var(--rp-line); border-radius: 9px; color: var(--rp-dim); background: var(--rp-panel-2); }
-.rep-shell .rep-page .rep-search input { width: 190px; max-width: 44vw; height: 36px; margin: 0; padding: 0; border: 0; color: var(--rp-text); background: transparent; box-shadow: none; font-size: 12px; }
+.rep-shell .rep-search > span { display: inline-flex; }
+.rep-shell .rep-search > span svg { width: 15px; height: 15px; }
+.rep-shell .rep-page .rep-search input { width: 190px; max-width: 44vw; height: 36px; min-height: 36px; margin: 0; padding: 0; border: 0; color: var(--rp-text); background: transparent; box-shadow: none; font-size: 12px; }
+.rep-shell .rep-page .rep-search input:focus-visible { outline: none; }
 .rep-shell .rep-page .rep-panel-tools select { height: 38px; margin: 0; padding: 0 12px; border: 1px solid var(--rp-line); border-radius: 9px; color: var(--rp-text); background: var(--rp-panel-2); box-shadow: none; font-size: 12px; }
 .rep-shell .rep-page .rep-panel-tools select option { background: var(--rp-panel); }
 

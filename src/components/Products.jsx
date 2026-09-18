@@ -137,7 +137,7 @@ function Products({ business, account }) {
         <article><span>Inventory Valuation</span><strong>{money(products.reduce((total, product) => total + Number(product.currentStock || 0) * Number(product.purchasePrice || 0), 0))}</strong><small>At purchase cost ({business.currency})</small><b aria-hidden="true">＄</b></article>
       </div>}      <div className="products-controls">
         <div className="search-box">
-          <span>⌕</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" /><path d="m16 16 4.5 4.5" /></svg></span>
           <input
             aria-label="Search products"
             value={search}

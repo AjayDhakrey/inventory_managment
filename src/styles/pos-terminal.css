@@ -73,10 +73,12 @@
 
 /* Scanner input */
 .pos-shell .pos-search { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; min-height: 62px; margin-bottom: 16px; padding: 0 18px; border: 1.5px solid var(--pos-orange); border-radius: 14px; background: var(--pos-panel); box-shadow: 0 0 0 4px rgba(255, 106, 26, .08); }
-.pos-shell .pos-search > span { margin: 0; color: var(--pos-orange); font-size: 20px; }
+.pos-shell .pos-search > span { display: inline-flex; margin: 0; color: var(--pos-orange); font-size: 20px; }
+.pos-shell .pos-search > span svg { width: 18px; height: 18px; }
 .pos-shell .pos-search input { height: 46px; min-width: 0; margin: 0; padding: 0; border: 0; color: var(--pos-text); background: transparent; box-shadow: none; font-size: 14px; }
 .pos-shell .pos-search input::placeholder { color: var(--pos-dim); opacity: 1; }
 .pos-shell .pos-search input:focus { border: 0; box-shadow: none; }
+.pos-shell .pos-search input:focus-visible { outline: none; }
 .pos-shell .pos-search small { display: inline-flex; align-items: center; gap: 7px; margin: 0; padding: 5px 11px; border: 1px solid rgba(47, 214, 168, .3); border-radius: 999px; color: var(--pos-green); background: rgba(47, 214, 168, .08); font: 8px 'sans-serif', sans-serif; letter-spacing: .5px; }
 
 /* Category pills */
