@@ -193,6 +193,26 @@
   .um-shell .um-heading-actions { width: 100%; }
   .um-shell .um-page .um-heading-actions button { flex: 1; justify-content: center; }
   .um-shell .um-statusbar-suite, .um-shell .um-pagination-suite { margin-left: 0; }
+  .um-shell .um-table-scroll { overflow-x: visible; }
+  .um-shell .um-table { display: block; min-width: 0; }
+  .um-shell .um-table thead { display: none; }
+  .um-shell .um-table tbody { display: block; }
+  .um-shell .um-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "user user" "role status" "scope scope" "actions actions";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--um-line);
+  }
+  .um-shell .um-table td { padding: 0; border-top: 0; }
+  .um-shell .um-table td:nth-child(1) { grid-area: user; min-width: 0; }
+  .um-shell .um-table td:nth-child(2) { grid-area: role; }
+  .um-shell .um-table td:nth-child(3) { grid-area: scope; padding-top: 8px; border-top: 1px solid var(--um-line); }
+  .um-shell .um-table td:nth-child(4) { grid-area: status; text-align: right; }
+  .um-shell .um-table td:nth-child(5) { grid-area: actions; padding-top: 8px; border-top: 1px solid var(--um-line); }
+  .um-shell .um-table td.num { text-align: left; }
 }
 
 [data-theme="light"] .um-shell.stock-ledger-shell {

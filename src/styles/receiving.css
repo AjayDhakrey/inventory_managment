@@ -203,6 +203,29 @@
   .grn-history-row { grid-template-columns: 1fr; }
   .grn-history-qty { justify-self: start; }
   .grn-statusbar-suite { margin-left: 0; }
+  .grn-table-scroll { overflow-x: visible; }
+  .grn-table { display: block; min-width: 0; }
+  .grn-table thead { display: none; }
+  .grn-table tbody { display: block; }
+  .grn-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "product product" "ordered received" "accept accept" "batch batch" "barcode inspect";
+    align-items: start;
+    gap: 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--grn-line);
+  }
+  .grn-table td { padding: 0; border-top: 0; vertical-align: top; }
+  .grn-table td:nth-child(1) { grid-area: product; min-width: 0; }
+  .grn-table td:nth-child(2) { grid-area: ordered; padding-top: 8px; border-top: 1px solid var(--grn-line); }
+  .grn-table td:nth-child(3) { grid-area: received; padding-top: 8px; border-top: 1px solid var(--grn-line); text-align: right; }
+  .grn-table td:nth-child(4) { grid-area: accept; }
+  .grn-table td:nth-child(5) { grid-area: batch; }
+  .grn-table td:nth-child(5) .grn-batch, .grn-table td:nth-child(5) .grn-expiry { max-width: none; }
+  .grn-table td:nth-child(6) { grid-area: barcode; }
+  .grn-table td:nth-child(7) { grid-area: inspect; text-align: right; }
+  .grn-table td.num { text-align: left; }
 }
 
 [data-theme='light'] .grn-shell.stock-ledger-shell {

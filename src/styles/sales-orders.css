@@ -170,6 +170,29 @@
   .ord-shell .ord-workflow { flex-direction: column; }
   .ord-shell .ord-heading-actions { width: 100%; }
   .ord-shell .ord-page .ord-heading-actions button { flex: 1; justify-content: center; }
+  .ord-shell .ord-table-scroll { overflow-x: visible; }
+  .ord-shell .ord-table { display: block; min-width: 0; }
+  .ord-shell .ord-table thead { display: none; }
+  .ord-shell .ord-table tbody { display: block; }
+  .ord-shell .ord-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "num num" "customer customer" "channel items" "value pay" "fulfil fulfil" "actions actions";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--ord-line);
+  }
+  .ord-shell .ord-table td { padding: 0; border-top: 0; }
+  .ord-shell .ord-table td:nth-child(1) { grid-area: num; min-width: 0; }
+  .ord-shell .ord-table td:nth-child(2) { grid-area: customer; padding-top: 8px; border-top: 1px solid var(--ord-line); }
+  .ord-shell .ord-table td:nth-child(3) { grid-area: channel; }
+  .ord-shell .ord-table td:nth-child(4) { grid-area: items; text-align: right; }
+  .ord-shell .ord-table td:nth-child(5) { grid-area: value; text-align: left; }
+  .ord-shell .ord-table td:nth-child(6) { grid-area: pay; text-align: right; }
+  .ord-shell .ord-table td:nth-child(7) { grid-area: fulfil; padding-top: 8px; border-top: 1px solid var(--ord-line); }
+  .ord-shell .ord-table td:nth-child(8) { grid-area: actions; padding-top: 8px; border-top: 1px solid var(--ord-line); text-align: right; }
+  .ord-shell .ord-table td.num { text-align: left; }
 }
 
 [data-theme="light"] .ord-shell.stock-ledger-shell {

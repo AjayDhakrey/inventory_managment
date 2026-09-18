@@ -144,6 +144,28 @@
   .pay-shell .pay-form-grid { grid-template-columns: 1fr; }
   .pay-shell .pay-field.pay-field-wide, .pay-shell .pay-page .pay-submit { grid-column: auto; }
   .pay-shell .pay-statusbar-suite { margin-left: 0; }
+  .pay-shell .pay-table-scroll { overflow-x: visible; }
+  .pay-shell .pay-table { display: block; min-width: 0; }
+  .pay-shell .pay-table thead { display: none; }
+  .pay-shell .pay-table tbody { display: block; }
+  .pay-shell .pay-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "receipt receipt" "entity entity" "ref method" "note note" "amount status";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--pm-line);
+  }
+  .pay-shell .pay-table td { padding: 0; border-top: 0; }
+  .pay-shell .pay-table td:nth-child(1) { grid-area: receipt; min-width: 0; }
+  .pay-shell .pay-table td:nth-child(2) { grid-area: entity; padding-top: 8px; border-top: 1px solid var(--pm-line); }
+  .pay-shell .pay-table td:nth-child(3) { grid-area: ref; }
+  .pay-shell .pay-table td:nth-child(4) { grid-area: method; text-align: right; }
+  .pay-shell .pay-table td:nth-child(5) { grid-area: note; padding-top: 8px; border-top: 1px solid var(--pm-line); }
+  .pay-shell .pay-table td:nth-child(6) { grid-area: amount; text-align: left; }
+  .pay-shell .pay-table td:nth-child(7) { grid-area: status; text-align: right; }
+  .pay-shell .pay-table td.num { text-align: left; }
 }
 
 [data-theme="light"] .pay-shell.stock-ledger-shell {

@@ -403,6 +403,13 @@ function Products({ business, account }) {
                       ? "Low stock"
                       : "In stock"}
                 </small>
+                <i
+                  className="stock-bar"
+                  style={{
+                    "--stock-pct": `${Math.max(4, Math.min(100, Math.round((product.currentStock / Math.max(product.minimumStock * 3, 10)) * 100)))}%`,
+                  }}
+                  aria-hidden="true"
+                />
               </span>
               <span className="price-cell">
                 {business.currency} {Number(product.sellingPrice).toFixed(2)}

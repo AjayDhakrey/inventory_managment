@@ -193,6 +193,26 @@
   .sup-page .sup-heading-actions button { flex: 1; justify-content: center; }
   .sup-page .sup-toolbar > select { flex: 1; }
   .sup-statusbar-suite { margin-left: 0; }
+  .sup-table-scroll { overflow-x: visible; }
+  .sup-table { display: block; min-width: 0; }
+  .sup-table thead { display: none; }
+  .sup-table tbody { display: block; }
+  .sup-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name status" "contact contact" "payment payment" "actions actions";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--sup-line);
+  }
+  .sup-table td { padding: 0; border-top: 0; }
+  .sup-table td:nth-child(1) { grid-area: name; min-width: 0; }
+  .sup-table td:nth-child(2) { grid-area: contact; padding-top: 8px; border-top: 1px solid var(--sup-line); }
+  .sup-table td:nth-child(3) { grid-area: payment; }
+  .sup-table td:nth-child(4) { grid-area: status; text-align: right; }
+  .sup-table td:nth-child(5) { grid-area: actions; text-align: left; padding-top: 8px; border-top: 1px solid var(--sup-line); }
+  .sup-table td.num { text-align: left; }
 }
 
 [data-theme='light'] .sup-shell.stock-ledger-shell {

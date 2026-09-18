@@ -119,6 +119,25 @@
   .rep-shell .rep-panel-tools { width: 100%; }
   .rep-shell .rep-search, .rep-shell .rep-page .rep-panel-tools select { flex: 1; }
   .rep-shell .rep-statusbar-suite { margin-left: 0; }
+  .rep-shell .rep-table-scroll { overflow-x: visible; }
+  .rep-shell .rep-table { display: block; min-width: 0; }
+  .rep-shell .rep-table thead { display: none; }
+  .rep-shell .rep-table tbody { display: block; }
+  .rep-shell .rep-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "product product" "stock value" "status status";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 22px;
+    border-top: 1px solid var(--rp-line);
+  }
+  .rep-shell .rep-table td { padding: 0; border-top: 0; }
+  .rep-shell .rep-table td:nth-child(1) { grid-area: product; min-width: 0; }
+  .rep-shell .rep-table td:nth-child(2) { grid-area: stock; text-align: left; }
+  .rep-shell .rep-table td:nth-child(3) { grid-area: value; text-align: right; }
+  .rep-shell .rep-table td:nth-child(4) { grid-area: status; }
+  .rep-shell .rep-table td.num { text-align: left; }
 }
 
 [data-theme="light"] .rep-shell.stock-ledger-shell {

@@ -151,6 +151,24 @@
   .audit-filters { width: 100%; }
   .audit-filters button { flex: 1; justify-content: center; }
   .audit-search kbd { display: none; }
+  .stock-audit-page .audit-table-scroll { overflow-x: visible; }
+  .stock-audit-page .audit-table { display: block; min-width: 0; }
+  .stock-audit-page .audit-table thead { display: none; }
+  .stock-audit-page .audit-table tbody { display: block; }
+  .stock-audit-page .audit-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "product type" "reason reason" "time time";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--audit-line);
+  }
+  .stock-audit-page .audit-table td { padding: 0; border-top: 0; }
+  .stock-audit-page .audit-table td:nth-child(1) { grid-area: type; }
+  .stock-audit-page .audit-table td:nth-child(2) { grid-area: product; min-width: 0; }
+  .stock-audit-page .audit-table td:nth-child(3) { grid-area: reason; padding-top: 8px; border-top: 1px solid var(--audit-line); }
+  .stock-audit-page .audit-table td:nth-child(4) { grid-area: time; }
 }
 
 [data-theme='light'] .stock-audit-shell.stock-ledger-shell {

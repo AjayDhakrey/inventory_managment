@@ -193,6 +193,30 @@
   .var-shell .var-page .var-kpis { grid-template-columns: 1fr; }
   .var-shell .var-page .var-heading-actions { width: 100%; }
   .var-shell .var-page .var-heading-actions button { flex: 1; justify-content: center; }
+  .var-shell .var-page .var-table-scroll { overflow-x: visible; }
+  .var-shell .var-page .var-table { display: block; min-width: 0; }
+  .var-shell .var-page .var-table thead { display: none; }
+  .var-shell .var-page .var-table tbody { display: block; }
+  .var-shell .var-page .var-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "variant variant" "category sku" "stock price" "actions actions";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+  }
+  .var-shell .var-page .var-table tbody tr:last-child td { border-bottom: 0; }
+  .var-shell .var-page .var-table td { padding: 0 !important; border-bottom: 0 !important; }
+  .var-shell .var-page .var-table td:nth-child(1) { grid-area: category; padding-top: 8px !important; border-top: 1px solid var(--vr-line); }
+  .var-shell .var-page .var-table td:nth-child(2) { grid-area: variant; min-width: 0; }
+  .var-shell .var-page .var-table td:nth-child(3) { grid-area: stock; }
+  .var-shell .var-page .var-table td:nth-child(4) { grid-area: sku; text-align: right; }
+  .var-shell .var-page .var-table td:nth-child(5) { grid-area: price; text-align: left; }
+  .var-shell .var-page .var-table td:nth-child(6) { grid-area: actions; padding-top: 8px !important; border-top: 1px solid var(--vr-line); }
+  .var-shell .var-page .var-table td.num { text-align: left; }
+  .var-shell .var-page .var-row-actions { justify-content: flex-start; }
+  .var-shell .var-page .var-table tr { border: 1px solid var(--vr-line); border-radius: 13px; margin: 0 0 10px; background: var(--vr-panel); }
+  .var-shell .var-page .var-table-wrap { border: 0; background: transparent; }
 }
 
 @media (max-width: 1000px) {

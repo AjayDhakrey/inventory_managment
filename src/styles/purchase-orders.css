@@ -217,6 +217,29 @@
   .po-page .po-heading-actions button { flex: 1; justify-content: center; padding-inline: 10px; }
   .po-tabs { overflow-x: auto; }
   .po-statusbar-suite { margin-left: 0; }
+  .po-table-scroll { overflow-x: visible; }
+  .po-table { display: block; min-width: 0; }
+  .po-table thead { display: none; }
+  .po-table tbody { display: block; }
+  .po-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "id id" "supplier supplier" "timeline items" "value settle" "fulfil fulfil" "actions actions";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--po-line);
+  }
+  .po-table td { padding: 0; border-top: 0; }
+  .po-table td:nth-child(1) { grid-area: id; min-width: 0; }
+  .po-table td:nth-child(2) { grid-area: supplier; padding-top: 8px; border-top: 1px solid var(--po-line); }
+  .po-table td:nth-child(3) { grid-area: timeline; }
+  .po-table td:nth-child(4) { grid-area: items; text-align: right; }
+  .po-table td:nth-child(5) { grid-area: value; text-align: left; }
+  .po-table td:nth-child(6) { grid-area: settle; text-align: right; }
+  .po-table td:nth-child(7) { grid-area: fulfil; padding-top: 8px; border-top: 1px solid var(--po-line); }
+  .po-table td:nth-child(8) { grid-area: actions; padding-top: 8px; border-top: 1px solid var(--po-line); }
+  .po-table td.num { text-align: left; }
 }
 
 [data-theme='light'] .po-shell.stock-ledger-shell {

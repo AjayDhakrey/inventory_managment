@@ -158,6 +158,27 @@
   .cust-shell .cust-heading-actions { width: 100%; }
   .cust-shell .cust-page .cust-heading-actions button { flex: 1; justify-content: center; }
   .cust-shell .cust-statusbar-suite { margin-left: 0; }
+  .cust-shell .cust-table-scroll { overflow-x: visible; }
+  .cust-shell .cust-table { display: block; min-width: 0; }
+  .cust-shell .cust-table thead { display: none; }
+  .cust-shell .cust-table tbody { display: block; }
+  .cust-shell .cust-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "name name" "contact contact" "spend due" "status status" "actions actions";
+    align-items: start;
+    gap: 8px 10px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--cu-line);
+  }
+  .cust-shell .cust-table td { padding: 0; border-top: 0; }
+  .cust-shell .cust-table td:nth-child(1) { grid-area: name; min-width: 0; }
+  .cust-shell .cust-table td:nth-child(2) { grid-area: contact; padding-top: 8px; border-top: 1px solid var(--cu-line); }
+  .cust-shell .cust-table td:nth-child(3) { grid-area: spend; text-align: left; }
+  .cust-shell .cust-table td:nth-child(4) { grid-area: due; text-align: right; }
+  .cust-shell .cust-table td:nth-child(5) { grid-area: status; }
+  .cust-shell .cust-table td:nth-child(6) { grid-area: actions; padding-top: 8px; border-top: 1px solid var(--cu-line); }
+  .cust-shell .cust-table td.num { text-align: left; }
 }
 
 [data-theme="light"] .cust-shell.stock-ledger-shell {

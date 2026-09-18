@@ -80,6 +80,32 @@
 @media (max-width: 1180px) { .stock-ledger-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }.stock-ledger-filters { flex-wrap: wrap; }.ledger-search { flex-basis: 100%; }.ledger-status-tabs { flex: 1; overflow-x: auto; } }
 @media (max-width: 820px) { .stock-ledger-shell .dashboard-main { padding: 16px 14px 36px; }.stock-ledger-shell .business-context { display: block; margin: 0 !important; padding: 0 !important; border: 0 !important; background: none !important; min-height: 0 !important; }.stock-ledger-shell .business-context > *:not(.header-actions) { display: none !important; }.stock-ledger-shell .dashboard-header { position: static; margin-bottom: 16px; }.stock-ledger-shell .dashboard-header > div:first-child { display: none; }.stock-ledger-heading { align-items: flex-start; flex-direction: column; }.stock-ledger-actions { width: 100%; flex-wrap: wrap; }.stock-ledger-actions button { flex: 1; }.stock-ledger-kpis article { min-height: 135px; }.stock-ledger-filters select { flex: 1; }.stock-ledger-shell .mobile-dashboard-bar { color: #fff; } }
 @media (max-width: 560px) { .stock-ledger-kpis { grid-template-columns: 1fr; }.stock-ledger-kpis article { min-height: 0; }.stock-ledger-actions button { flex-basis: calc(50% - 5px); }.stock-ledger-actions button.primary { flex-basis: 100%; }.ledger-status-tabs { width: 100%; }.stock-ledger-filters select { flex-basis: 100%; }.stock-ledger-title { align-items: flex-start; flex-direction: column; } }
+@media (max-width: 700px) {
+  .stock-ledger-table-wrap { overflow-x: visible; border: 0; background: transparent; }
+  .stock-ledger-table { min-width: 0; }
+  .ledger-row.ledger-head { display: none; }
+  .ledger-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "check product product" ". category bin" ". stock price" ". badge actions";
+    align-items: start;
+    gap: 6px 10px;
+    padding: 14px 16px;
+    margin: 0 0 10px;
+    border: 1px solid var(--ledger-line);
+    border-radius: 13px;
+    background: var(--ledger-surface);
+  }
+  .ledger-row:last-child { margin-bottom: 0; }
+  .ledger-row > span:nth-child(1) { grid-area: check; }
+  .ledger-row > span:nth-child(2) { grid-area: product; min-width: 0; }
+  .ledger-row > span:nth-child(3) { grid-area: category; padding-top: 8px; border-top: 1px solid var(--ledger-line); }
+  .ledger-row > span:nth-child(4) { grid-area: bin; padding-top: 8px; border-top: 1px solid var(--ledger-line); text-align: right; }
+  .ledger-row > span:nth-child(5) { grid-area: stock; }
+  .ledger-row > span:nth-child(6) { grid-area: price; text-align: right; }
+  .ledger-row > span:nth-child(7) { grid-area: badge; }
+  .ledger-row > span.ledger-row-actions { grid-area: actions; justify-content: flex-end; }
+}
 
 [data-theme="light"] .stock-ledger-shell { --ledger-bg: var(--bg); --ledger-surface: var(--surface); --ledger-surface-2: var(--surface-soft); --ledger-line: var(--line); --ledger-muted: var(--text-soft); --ledger-text: var(--text); }
 [data-theme="light"] .stock-ledger-shell .business-context { color: #536277; border-bottom-color: #d9e1eb; background: #fff; }

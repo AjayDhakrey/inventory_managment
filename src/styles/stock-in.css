@@ -217,3 +217,32 @@
   .inward-search { width: 100%; }
   .inward-search kbd { display: none; }
 }
+@media (max-width: 640px) {
+  .stock-in-page .inward-table-scroll { overflow-x: visible; border: 0; border-radius: 0; background: transparent; }
+  .stock-in-page .inward-table { display: block; min-width: 0; table-layout: auto; }
+  .stock-in-page .inward-table thead { display: none; }
+  .stock-in-page .inward-table tbody { display: block; }
+  .stock-in-page .inward-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "product product" "category stock" "last last" "value action";
+    align-items: center;
+    gap: 8px 10px;
+    padding: 14px;
+    margin: 0 0 10px;
+    border: 1px solid var(--inward-border);
+    border-radius: 13px;
+    background: var(--inward-panel);
+  }
+  .stock-in-page .inward-table tr:last-child { margin-bottom: 0; }
+  .stock-in-page .inward-table tr:hover { background: var(--inward-panel); }
+  .stock-in-page .inward-table td { height: auto; padding: 0; border-top: 0; }
+  .stock-in-page .inward-table td:nth-child(1) { grid-area: product; min-width: 0; }
+  .stock-in-page .inward-table td:nth-child(2) { grid-area: category; }
+  .stock-in-page .inward-table td:nth-child(3) { grid-area: stock; }
+  .stock-in-page .inward-table td:nth-child(3) .inward-stock { justify-content: flex-end; }
+  .stock-in-page .inward-table td:nth-child(4) { grid-area: last; padding-top: 10px; border-top: 1px solid var(--inward-border); }
+  .stock-in-page .inward-table td:nth-child(5) { grid-area: value; }
+  .stock-in-page .inward-table td:nth-child(6) { grid-area: action; display: flex; justify-content: flex-end; }
+  .stock-in-page .inward-row-action { width: auto; }
+}

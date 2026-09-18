@@ -22,8 +22,8 @@
 .adjustment-kpis article { min-height: 175px; padding: 23px; border: 1px solid var(--adjust-border); border-radius: 15px; background: var(--adjust-panel); }
 .adjustment-kpis article > span { display: flex; justify-content: space-between; gap: 10px; min-height: 36px; color: var(--adjust-muted); font-size: 12px; }
 .adjustment-kpis article i { display: grid; place-items: center; width: 33px; height: 33px; border-radius: 8px; color: var(--adjust-orange); background: rgba(255,112,22,.09); font-style: normal; }
-.adjustment-kpis article > strong { display: block; margin: 12px 0; color: var(--adjust-text); font: 750 29px 'Manrope',sans-serif; }
-.adjustment-kpis article > strong small { color: var(--adjust-muted); font-size: 12px; font-weight: 500; }
+.adjustment-kpis article > strong { display: block; margin: 12px 0; color: var(--adjust-text); font: 750 29px 'Manrope',sans-serif; overflow-wrap: break-word; }
+.adjustment-kpis article > strong small { display: block; margin-top: 4px; color: var(--adjust-muted); font-size: 12px; font-weight: 500; }
 .adjustment-kpis p { margin: 0; color: var(--adjust-dim); font-size: 11px; line-height: 1.55; }
 .adjustment-kpis .variance > strong, .adjustment-kpis .variance i { color: var(--adjust-red); }
 .adjustment-kpis .impact i { color: var(--adjust-amber); }
@@ -80,11 +80,40 @@
 .adjustment-last time { color: var(--adjust-muted); font: 10px 'sans-serif',sans-serif; }
 .adjustment-last small { display: block; margin-top: 5px; font: 9px 'sans-serif',sans-serif; }
 .adjustment-last small.positive { color: var(--adjust-green); }.adjustment-last small.negative { color: var(--adjust-red); }.adjustment-last > span { color: var(--adjust-dim); }
-.adjustment-table td:last-child button { min-height: 32px; padding: 0 13px; border: 1px solid #43566f; border-radius: 7px; color: var(--adjust-text); background: #172438; }
+.adjustment-table td:last-child button { min-height: 32px; padding: 0 13px; border: 1px solid var(--adjust-border); border-radius: 7px; color: var(--adjust-text); background: var(--adjust-input); }
+.adjustment-table td:last-child button:hover:not(:disabled) { border-color: var(--adjust-orange); color: var(--adjust-orange); }
 .stock-adjustment-page :is(.async-state,.no-products) { padding: 30px; border: 1px solid var(--adjust-border); border-radius: 12px; color: var(--adjust-muted); background: var(--adjust-panel); }
 [data-theme='light'] .stock-adjustment-shell { --adjust-bg: var(--bg); --adjust-panel: var(--surface); --adjust-input: var(--surface-soft); --adjust-border: var(--line); --adjust-text: var(--text); --adjust-muted: var(--text-soft); --adjust-dim: var(--muted); --adjust-green: var(--success); --adjust-red: var(--danger); --adjust-amber: var(--warning); }
 [data-theme='light'] .stock-adjustment-shell .adjustment-product > span { color: #385570; border-color: var(--adjust-border); background: #eef3f8; }
 [data-theme='light'] .stock-adjustment-shell .adjustment-form-status.error { color: #b12743; }
 @media (max-width: 1200px) { .adjustment-heading { align-items: flex-start; flex-direction: column; }.adjustment-heading-actions { justify-content: flex-start; }.adjustment-kpis { grid-template-columns: repeat(2,minmax(0,1fr)); }.adjustment-form-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }.adjustment-submit { grid-column: 2; } }
 @media (max-width: 820px) { .adjustment-heading { margin-top: 10px; }.adjustment-form-header p { display: none; }.adjustment-form-card form { padding: 20px; }.adjustment-tabs { width: 100%; }.adjustment-tabs select { flex: 1; }.adjustment-search { width: 100%; } }
+@media (max-width: 620px) { .adjustment-kpis { grid-template-columns: 1fr; } }
 @media (max-width: 480px) { .adjustment-title-line { align-items: flex-start; flex-direction: column; }.adjustment-title-line h1 { font-size: 32px; }.adjustment-heading-actions { width: 100%; }.adjustment-heading-actions button { flex: 1; }.adjustment-heading-actions button.primary { flex-basis: 100%; }.adjustment-kpis { gap: 10px; }.adjustment-kpis article { min-height: 165px; padding: 16px; }.adjustment-kpis article > strong { font-size: 25px; }.adjustment-form-grid { grid-template-columns: 1fr; }.adjustment-submit { grid-column: auto; }.adjustment-form-context { flex-direction: column; }.adjustment-search kbd { display: none; }.adjustment-tabs :is(button,select) { padding-inline: 9px; font-size: 10px; } }
+@media (max-width: 640px) {
+  .adjustment-table-scroll { overflow-x: visible; border: 0; border-radius: 0; background: transparent; }
+  .adjustment-table { display: block; min-width: 0; table-layout: auto; }
+  .adjustment-table thead { display: none; }
+  .adjustment-table tbody { display: block; }
+  .adjustment-table tr {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "product product" "category stock" "last last" "value action";
+    align-items: center;
+    gap: 8px 10px;
+    padding: 14px;
+    margin: 0 0 10px;
+    border: 1px solid var(--adjust-border);
+    border-radius: 13px;
+    background: var(--adjust-panel);
+  }
+  .adjustment-table tr:last-child { margin-bottom: 0; }
+  .adjustment-table td { height: auto; padding: 0; border-top: 0; }
+  .adjustment-table td:nth-child(1) { grid-area: product; min-width: 0; }
+  .adjustment-table td:nth-child(2) { grid-area: category; }
+  .adjustment-table td:nth-child(3) { grid-area: stock; text-align: right; }
+  .adjustment-table td:nth-child(4) { grid-area: last; padding-top: 10px; border-top: 1px solid var(--adjust-border); }
+  .adjustment-table td:nth-child(5) { grid-area: value; }
+  .adjustment-table td:nth-child(6) { grid-area: action; display: flex; justify-content: flex-end; }
+  .adjustment-table td:last-child button { width: auto; }
+}
