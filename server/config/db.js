@@ -1,9 +1,52 @@
 import mongoose from 'mongoose'
 import dns from 'node:dns'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
 import { env } from './env.js'
+
+const execFileAsync = promisify(execFile)
 
 let transactionsSupported = null
 let listenersBound = false
+
+// Node's bundled DNS resolver (c-ares) sometimes fails to read the real
+// adapter DNS servers on Windows and silently falls back to 127.0.0.1, where
+// nothing is listening - every mongodb+srv lookup then fails instantly with
+// ECONNREFUSED even though the OS itself resolves DNS fine. Ask Windows
+// directly for its configured resolver as an extra candidate.
+async function getSystemDnsServers() {
+  if (process.platform !== 'win32') return []
+  try {
+    const { stdout } = await execFileAsync('powershell', [
+      '-NoProfile',
+      '-Command',
+      "(Get-DnsClientServerAddress -AddressFamily IPv4 | Where-Object { $_.ServerAddresses.Count -gt 0 -and $_.ServerAddresses -notcontains '127.0.0.1' } | Select-Object -First 1 -ExpandProperty ServerAddresses) -join ','",
+    ], { timeout: 4000 })
+    return stdout.trim().split(',').map((value) => value.trim()).filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
+// Races a tiny DNS lookup against each candidate resolver and returns the
+// first one that actually answers, so we never pick a server that will just
+// hang or get refused (public resolvers are blocked outbound on some networks).
+async function findWorkingDnsServer(candidates) {
+  for (const server of candidates) {
+    const resolver = new dns.promises.Resolver()
+    resolver.setServers([server])
+    try {
+      await Promise.race([
+        resolver.resolve4('google.com'),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500)),
+      ])
+      return server
+    } catch {
+      // try the next candidate
+    }
+  }
+  return null
+}
 
 export function isDatabaseConnected() {
   return mongoose.connection.readyState === 1
@@ -37,10 +80,17 @@ export async function connectDatabase() {
   mongoose.set('strictQuery', true)
 
   // Some ISP/router DNS proxies refuse the SRV queries required by Atlas even
-  // though normal DNS works. Use reliable public resolvers for mongodb+srv
-  // lookups; ordinary/local MongoDB connection strings are unaffected.
+  // though normal DNS works, and Node's own resolver can default to a dead
+  // 127.0.0.1 on Windows. Probe the real system resolver plus a few public
+  // fallbacks and use whichever one actually answers.
   if (env.mongoUri.startsWith('mongodb+srv://')) {
-    dns.setServers(['1.1.1.1', '8.8.8.8'])
+    const systemServers = await getSystemDnsServers()
+    const workingServer = await findWorkingDnsServer([...systemServers, '1.1.1.1', '8.8.8.8', '9.9.9.9'])
+    if (workingServer) {
+      dns.setServers([workingServer])
+    } else {
+      console.warn('Could not find a reachable DNS resolver for the mongodb+srv lookup; connection will likely fail.')
+    }
   }
 
   if (!listenersBound) {

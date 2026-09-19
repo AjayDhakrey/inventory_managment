@@ -78,7 +78,7 @@ const KpiIconXCircle = () => (<svg {...kpiIconProps}><circle cx="12" cy="12" r="
 const KpiIconLayers = () => (<svg {...kpiIconProps}><path d="m12 3 9 5-9 5-9-5 9-5Z" /><path d="m3 13 9 5 9-5" /></svg>);
 const KpiIconRefresh = () => (<svg {...kpiIconProps}><path d="M4 12a8 8 0 0 1 14-5.3L21 9" /><path d="M21 4v5h-5" /><path d="M20 12a8 8 0 0 1-14 5.3L3 15" /><path d="M3 20v-5h5" /></svg>);
 
-function Dashboard({ account, business, initialNav = "Overview", onLogout, onBusinessUpdate, theme, onToggleTheme }) {
+function Dashboard({ account, business, initialNav = "Overview", onLogout, onBusinessUpdate }) {
   const [activeNav, setActiveNav] = useState(initialNav);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -531,11 +531,6 @@ function Dashboard({ account, business, initialNav = "Overview", onLogout, onBus
           {["Bulk Orders", "Credit Sales", "Bulk Pricing"].includes(activeNav) && <><span>/</span><strong className="cs-breadcrumb">{activeNav}</strong><span className="cs-tag-live">Wholesale</span><span className="cs-workspace-tag">{business.currency} · {(business.industry || "workspace").toUpperCase()}</span></>}
           {["Variant Grid", "Replenishment", "Promotions", "Loyalty", "Coupons", "Gift Cards", "Cashier Shifts", "Clothing Reports"].includes(activeNav) && <><span>/</span><strong className="cloth-breadcrumb">{activeNav}</strong><span className="cloth-tag-live">Clothing suite</span><span className="cloth-workspace-tag">{(business.industry || "workspace").toUpperCase()}</span></>}
           <div className="header-actions">
-            <button className="icon-button theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} data-tooltip={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}>
-              <svg className="header-action-icon" viewBox="0 0 24 24" aria-hidden="true">
-                {theme === "dark" ? <><circle cx="12" cy="12" r="3.5" /><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" /></> : <path d="M20.5 14.1A8 8 0 0 1 9.9 3.5 8.5 8.5 0 1 0 20.5 14.1Z" />}
-              </svg>
-            </button>
             <NotificationCenter
               onNavigate={openNotification}
               onOpen={() => setShowUserMenu(false)}
@@ -1136,7 +1131,6 @@ const IconEye = () => (<svg {...iconProps}><path d="M1 12s4-7 11-7 11 7 11 7-4 7
 const IconEyeOff = () => (<svg {...iconProps}><path d="M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.61 3.81M6.53 6.53A18.6 18.6 0 0 0 1 12s4 8 11 8a10.9 10.9 0 0 0 5.47-1.47M14.12 14.12a3 3 0 1 1-4.24-4.24" /><path d="m1 1 22 22" /></svg>);
 
 function App() {
-  const [theme, setTheme] = useState(() => localStorage.getItem("stockroom-theme") || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"));
   const [initialReset] = useState(() => {
     try {
       return new URLSearchParams(window.location.search).get("reset") || "";
@@ -1157,10 +1151,10 @@ function App() {
   const copy = AUTH_COPY[mode];
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-    localStorage.setItem("stockroom-theme", theme);
-  }, [theme]);
+    delete document.documentElement.dataset.theme;
+    document.documentElement.style.colorScheme = "light";
+    localStorage.removeItem("stockroom-theme");
+  }, []);
 
   useEffect(() => {
     if (initialReset) return;
@@ -1331,8 +1325,6 @@ function App() {
       <BusinessSetup
         account={session.user}
         business={session.business}
-        theme={theme}
-        onToggleTheme={() => setTheme((current) => current === "dark" ? "light" : "dark")}
         onSession={(result) => {
           setSession({ user: result.user, business: result.business });
         }}
@@ -1354,8 +1346,6 @@ function App() {
         onBusinessUpdate={(business) =>
           setSession((current) => ({ ...current, business }))
         }
-        theme={theme}
-        onToggleTheme={() => setTheme((current) => current === "dark" ? "light" : "dark")}
       />
     );
   }
